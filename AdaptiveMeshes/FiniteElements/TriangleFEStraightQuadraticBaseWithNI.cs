@@ -62,7 +62,7 @@ namespace AdaptiveMeshes.FiniteElements
 
         public int DOFOnEdge(int edge) => 1;
 
-        public int DOFOnElement() => throw new NotSupportedException();
+        public int DOFOnElement() => 0;
 
         public (int i, int j) Edge(int edge)
             => edge switch

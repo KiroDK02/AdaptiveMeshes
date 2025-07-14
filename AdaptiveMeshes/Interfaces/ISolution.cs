@@ -7,7 +7,7 @@ namespace AdaptiveMeshes.Interfaces
         double Time { get; set; }
         IFiniteElementMesh Mesh { get; }
         ITimeMesh TimeMesh { get; }
-        ReadOnlySpan<double> SolutionVector { get; }
+        ReadOnlySpan<double> SolutionVector { get; set; }
         
         void AddSolutionVector(double t, double[] solution);
         double Value(Vector2D point);

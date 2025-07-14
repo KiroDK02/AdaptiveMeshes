@@ -124,14 +124,8 @@ namespace AdaptiveMeshes.FiniteElements
 
             Vector2D gradAtLocalCoords = isLocalPoint ? GetGradientAtLocalPoint(weights, point) : GetGradientAtLocalPoint(weights, GetLocalPoint(VertexCoords, point));
 
-            double xComp = 0;
-            double yComp = 0;
-
-            for (int i = 0; i < Dofs.Length; i++)
-            {
-                xComp += gradAtLocalCoords.X * J[0, 0] + gradAtLocalCoords.Y * J[0, 1];
-                yComp += gradAtLocalCoords.X * J[1, 0] + gradAtLocalCoords.Y * J[1, 1];
-            }
+            double xComp = gradAtLocalCoords.X * J[0, 0] + gradAtLocalCoords.Y * J[0, 1];
+            double yComp = gradAtLocalCoords.X * J[1, 0] + gradAtLocalCoords.Y * J[1, 1];
 
             return new(xComp, yComp);
         }
@@ -258,7 +252,7 @@ namespace AdaptiveMeshes.FiniteElements
             double detD = DetD(VertexCoords);
 
             return new(((point3.X * point1.Y - point1.X * point3.Y) + (point3.Y - point1.Y) * point.X + (point1.X - point3.X) * point.Y) / detD,
-                        ((point1.X * point2.Y - point2.X * point1.Y) + (point1.Y - point2.Y) * point.X + (point2.X - point1.X) * point.Y) / detD);
+                       ((point1.X * point2.Y - point2.X * point1.Y) + (point1.Y - point2.Y) * point.X + (point2.X - point1.X) * point.Y) / detD);
         }
 
         private double[,] GetMatrixJacobi(Vector2D[] VertexCoords)

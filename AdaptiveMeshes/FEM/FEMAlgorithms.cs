@@ -28,7 +28,7 @@ namespace AdaptiveMeshes.FEM
                 for (int vertexi = 0; vertexi < element.VertexNumber.Length; vertexi++)
                 {
                     int dofOnVertex = element.DOFOnVertex(vertexi);
-                    int startDof = vertexPortrait[vertexi] - dofOnVertex;
+                    int startDof = vertexPortrait[element.VertexNumber[vertexi]] - dofOnVertex;
 
                     for (int n = 0; n < dofOnVertex; n++)
                         element.SetVertexDOF(vertexi, n, startDof + n);

@@ -6,6 +6,6 @@
         ISolution Solution { get; set; }
 
         void Prepare();
-        double? Solve(ISolution solution);
+        double? Solve();
     }
 }

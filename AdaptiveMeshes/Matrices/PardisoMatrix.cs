@@ -135,7 +135,7 @@ namespace AdaptiveMeshes.Matrices
             ja = new int[ia[^1]];
 
             for (int i = 0; i < profile.Length; i++)
-                profile[i].Where(j => j >= i).ToArray().AsSpan().CopyTo(ja.AsSpan());
+                profile[i].Where(j => j >= i).ToArray().AsSpan().CopyTo(ja.AsSpan(ia[i]));
         }
 
         private static int BinarySearch(int[] array, int target, int low, int high)
