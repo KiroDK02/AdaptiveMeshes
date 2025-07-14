@@ -1,7 +1,7 @@
 ﻿using AdaptiveMeshes.Interfaces;
 using Quasar.Native;
 
-namespace AdaptiveMeshes.Solvers
+namespace AdaptiveMeshes.SLAESolvers
 {
     public class PardisoSLAESolver : ISLAESolver
     {

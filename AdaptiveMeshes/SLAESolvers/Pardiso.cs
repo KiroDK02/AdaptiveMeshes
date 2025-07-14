@@ -1,6 +1,6 @@
 ﻿using Quasar.Native;
 
-namespace AdaptiveMeshes.Solvers
+namespace AdaptiveMeshes.SLAESolvers
 {
     public class Pardiso<T> : IDisposable where T : unmanaged
     {
