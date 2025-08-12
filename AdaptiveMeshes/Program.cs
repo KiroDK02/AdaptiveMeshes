@@ -1,5 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-using AdaptiveMeshes.FEM;
+﻿using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.Interfaces;
 using AdaptiveMeshes.Problems;

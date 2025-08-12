@@ -108,6 +108,27 @@ namespace AdaptiveMeshes.FiniteElements
             }
         }
 
+        public IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), int> splits, IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges, ref int countVertex)
+        {
+            throw new NotSupportedException();
+        }
+
+        public IEnumerable<IFiniteElement> SplitToElements1D(int[] globalVerticesNums)
+        {
+            // Передать за globalVerticeNums для одномерных элементов что-то типа этого 
+            // [.. verticesOfSplitiedEdges[elem.GlobalEdge(0)].Select(vertex => vertex.num)]
+            List<IFiniteElement> elems = [];
+
+            for (int i = 0; i < globalVerticesNums.Length - 1; i++)
+            {
+                int[] globalNums = [globalVerticesNums[i], globalVerticesNums[i + 1]];
+
+                elems.Add(new TriangleFEStraightQuadraticBaseWithNI(Material, globalNums));
+            }
+
+            return elems;
+        }
+
         private double GetCoefAtLocalCoords(Vector2D[] VertexCoords, Func<Vector2D, double> coeff, double t)
         {
             double x0 = VertexCoords[VertexNumber[0]].X;

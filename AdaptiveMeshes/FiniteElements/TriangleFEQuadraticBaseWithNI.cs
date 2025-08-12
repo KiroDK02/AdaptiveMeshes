@@ -1,6 +1,7 @@
 ﻿using AdaptiveMeshes.Interfaces;
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
+using static AdaptiveMeshes.FiniteElements.AlgorithmsForFragmentationTriangleElements;
 
 namespace AdaptiveMeshes.FiniteElements
 {
@@ -229,6 +230,43 @@ namespace AdaptiveMeshes.FiniteElements
                 default:
                     throw new Exception("Invalid number of vertex");
             }
+        }
+
+        public IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), int> splits,
+                                                       IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges,
+                                                       ref int countVertex)
+        {
+            (var edge1, var edge2, var edge3) = DefineOrderEdges(this);
+
+            int split1 = (int)Math.Pow(2, splits[edge1]);
+            int split2 = (int)Math.Pow(2, splits[edge2]);
+            int split3 = (int)Math.Pow(2, splits[edge3]);
+
+            var verticesOfEdge1 = verticesOfSplitedEdges[edge1];
+            var verticesOfEdge2 = verticesOfSplitedEdges[edge2];
+            var verticesOfEdge3 = verticesOfSplitedEdges[edge3];
+
+            int minSplit = int.Min(split1, int.Min(split2, split3));
+
+            var listVerticesFromCurElement = FindAllVerticesOfSplittedTriangle(split1, split2, split3,
+                                                                               verticesOfEdge1, verticesOfEdge2, verticesOfEdge3,
+                                                                               ref countVertex);
+
+            var newElementsFromCurElement = SplitToTriangles(this, [.. listVerticesFromCurElement.Select(vertex => vertex.num)], minSplit);
+
+            if (split1 / minSplit != 1)
+                DoubleElemsOnEdge(split1 / minSplit, verticesOfEdge1, newElementsFromCurElement, listVerticesFromCurElement);
+            if (split2 / minSplit != 1)
+                DoubleElemsOnEdge(split2 / minSplit, verticesOfEdge2, newElementsFromCurElement, listVerticesFromCurElement);
+            if (split3 / minSplit != 1)
+                DoubleElemsOnEdge(split3 / minSplit, verticesOfEdge3, newElementsFromCurElement, listVerticesFromCurElement);
+
+            return new DataForTriangleFragmentation(newElementsFromCurElement, listVerticesFromCurElement);
+        }
+
+        public IEnumerable<IFiniteElement> SplitToElements1D(int[] globalVerticesNums)
+        {
+            throw new NotSupportedException();
         }
 
         private double GetCoefAtLocalCoords(Vector2D[] VertexCoords, Func<Vector2D, double> coeff, Vector2D point)

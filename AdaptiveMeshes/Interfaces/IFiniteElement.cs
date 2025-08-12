@@ -29,10 +29,21 @@ namespace AdaptiveMeshes.Interfaces
         bool IsPointOnElement(Vector2D[] VertexCoords, Vector2D point);
         double GetValueAtPoint(Vector2D[] VertexCoords, ReadOnlySpan<double> weights, Vector2D point, bool isLocalPoint = false);
         Vector2D GetGradientAtPoint(Vector2D[] VertexCoords, ReadOnlySpan<double> weights, Vector2D point, bool isLocalPoint = false);
+
+        IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), int> splits,
+                                                IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges,
+                                                ref int countVertex);
+        IEnumerable<IFiniteElement> SplitToElements1D(int[] globalVerticesNums);
     }
 
     public interface IFiniteElementWithNumericalIntegration<T> : IFiniteElement
     {
         IMasterElement<T> MasterElement { get; }
+    }
+
+    public interface IDataForFragmentation
+    {
+        IEnumerable<IFiniteElement> NewElements { get; }
+        IEnumerable<(Vector2D vert, int num)> NewVertices { get; }
     }
 }
