@@ -1,4 +1,4 @@
-﻿namespace AdaptiveMeshes.Adaptation
+﻿namespace AdaptiveMeshes.Adaptation.StrategiesOfSplit
 {
     public interface IStrategyOfSplit
     {

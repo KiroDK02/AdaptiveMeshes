@@ -1,7 +1,9 @@
-﻿using AdaptiveMeshes.FEM;
+﻿using AdaptiveMeshes.Adaptation.StrategiesOfCalculationError;
+using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
+using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.Solution;
 
-namespace AdaptiveMeshes.Adaptation
+namespace AdaptiveMeshes.Adaptation.Adapters
 {
     /// <summary>
     /// В этом классе по сути надо будет реализовать один метод - Adapt
@@ -15,7 +17,11 @@ namespace AdaptiveMeshes.Adaptation
         {
             Mesh = mesh;
             Solution = solution;
+
+            _numberOccurencesOfEdges = AlgorithmsForAdaptation.CalcNumberOccurrencesOfEdgesInElems(Mesh.Elements);
         }
+
+        private IDictionary<(int i, int j), int> _numberOccurencesOfEdges { get; }
 
         public IFiniteElementMesh Mesh { get; }
         public ISolution Solution { get; }
