@@ -1,5 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
-using Quasar.Native;
+﻿using Quasar.Native;
 
 namespace AdaptiveMeshes.Matrices
 {

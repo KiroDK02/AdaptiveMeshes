@@ -1,7 +1,7 @@
 ﻿using AdaptiveMeshes.NumericalIntegration;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.MasterElements
 {
     public interface IMasterElement<T>
     {

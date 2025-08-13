@@ -1,4 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.FEM

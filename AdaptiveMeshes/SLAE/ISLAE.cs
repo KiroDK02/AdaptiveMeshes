@@ -1,4 +1,6 @@
-﻿namespace AdaptiveMeshes.Interfaces
+﻿using AdaptiveMeshes.Matrices;
+
+namespace AdaptiveMeshes.SLAE
 {
     public interface ISLAE
     {

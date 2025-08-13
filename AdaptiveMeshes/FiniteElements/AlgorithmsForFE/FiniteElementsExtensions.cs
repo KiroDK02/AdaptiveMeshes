@@ -1,6 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
-
-namespace AdaptiveMeshes.FiniteElements
+﻿namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
 {
     public static class FiniteElementsExtensions
     {

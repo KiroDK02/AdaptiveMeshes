@@ -1,5 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
-using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.FEM
 {

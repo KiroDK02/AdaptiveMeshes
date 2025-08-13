@@ -1,4 +1,6 @@
-﻿namespace AdaptiveMeshes.Interfaces
+﻿using AdaptiveMeshes.SLAE;
+
+namespace AdaptiveMeshes.SLAESolvers
 {
     public interface ISLAESolver : IDisposable
     {

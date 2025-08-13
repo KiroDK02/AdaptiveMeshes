@@ -1,5 +1,4 @@
-﻿using AdaptiveMeshes.FiniteElements;
-using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 
 namespace AdaptiveMeshes.FEM
 {

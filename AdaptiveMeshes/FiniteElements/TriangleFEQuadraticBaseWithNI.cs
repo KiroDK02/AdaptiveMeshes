@@ -1,7 +1,7 @@
-﻿using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
-using static AdaptiveMeshes.FiniteElements.AlgorithmsForFragmentationTriangleElements;
+using static AdaptiveMeshes.FiniteElements.AlgorithmsForFE.AlgorithmsForFragmentationTriangleElements;
 
 namespace AdaptiveMeshes.FiniteElements
 {
@@ -265,9 +265,7 @@ namespace AdaptiveMeshes.FiniteElements
         }
 
         public IEnumerable<IFiniteElement> SplitToElements1D(int[] globalVerticesNums)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
 
         private double GetCoefAtLocalCoords(Vector2D[] VertexCoords, Func<Vector2D, double> coeff, Vector2D point)
         {

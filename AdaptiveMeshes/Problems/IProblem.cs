@@ -1,4 +1,7 @@
-﻿namespace AdaptiveMeshes.Interfaces
+﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.Solution;
+
+namespace AdaptiveMeshes.Problems
 {
     public interface IProblem
     {

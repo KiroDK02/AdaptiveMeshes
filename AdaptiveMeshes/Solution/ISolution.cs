@@ -1,6 +1,8 @@
-﻿using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.TimeMesh;
+using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.Solution
 {
     public interface ISolution
     {

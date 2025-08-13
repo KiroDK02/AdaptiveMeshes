@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.TimeMesh
 {
     public interface ITimeMesh
     {

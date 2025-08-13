@@ -1,4 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.Matrices;
 
 namespace AdaptiveMeshes.SLAE
 {

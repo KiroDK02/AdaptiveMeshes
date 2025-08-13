@@ -1,7 +1,6 @@
-﻿using AdaptiveMeshes.Interfaces;
-using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.FiniteElements
+namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
 {
     public class DataForTriangleFragmentation : IDataForFragmentation
     {

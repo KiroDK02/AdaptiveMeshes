@@ -1,4 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.SLAE;
 using Quasar.Native;
 
 namespace AdaptiveMeshes.SLAESolvers

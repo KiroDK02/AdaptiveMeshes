@@ -1,6 +1,7 @@
-﻿using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.FiniteElements;
+using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.FEM
 {
     public interface IFiniteElementMesh
     {

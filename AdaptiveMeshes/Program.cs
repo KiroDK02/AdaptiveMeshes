@@ -1,6 +1,5 @@
 ﻿using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
-using AdaptiveMeshes.Interfaces;
 using AdaptiveMeshes.Problems;
 using AdaptiveMeshes.Vectors;
 

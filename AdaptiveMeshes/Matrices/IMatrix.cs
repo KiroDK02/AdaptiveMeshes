@@ -1,4 +1,4 @@
-﻿namespace AdaptiveMeshes.Interfaces
+﻿namespace AdaptiveMeshes.Matrices
 {
     public interface IMatrix
     {

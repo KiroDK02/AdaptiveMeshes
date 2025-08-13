@@ -1,5 +1,4 @@
-﻿using AdaptiveMeshes.Interfaces;
-using AdaptiveMeshes.NumericalIntegration;
+﻿using AdaptiveMeshes.NumericalIntegration;
 
 namespace AdaptiveMeshes.MasterElements
 {

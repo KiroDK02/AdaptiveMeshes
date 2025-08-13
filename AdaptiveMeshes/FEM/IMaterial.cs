@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.FEM
 {
     public interface IMaterial
     {

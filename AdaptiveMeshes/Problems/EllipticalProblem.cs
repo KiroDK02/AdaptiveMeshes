@@ -1,5 +1,5 @@
 ﻿using AdaptiveMeshes.FEM;
-using AdaptiveMeshes.Interfaces;
+using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.Matrices;
 using AdaptiveMeshes.SLAE;
 using AdaptiveMeshes.SLAESolvers;

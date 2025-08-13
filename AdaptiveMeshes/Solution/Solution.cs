@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.Interfaces;
+﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.TimeMesh;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.Solution

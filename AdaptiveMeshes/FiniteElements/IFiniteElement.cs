@@ -1,6 +1,8 @@
-﻿using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+using AdaptiveMeshes.MasterElements;
+using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Interfaces
+namespace AdaptiveMeshes.FiniteElements
 {
     public interface IFiniteElement
     {
@@ -39,11 +41,5 @@ namespace AdaptiveMeshes.Interfaces
     public interface IFiniteElementWithNumericalIntegration<T> : IFiniteElement
     {
         IMasterElement<T> MasterElement { get; }
-    }
-
-    public interface IDataForFragmentation
-    {
-        IEnumerable<IFiniteElement> NewElements { get; }
-        IEnumerable<(Vector2D vert, int num)> NewVertices { get; }
     }
 }
