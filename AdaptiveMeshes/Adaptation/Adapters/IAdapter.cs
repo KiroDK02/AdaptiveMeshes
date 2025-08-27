@@ -9,8 +9,8 @@ namespace AdaptiveMeshes.Adaptation.Adapters
     {
         IFiniteElementMesh Mesh { get; }
         ISolution Solution { get; }
-        IStrategyOfSplit StrategyOfSplit { get; }
-        IStrategyOfCalculationError StrategyOfCalculationError { get; }
+        ISplitStrategy SplitStrategy { get; }
+        IStrategyOfCalculationError CalculationErrorStrategy { get; }
 
         IFiniteElementMesh Adapt();
     }

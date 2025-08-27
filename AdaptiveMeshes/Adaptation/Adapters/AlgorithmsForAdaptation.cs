@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.FiniteElements;
-using System;
-using System.Collections.Generic;
+using AdaptiveMeshes.Vectors;
+
 namespace AdaptiveMeshes.Adaptation.Adapters
 {
     public static class AlgorithmsForAdaptation

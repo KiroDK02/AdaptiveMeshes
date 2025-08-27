@@ -1,31 +1,33 @@
-﻿using AdaptiveMeshes.FiniteElements;
+﻿using AdaptiveMeshes.Adaptation.Adapters;
+using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
+using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Vectors;
+using System.Text.RegularExpressions;
 
-namespace AdaptiveMeshes.Adaptation.StrategiesOfSplit
+namespace AdaptiveMeshes.Adaptation.SplitStrategies
 {
-    public class StrategyOfSplit : IStrategyOfSplit
+    public class SplitStrategy : ISplitStrategy
     {
-        public StrategyOfSplit(IDictionary<(int i, int j), int> amountOccurencesOfEdges,
-                               IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
-            : this([0.0, 0.25, 0.5, 0.75, 1.0], [0, 1, 2, 3], amountOccurencesOfEdges, elements, vertices)
+        public SplitStrategy(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+            : this([0.0, 0.25, 0.5, 0.75, 1.0], [0, 1, 2, 3], elements, vertices)
         { }
 
-        public StrategyOfSplit(double[] scaleDifferences, int[] scaleSplits, IDictionary<(int i, int j), int> amountOccurencesOfEdges,
-                               IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+        public SplitStrategy(double[] distanceFromMinForScaleDifferences, int[] scaleSplits,
+                             IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
         {
-            if (scaleDifferences.Length != scaleSplits.Length + 1)
+            if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
                 throw new ArgumentException("Invalid scales. Sizes of scale are not equal.");
 
-            if (scaleDifferences.Any(x => x > 1 || x < 0))
+            if (distanceFromMinForScaleDifferences.Any(x => x > 1 || x < 0))
                 throw new ArgumentException("Invalid set of distance from min. The values must be in the range from 0 to 1.");
 
-            _distanceFromMinForScaleDifferences = scaleDifferences;
+            _distanceFromMinForScaleDifferences = distanceFromMinForScaleDifferences;
             _scaleSplits = scaleSplits;
-            _amountOccurencesOfEdges = amountOccurencesOfEdges;
             Elements = elements;
             Vertices = vertices;
 
+            _amountOccurencesOfEdges = AlgorithmsForAdaptation.CalcNumberOccurrencesOfEdgesInElems(Elements);
             _scaleDifferences = [];
             EdgesSplits = new Dictionary<(int i, int j), int>();
             NumbersOldEdgesForNewEdges = new Dictionary<(int i, int j), (int i, int j)>();
@@ -36,7 +38,14 @@ namespace AdaptiveMeshes.Adaptation.StrategiesOfSplit
         private int[] _scaleSplits { get; }
         private IDictionary<(int i, int j), int> _amountOccurencesOfEdges { get; }
 
+        /// <value>
+        /// Элементы начальной сетки
+        /// </value>
         public IEnumerable<IFiniteElement> Elements { get; }
+
+        /// <value>
+        /// Вершины последней сетки, то есть если циклическая адаптация и дробление уже было, то вершины новой сетки
+        /// </value>
         public Vector2D[] Vertices { get; }
         public IDictionary<(int i, int j), int> EdgesSplits { get; set; }
         public IDictionary<(int i, int j), (int i, int j)> NumbersOldEdgesForNewEdges { get; set; }
@@ -53,6 +62,58 @@ namespace AdaptiveMeshes.Adaptation.StrategiesOfSplit
             SmoothOutSplits(splits);
 
             return splits;
+        }
+
+        public IDictionary<(int i, int j), (Vector2D vert, int num)[]> CalcVerticesEdges(IDictionary<(int i, int j), int> splits, ref int countVertices)
+        {
+            Dictionary<(int i, int j), (Vector2D vert, int num)[]> verticesEdges = [];
+            NumbersOldEdgesForNewEdges.Clear();
+
+            foreach (var element in Elements)
+            {
+                if (element.VertexNumber.Length == 2)
+                    continue;
+
+                for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
+                {
+                    var edge = element.GlobalEdge(edgei);
+
+                    if (verticesEdges.ContainsKey(edge))
+                        continue;
+
+                    Vector2D v0 = Vertices[edge.i];
+                    Vector2D v1 = Vertices[edge.j];
+
+                    int split = (int)Math.Pow(2, splits[edge]);
+                    Vector2D h = (v1 - v0) / split;
+
+                    var newVertices = new (Vector2D vert, int num)[split + 1];
+
+                    newVertices[0] = (v0, edge.i);
+                    for (int k = 1; k < split; k++)
+                    {
+                        Vector2D newVertex = v0 + h * k;
+                        newVertices[k] = (newVertex, countVertices++);
+                    }
+                    newVertices[split] = (v1, edge.j);
+
+                    verticesEdges[edge] = newVertices;
+
+                    if (split == 1)
+                        continue;
+
+                    for (int k = 0; k < newVertices.Length - 1; k++)
+                    {
+                        (int i, int j) newEdge = (newVertices[k].num, newVertices[k + 1].num);
+                        if (newEdge.i > newEdge.j)
+                            newEdge = (newEdge.j, newEdge.i);
+
+                        NumbersOldEdgesForNewEdges[newEdge] = edge;
+                    }
+                }
+            }
+
+            return verticesEdges;
         }
 
         private void GetScaleDifferences(IDictionary<(int i, int j), double> errors)
