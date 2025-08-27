@@ -14,9 +14,9 @@ namespace AdaptiveMeshes.Adaptation.Adapters
     /// просто добавив количество повторов, адаптация будет происходить через
     /// стратегии расчета ошибок и разбиения, в которых будет реализовано все нужное.
     /// </summary>
-    public class Adapter : IAdapter
+    public class Adapter2DMeshes : IAdapter
     {
-        public Adapter(IFiniteElementMesh mesh, ISolution solution)
+        public Adapter2DMeshes(IFiniteElementMesh mesh, ISolution solution)
         {
             Mesh = mesh;
             Solution = solution;

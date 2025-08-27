@@ -3,17 +3,16 @@ using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Vectors;
-using System.Text.RegularExpressions;
 
 namespace AdaptiveMeshes.Adaptation.SplitStrategies
 {
-    public class SplitStrategy : ISplitStrategy
+    public class SplitStrategy2DMeshes : ISplitStrategy
     {
-        public SplitStrategy(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+        public SplitStrategy2DMeshes(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
             : this([0.0, 0.25, 0.5, 0.75, 1.0], [0, 1, 2, 3], elements, vertices)
         { }
 
-        public SplitStrategy(double[] distanceFromMinForScaleDifferences, int[] scaleSplits,
+        public SplitStrategy2DMeshes(double[] distanceFromMinForScaleDifferences, int[] scaleSplits,
                              IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
         {
             if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
