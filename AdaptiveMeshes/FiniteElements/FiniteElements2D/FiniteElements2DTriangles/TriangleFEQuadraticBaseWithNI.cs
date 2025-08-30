@@ -3,7 +3,7 @@ using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
 using static AdaptiveMeshes.FiniteElements.AlgorithmsForFE.AlgorithmsForFragmentationTriangleElements;
 
-namespace AdaptiveMeshes.FiniteElements
+namespace AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles
 {
     public class TriangleFEQuadraticBaseWithNI : IFiniteElementWithNumericalIntegration<Vector2D>
     {
@@ -287,8 +287,8 @@ namespace AdaptiveMeshes.FiniteElements
 
             double detD = DetD(VertexCoords);
 
-            return new(((point3.X * point1.Y - point1.X * point3.Y) + (point3.Y - point1.Y) * point.X + (point1.X - point3.X) * point.Y) / detD,
-                       ((point1.X * point2.Y - point2.X * point1.Y) + (point1.Y - point2.Y) * point.X + (point2.X - point1.X) * point.Y) / detD);
+            return new((point3.X * point1.Y - point1.X * point3.Y + (point3.Y - point1.Y) * point.X + (point1.X - point3.X) * point.Y) / detD,
+                       (point1.X * point2.Y - point2.X * point1.Y + (point1.Y - point2.Y) * point.X + (point2.X - point1.X) * point.Y) / detD);
         }
 
         private double[,] GetMatrixJacobi(Vector2D[] VertexCoords)

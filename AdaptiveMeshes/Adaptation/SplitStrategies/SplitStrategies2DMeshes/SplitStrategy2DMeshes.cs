@@ -1,10 +1,9 @@
 ﻿using AdaptiveMeshes.Adaptation.Adapters;
-using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Adaptation.SplitStrategies
+namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 {
     public class SplitStrategy2DMeshes : ISplitStrategy
     {
@@ -16,7 +15,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies
                              IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
         {
             if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
-                throw new ArgumentException("Invalid scales. Sizes of scale are not equal.");
+                throw new ArgumentException("Invalid scales. Sizes of scales are not equal.");
 
             if (distanceFromMinForScaleDifferences.Any(x => x > 1 || x < 0))
                 throw new ArgumentException("Invalid set of distance from min. The values must be in the range from 0 to 1.");

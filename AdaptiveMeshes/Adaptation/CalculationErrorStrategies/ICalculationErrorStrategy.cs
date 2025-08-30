@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.Solution;
 
-namespace AdaptiveMeshes.Adaptation.StrategiesOfCalculationError
+namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies
 {
     public interface IStrategyOfCalculationError
     {

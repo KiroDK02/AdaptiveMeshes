@@ -2,11 +2,11 @@
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.FiniteElements
+namespace AdaptiveMeshes.FiniteElements.FiniteElements1D
 {
-    public class TriangleFEStraightQuadraticBaseWithNI : IFiniteElementWithNumericalIntegration<double>
+    public class SegmentFEQuadraticBaseWithNI : IFiniteElementWithNumericalIntegration<double>
     {
-        public TriangleFEStraightQuadraticBaseWithNI(string material, int[] vertexNumber)
+        public SegmentFEQuadraticBaseWithNI(string material, int[] vertexNumber)
         {
             Material = material;
             VertexNumber = vertexNumber;
@@ -123,7 +123,7 @@ namespace AdaptiveMeshes.FiniteElements
             {
                 int[] globalNums = [globalVerticesNums[i], globalVerticesNums[i + 1]];
 
-                elems.Add(new TriangleFEStraightQuadraticBaseWithNI(Material, globalNums));
+                elems.Add(new SegmentFEQuadraticBaseWithNI(Material, globalNums));
             }
 
             return elems;

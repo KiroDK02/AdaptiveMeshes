@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Adaptation.StrategiesOfSplit
+namespace AdaptiveMeshes.Adaptation.SplitStrategies
 {
     public interface ISplitStrategy
     {

@@ -1,5 +1,5 @@
-﻿using AdaptiveMeshes.Adaptation.StrategiesOfCalculationError;
-using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
+﻿using AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
+using AdaptiveMeshes.Adaptation.SplitStrategies;
 using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.Solution;
 

@@ -1,12 +1,12 @@
-﻿using AdaptiveMeshes.Adaptation.StrategiesOfCalculationError;
-using AdaptiveMeshes.Adaptation.StrategiesOfSplit;
+﻿using AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
+using AdaptiveMeshes.Adaptation.SplitStrategies;
 using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Solution;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Adaptation.Adapters
+namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
 {
     /// <summary>
     /// В этом классе по сути надо будет реализовать один метод - Adapt
@@ -25,15 +25,20 @@ namespace AdaptiveMeshes.Adaptation.Adapters
         public ISolution Solution { get; }
 
         /// <value>
-        /// Свойство <c>StrategyOfSplit</c> является стратегией разбиения - шкала + методы для расчета разбиений
+        /// Свойство <c>SplitStrategy</c> является стратегией разбиения - шкала + методы для расчета разбиений
         /// </value>
         public ISplitStrategy SplitStrategy { get; }
 
         /// <value>
-        /// Свойство <c>StrategyOfCalculationError</c> является стратегией расчета на ребрах локальных ошибок решения - скачков потока + метод(ы) для их расчета
+        /// Свойство <c>CalculationErrorStrategy</c> является стратегией расчета на ребрах локальных ошибок решения - скачков потока + метод(ы) для их расчета
         /// </value>
         public IStrategyOfCalculationError CalculationErrorStrategy { get; }
 
+        /// <summary>
+        /// Метод, который выполняет адаптацию по заданным стратегиям дробления <c>SplitStrategy</c> и расчета ошибки <c>CalculationErrorStrategy</c>.
+        /// Пока что не циклическая, позже мб сделаю с циклической тут же.
+        /// </summary>
+        /// <returns>Сетка после адаптации</returns>
         public IFiniteElementMesh Adapt()
         {
             IDictionary<(int i, int j), double> errors = CalculationErrorStrategy.ComputeError(Solution);
