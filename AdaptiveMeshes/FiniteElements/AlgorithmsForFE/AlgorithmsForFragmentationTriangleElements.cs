@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
+using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
 {

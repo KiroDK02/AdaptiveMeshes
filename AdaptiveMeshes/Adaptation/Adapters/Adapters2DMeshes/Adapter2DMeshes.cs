@@ -3,6 +3,7 @@ using AdaptiveMeshes.Adaptation.SplitStrategies;
 using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+using AdaptiveMeshes.Problems;
 using AdaptiveMeshes.Solution;
 using AdaptiveMeshes.Vectors;
 
@@ -16,14 +17,11 @@ namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
     /// </summary>
     public class Adapter2DMeshes : IAdapter
     {
-        public Adapter2DMeshes(IFiniteElementMesh mesh, ISolution solution)
+        public Adapter2DMeshes(IProblem problem, IFiniteElementMesh mesh, ISolution solution)
         {
-            Mesh = mesh;
-            Solution = solution;
+            Problem = problem;
         }
-        public IFiniteElementMesh Mesh { get; }
-        public ISolution Solution { get; }
-
+        public IProblem Problem { get; }
         /// <value>
         /// Свойство <c>SplitStrategy</c> является стратегией разбиения - шкала + методы для расчета разбиений
         /// </value>
@@ -32,25 +30,25 @@ namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
         /// <value>
         /// Свойство <c>CalculationErrorStrategy</c> является стратегией расчета на ребрах локальных ошибок решения - скачков потока + метод(ы) для их расчета
         /// </value>
-        public IStrategyOfCalculationError CalculationErrorStrategy { get; }
+        public ICalculationErrorStrategy CalculationErrorStrategy { get; }
 
         /// <summary>
-        /// Метод, который выполняет адаптацию по заданным стратегиям дробления <c>SplitStrategy</c> и расчета ошибки <c>CalculationErrorStrategy</c>.
+        /// Выполняет адаптацию по заданным стратегиям дробления <c>SplitStrategy</c> и расчета ошибки <c>CalculationErrorStrategy</c>.
         /// Пока что не циклическая, позже мб сделаю с циклической тут же.
         /// </summary>
-        /// <returns>Сетка после адаптации</returns>
+        /// <returns>Сетка после адаптации.</returns>
         public IFiniteElementMesh Adapt()
         {
-            IDictionary<(int i, int j), double> errors = CalculationErrorStrategy.ComputeError(Solution);
+            IDictionary<(int i, int j), double> errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
             IDictionary<(int i, int j), int> splits = SplitStrategy.GetSplits(errors);
 
-            int countVertices = Mesh.Vertex.Length;
+            int countVertices = Problem.Mesh.Vertex.Length;
             var verticesSplitedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
 
             List<IFiniteElement> newElements = [];
             List<(Vector2D vert, int num)> newVertices = [];
 
-            foreach (var element in Mesh.Elements)
+            foreach (var element in Problem.Mesh.Elements)
             {
                 if (element.VertexNumber.Length != 2)
                 {

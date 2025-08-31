@@ -7,6 +7,7 @@ namespace AdaptiveMeshes.Problems
     {
         IDictionary<string, IMaterial> Materials { get; }
         ISolution Solution { get; set; }
+        IFiniteElementMesh Mesh { get; }
 
         void Prepare();
         double? Solve();

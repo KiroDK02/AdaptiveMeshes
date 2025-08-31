@@ -41,10 +41,13 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
         /// </value>
         public IEnumerable<IFiniteElement> Elements { get; }
 
+        // для циклической адаптации, чтоб не пересоздавать новый экземпляр стратегии, придется устанавливать
+        // Vertices на массив новых вершин после адаптации, так проще всего в плане реализации и в принципе логике,
+        // более хорошего варианта пока не придумалось.
         /// <value>
-        /// Вершины последней сетки, то есть если циклическая адаптация и дробление уже было, то вершины новой сетки
+        /// Вершины последней сетки, то есть если циклическая адаптация и дробление уже было, то вершины новой сетки.
         /// </value>
-        public Vector2D[] Vertices { get; }
+        public Vector2D[] Vertices { get; set; }
         public IDictionary<(int i, int j), int> EdgesSplits { get; set; }
         public IDictionary<(int i, int j), (int i, int j)> NumbersOldEdgesForNewEdges { get; set; }
 

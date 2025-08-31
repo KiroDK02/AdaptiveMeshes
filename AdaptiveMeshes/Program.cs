@@ -1,5 +1,7 @@
 ﻿using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
+using AdaptiveMeshes.FiniteElements.FiniteElements1D;
+using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 using AdaptiveMeshes.Problems;
 using AdaptiveMeshes.Vectors;
 
@@ -16,8 +18,8 @@ materials.Add("4",      new Material(false, false, true, x => 1, x => 1, (x, t) 
 Vector2D[] vertex = [new(1, 1), new(3, 1), new(2, 2), new(4, 2)];
 
 IEnumerable<IFiniteElement> elements = [new TriangleFEQuadraticBaseWithNI("volume", [0, 1, 3]), new TriangleFEQuadraticBaseWithNI("volume", [0, 3, 2]),
-                                        new TriangleFEStraightQuadraticBaseWithNI("1", [0, 2]), new TriangleFEStraightQuadraticBaseWithNI("2", [2, 3]),
-                                        new TriangleFEStraightQuadraticBaseWithNI("3", [3, 1]), new TriangleFEStraightQuadraticBaseWithNI("4", [0, 1])];
+                                        new SegmentFEQuadraticBaseWithNI("1", [0, 2]), new SegmentFEQuadraticBaseWithNI("2", [2, 3]),
+                                        new SegmentFEQuadraticBaseWithNI("3", [3, 1]), new SegmentFEQuadraticBaseWithNI("4", [0, 1])];
 
 FiniteElementMesh mesh = new(elements, vertex);
 

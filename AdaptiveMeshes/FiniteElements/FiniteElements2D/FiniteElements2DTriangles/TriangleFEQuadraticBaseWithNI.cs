@@ -267,6 +267,60 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangl
         public IEnumerable<IFiniteElement> SplitToElements1D(int[] globalVerticesNums)
             => throw new NotSupportedException();
 
+        public Vector2D GetOuterNormalToEdge(Vector2D[] VertexCoords, int edgei, bool normalize = false)
+        {
+            var edge = Edge(edgei);
+            int vertex3 = GetThirdVertex(edge.i, edge.j);
+
+            edge = (VertexNumber[edge.i], VertexNumber[edge.j]);
+            vertex3 = VertexNumber[vertex3];
+
+            double x0 = VertexCoords[edge.i].X;
+            double y0 = VertexCoords[edge.i].Y;
+            double x1 = VertexCoords[edge.j].X;
+            double y1 = VertexCoords[edge.j].Y;
+            double x2 = VertexCoords[vertex3].X;
+            double y2 = VertexCoords[vertex3].Y;
+
+            Vector2D outerNormal = new(y1 - y0, -(x1 - x0));
+            Vector2D tempVector = new Vector2D(x2 - x0, y2 - y0);
+
+            if (tempVector * outerNormal > 0)
+                outerNormal = -outerNormal;
+
+            return normalize ? outerNormal.Normalize() : outerNormal;
+        }
+
+        private int GetThirdVertex(int vertex1, int vertex2)
+        {
+            int vertex3 = vertex1 switch
+            {
+                0 => vertex2 switch
+                {
+                    1 => 2,
+                    2 => 1,
+                    _ => throw new Exception("Invalid.")
+                },
+
+                1 => vertex2 switch
+                {
+                    0 => 2,
+                    2 => 0,
+                    _ => throw new Exception("Invalid.")
+                },
+
+                2 => vertex2 switch
+                {
+                    0 => 1,
+                    1 => 0,
+                    _ => throw new Exception("Invalid.")
+                },
+                _ => throw new Exception("Invalid.")
+            };
+
+            return vertex3;
+        }
+
         private double GetCoefAtLocalCoords(Vector2D[] VertexCoords, Func<Vector2D, double> coeff, Vector2D point)
         {
             Vector2D point1 = VertexCoords[VertexNumber[0]];

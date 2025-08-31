@@ -1,16 +1,16 @@
 ﻿using AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
 using AdaptiveMeshes.Adaptation.SplitStrategies;
 using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.Problems;
 using AdaptiveMeshes.Solution;
 
 namespace AdaptiveMeshes.Adaptation.Adapters
 {
     public interface IAdapter
     {
-        IFiniteElementMesh Mesh { get; }
-        ISolution Solution { get; }
+        IProblem Problem { get; }
         ISplitStrategy SplitStrategy { get; }
-        IStrategyOfCalculationError CalculationErrorStrategy { get; }
+        ICalculationErrorStrategy CalculationErrorStrategy { get; }
 
         IFiniteElementMesh Adapt();
     }

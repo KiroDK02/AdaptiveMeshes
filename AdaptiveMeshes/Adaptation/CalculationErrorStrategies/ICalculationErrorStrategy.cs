@@ -2,7 +2,7 @@
 
 namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies
 {
-    public interface IStrategyOfCalculationError
+    public interface ICalculationErrorStrategy
     {
         IDictionary<(int i, int j), double> ComputeError(ISolution solution);
     }

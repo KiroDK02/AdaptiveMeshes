@@ -129,6 +129,9 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements1D
             return elems;
         }
 
+        public Vector2D GetOuterNormalToEdge(Vector2D[] VertexCoords, int edgei, bool normalize = false)
+            => throw new NotSupportedException();
+
         private double GetCoefAtLocalCoords(Vector2D[] VertexCoords, Func<Vector2D, double> coeff, double t)
         {
             double x0 = VertexCoords[VertexNumber[0]].X;
