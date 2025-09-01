@@ -248,9 +248,9 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangl
 
             int minSplit = int.Min(split1, int.Min(split2, split3));
 
-            var listVerticesFromCurElement = FindAllVerticesOfSplittedTriangle(split1, split2, split3,
-                                                                               verticesOfEdge1, verticesOfEdge2, verticesOfEdge3,
-                                                                               ref countVertex);
+            var listVerticesFromCurElement = new List<(Vector2D vert, int num)>(FindAllVerticesOfSplittedTriangle(split1, split2, split3,
+                                                                                                                  verticesOfEdge1, verticesOfEdge2, verticesOfEdge3,
+                                                                                                                  ref countVertex));
 
             var newElementsFromCurElement = SplitToTriangles(this, [.. listVerticesFromCurElement.Select(vertex => vertex.num)], minSplit);
 

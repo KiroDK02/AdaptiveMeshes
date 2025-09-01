@@ -54,7 +54,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
         public IDictionary<(int i, int j), int> GetSplits(IDictionary<(int i, int j), double> errors)
         {
             GetScaleDifferences(errors);
-
+            
             EdgesSplits = EdgesSplits.Count == 0
                        ? FindEdgesSplitsFirstStep(errors)
                        : FindEdgesSplits(errors);
@@ -140,7 +140,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
             foreach ((var edge, double error) in errors)
             {
                 for (int i = 0; i < _scaleSplits.Length; i++)
-                    if (error < _scaleDifferences[i + 1])
+                    if (error <= _scaleDifferences[i + 1])
                     {
                         splits[edge] = _scaleSplits[i];
                         break;

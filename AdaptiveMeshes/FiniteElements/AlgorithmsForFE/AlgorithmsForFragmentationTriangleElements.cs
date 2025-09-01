@@ -49,7 +49,7 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
             int step3 = split3 / minSplit;
 
             var verticesOfSplittedTriangle = new (Vector2D vert, int num)[countVertices];
-
+            
             for (int i = 0, step = 0; i < minSplit + 1; i++, step += step1)
             {
                 verticesOfSplittedTriangle[i] = verticesEdge1[step];

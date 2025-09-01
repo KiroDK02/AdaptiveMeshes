@@ -4,7 +4,6 @@ using AdaptiveMeshes.FEM;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Problems;
-using AdaptiveMeshes.Solution;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
@@ -17,9 +16,11 @@ namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
     /// </summary>
     public class Adapter2DMeshes : IAdapter
     {
-        public Adapter2DMeshes(IProblem problem, IFiniteElementMesh mesh, ISolution solution)
+        public Adapter2DMeshes(IProblem problem, ISplitStrategy splitStrategy, ICalculationErrorStrategy calculationErrorStrategy)
         {
             Problem = problem;
+            SplitStrategy = splitStrategy;
+            CalculationErrorStrategy = calculationErrorStrategy;
         }
         public IProblem Problem { get; }
         /// <value>

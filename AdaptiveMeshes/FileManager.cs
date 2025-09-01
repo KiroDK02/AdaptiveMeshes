@@ -1,0 +1,208 @@
+﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.FiniteElements;
+using AdaptiveMeshes.FiniteElements.FiniteElements1D;
+using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
+using AdaptiveMeshes.Vectors;
+
+namespace AdaptiveMeshes
+{
+    public class FileManager
+    {
+        public FileManager(string pathNodes = "", string pathTriangles = "", string pathValues = "")
+        {
+            PathNodes = pathNodes;
+            PathTriangles = pathTriangles;
+            PathValues = pathValues;
+        }
+
+        private string PathNodes { get; }
+        private string PathTriangles { get; }
+        private string PathValues { get; }
+
+        public IFiniteElementMesh ReadMeshFromTelma(string path)
+        {
+            var reader = new StreamReader(path);
+
+            reader.ReadLine();
+
+            int countVertices = int.Parse(reader.ReadLine()!);
+
+            var vertices = new Vector2D[countVertices];
+
+            for (int i = 0; i < countVertices; i++)
+            {
+                var inputStr = reader.ReadLine()!.Split('\t', StringSplitOptions.RemoveEmptyEntries);
+
+                vertices[i] = new Vector2D(double.Parse(inputStr[0]), double.Parse(inputStr[1]));
+            }
+
+            int countElements = int.Parse(reader.ReadLine()!);
+
+            var listElems = new List<(int material, int[] vertices)>();
+
+            for (int i = 0; i < countElements; i++)
+            {
+                var inputStr = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                int[] verts = inputStr[0] == "Triangle" ?
+                              [int.Parse(inputStr[5]), int.Parse(inputStr[6]), int.Parse(inputStr[7])] :
+                              [int.Parse(inputStr[5]), int.Parse(inputStr[6])];
+
+                int material = int.Parse(inputStr[3]);
+
+                listElems.Add((material, verts));
+            }
+
+            int countMaterial = int.Parse(reader.ReadLine()!);
+
+            var materials = new Dictionary<int, string>();
+
+            for (int i = 0; i < countMaterial; i++)
+            {
+                var inputStr = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                materials.TryAdd(int.Parse(inputStr[0]), string.Join(' ', inputStr[1..]));
+            }
+
+            int countBoundMaterials = int.Parse(reader.ReadLine()!);
+
+            var boundMaterials = new Dictionary<int, string>();
+
+            for (int i = 0; i < countBoundMaterials; i++)
+            {
+                var inputStr = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                boundMaterials.TryAdd(int.Parse(inputStr[0]), string.Join(' ', inputStr[1..]));
+            }
+
+            reader.Close();
+
+            IFiniteElement[] elements = new IFiniteElement[listElems.Count];
+
+            for (int i = 0; i < listElems.Count; i++)
+            {
+                elements[i] = listElems[i].vertices.Length == 3 ?
+                              new TriangleFEQuadraticBaseWithNI(materials[listElems[i].material], listElems[i].vertices) :
+                              new SegmentFEQuadraticBaseWithNI(boundMaterials[listElems[i].material], listElems[i].vertices);
+            }
+
+            return new FiniteElementMesh(elements, vertices);
+        }
+
+        public IFiniteElementMesh ReadMyMeshFormat(string path)
+        {
+            StreamReader reader = new(path);
+
+            int countVertices = int.Parse(reader.ReadLine()!);
+
+            var vertices = new Vector2D[countVertices];
+
+            for (int i = 0; i < countVertices; i++)
+            {
+                var str = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                vertices[i] = new(double.Parse(str[0]), double.Parse(str[1]));
+            }
+
+            int countElements = int.Parse(reader.ReadLine()!);
+
+            var elements = new IFiniteElement[countElements];
+
+            for (int i = 0; i < countElements; i++)
+            {
+                var str = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                elements[i] = str[0] == "Triangle" ?
+                              new TriangleFEQuadraticBaseWithNI(string.Join(' ', str[4..]), [int.Parse(str[1]), int.Parse(str[2]), int.Parse(str[3])]) :
+                              new SegmentFEQuadraticBaseWithNI(string.Join(' ', str[3..]), [int.Parse(str[1]), int.Parse(str[2])]);
+            }
+
+            reader.Close();
+
+            return new FiniteElementMesh(elements, vertices);
+        }
+
+        public void LoadMyMeshFormat(string path, IFiniteElementMesh mesh)
+        {
+            StreamWriter writer = new(path);
+
+            writer.WriteLine($"{mesh.Vertex.Length}");
+
+            foreach (var vertex in mesh.Vertex)
+                writer.WriteLine($"{vertex.X} {vertex.Y}");
+
+            writer.WriteLine($"{mesh.Elements.Count()}");
+
+            foreach (var element in mesh.Elements)
+            {
+                if (element.VertexNumber.Length == 3)
+                    writer.WriteLine($"Triangle {element.VertexNumber[0]} {element.VertexNumber[1]} {element.VertexNumber[2]} {element.Material}");
+                else
+                    writer.WriteLine($"Segment {element.VertexNumber[0]} {element.VertexNumber[1]} {element.Material}");
+            }
+
+            writer.Close();
+        }
+
+        public void LoadToFile(Vector2D[] nodes, IEnumerable<IFiniteElement> elements, double[] coeffs)
+        {
+            var values = coeffs[..nodes.Length];
+
+            LoadNodesToFile(nodes);
+            LoadTrianglesToFile(elements);
+            LoadValuesToFile(values);
+        }
+
+        public void LoadNodesToFile(Vector2D[] nodes)
+        {
+            using (StreamWriter writer = new(PathNodes))
+            {
+                foreach ((double x, double y) in nodes)
+                    writer.WriteLine($"{x} {y}");
+            }
+        }
+        public void LoadTrianglesToFile(IEnumerable<IFiniteElement> elements)
+        {
+            using (StreamWriter writer = new(PathTriangles))
+            {
+                foreach (var element in elements)
+                {
+                    if (element.VertexNumber.Length == 2)
+                        continue;
+
+                    int num1 = element.VertexNumber[0];
+                    int num2 = element.VertexNumber[1];
+                    int num3 = element.VertexNumber[2];
+
+                    writer.WriteLine($"{num1} {num2} {num3}");
+                }
+            }
+        }
+        public void LoadValuesToFile(double[] values, string path = "")
+        {
+            using (StreamWriter writer = path == "" ? new StreamWriter(PathValues) : new StreamWriter(path))
+            {
+                foreach (double value in values)
+                    writer.WriteLine(value);
+            }
+        }
+
+        public void CopyDirectory(string pathSource, string pathTarget)
+        {
+            Directory.CreateDirectory(pathTarget);
+
+            foreach (var file in Directory.GetFiles(pathSource))
+            {
+                string targetFile = Path.Combine(pathTarget, Path.GetFileName(file));
+                File.Copy(file, targetFile, overwrite: true);
+            }
+
+            foreach (var subDir in Directory.GetDirectories(pathSource))
+            {
+                string targetSubDir = Path.Combine(pathTarget, Path.GetFileName(subDir));
+                Directory.CreateDirectory(targetSubDir);
+                CopyDirectory(subDir, targetSubDir);
+            }
+        }
+    }
+}
