@@ -263,7 +263,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
             }
         }
 
-        private int FindMaxSplitInElement(IDictionary<(int i, int j), int> splits, IFiniteElement element)
+        private static int FindMaxSplitInElement(IDictionary<(int i, int j), int> splits, IFiniteElement element)
         {
             int max = 0;
 

@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+﻿using AdaptiveMeshes.FEM.Materials.GeometryMaterials;
+using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
 
@@ -151,6 +152,11 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements1D
             localF[2] = F((VertexCoords[VertexNumber[1]] + VertexCoords[VertexNumber[0]]) / 2d);
 
             return localF;
+        }
+
+        public IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), EdgesData> splits, IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges, ref int countVertex)
+        {
+            throw new NotImplementedException();
         }
     }
 }

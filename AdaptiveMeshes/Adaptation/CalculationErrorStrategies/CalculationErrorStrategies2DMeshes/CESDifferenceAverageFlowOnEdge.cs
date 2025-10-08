@@ -1,4 +1,4 @@
-﻿using AdaptiveMeshes.FEM;
+﻿using AdaptiveMeshes.FEM.Materials;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.NumericalIntegration;

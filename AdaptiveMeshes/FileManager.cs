@@ -1,4 +1,6 @@
-﻿using AdaptiveMeshes.FEM;
+﻿using AdaptiveMeshes.FEM.Materials.GeometryMaterials;
+using AdaptiveMeshes.FEM.Mesh;
+using AdaptiveMeshes.FEM.Mesh.MeshGenerator;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.FiniteElements1D;
 using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
@@ -18,6 +20,70 @@ namespace AdaptiveMeshes
         private string PathNodes { get; }
         private string PathTriangles { get; }
         private string PathValues { get; }
+
+
+        public static TriangleMeshGenerator ReadAreaFromFile(string path)
+        {
+            using StreamReader reader = new(path);
+
+            int countVertices = int.Parse(reader.ReadLine()!);
+            Vector2D[] vertices = new Vector2D[countVertices];
+
+            for (int i = 0; i < countVertices; i++)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                int x = int.Parse(input[0]);
+                int y = int.Parse(input[1]);
+
+                vertices[i] = new(x, y);
+            }
+
+            int countPolygons = int.Parse(reader.ReadLine()!);
+            IGeometryMaterial[] geometryMaterials = new IGeometryMaterial[countPolygons];
+
+            for (int i = 0; i < countPolygons; i++)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                int[] vertexNumbers = new int[input.Length - 1];
+
+                for (int k = 1; k < input.Length; k++)
+                    vertexNumbers[k - 1] = int.Parse(input[k]);
+
+                geometryMaterials[i] = vertexNumbers.Length > 2 ?
+                                       new PolygonGeometryMaterial(vertices, input[0], vertexNumbers) :
+                                       new StraightGeometryMaterial(vertices, input[0], vertexNumbers);
+            }
+
+            int countEdges = int.Parse(reader.ReadLine()!);
+
+            if (countEdges == -1)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                int countIntervalsForAll = int.Parse(input[0]);
+                double ratioForAll = double.Parse(input[1]);
+
+                return new TriangleMeshGenerator(geometryMaterials, vertices, countIntervalsForAll, ratioForAll);
+            }
+
+            Dictionary<(int i, int j), EdgesData> edgesData = [];
+
+            for (int i = 0; i < countEdges; i++)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                (int i, int j) edge = (int.Parse(input[0]), int.Parse(input[1]));
+                if (edge.i > edge.j)
+                    edge = (edge.j, edge.i);
+
+                int countIntervals = int.Parse(input[2]);
+                double ratio = double.Parse(input[3]);
+
+                edgesData[edge] = new(countIntervals, ratio);
+            }
+
+            return new TriangleMeshGenerator(geometryMaterials, vertices, edgesData);
+        }
 
         public IFiniteElementMesh ReadMeshFromTelma(string path)
         {

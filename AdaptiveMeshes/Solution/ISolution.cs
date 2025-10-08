@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.FEM;
+﻿using AdaptiveMeshes.FEM.Materials;
+using AdaptiveMeshes.FEM.Mesh;
 using AdaptiveMeshes.TimeMesh;
 using AdaptiveMeshes.Vectors;
 

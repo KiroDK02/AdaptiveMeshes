@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+﻿using AdaptiveMeshes.FEM.Materials.GeometryMaterials;
+using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
 
@@ -6,7 +7,7 @@ namespace AdaptiveMeshes.FiniteElements
 {
     public interface IFiniteElement
     {
-        enum MatrixTypeEnum { Stiffness, Mass }
+        enum MatrixTypeEnum { Stiffness, Mass, RegularizationSecondDerivatives }
         string Material { get; }
         int[] VertexNumber { get; }
         int[] Dofs { get; }
@@ -41,6 +42,10 @@ namespace AdaptiveMeshes.FiniteElements
         /// <param name="countVertex">Счетчик номеров для новых вершин.</param>
         /// <returns>Данные, являющееся результатом дискретизации текущего элемента.</returns>
         IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), int> splits,
+                                                IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges,
+                                                ref int countVertex);
+
+        IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), EdgesData> splits,
                                                 IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges,
                                                 ref int countVertex);
         /// <summary>

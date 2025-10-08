@@ -34,7 +34,7 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
             return newElements;
         }
 
-        public static IList<(Vector2D vert, int num)> FindAllVerticesOfSplittedTriangle(int split1, int split2, int split3,
+        public static IList<(Vector2D vert, int num)> FindAllVerticesOfSplittedTriangle(int split1, int split2, int split3, double mainRatio,
                                                                                         (Vector2D vert, int num)[] verticesEdge1,
                                                                                         (Vector2D vert, int num)[] verticesEdge2,
                                                                                         (Vector2D vert, int num)[] verticesEdge3,
@@ -49,7 +49,7 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
             int step3 = split3 / minSplit;
 
             var verticesOfSplittedTriangle = new (Vector2D vert, int num)[countVertices];
-            
+
             for (int i = 0, step = 0; i < minSplit + 1; i++, step += step1)
             {
                 verticesOfSplittedTriangle[i] = verticesEdge1[step];
@@ -66,12 +66,30 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
                 int countPassedVertices = (2 * (minSplit + 1) - (layer - 1)) * layer / 2;
                 verticesOfSplittedTriangle[countPassedVertices] = verticesEdge2[k2];
 
-                for (int vi = 1; vi < numVert - 1; vi++)
+                if (mainRatio == 1)
                 {
-                    int localNum = countPassedVertices + vi;
-                    Vector2D newVertex = verticesEdge2[k2].vert + h * vi;
+                    for (int vi = 1; vi < numVert - 1; vi++)
+                    {
+                        int localNum = countPassedVertices + vi;
+                        Vector2D newVertex = verticesEdge2[k2].vert + h * vi;
 
-                    verticesOfSplittedTriangle[localNum] = (newVertex, countVertex++);
+                        verticesOfSplittedTriangle[localNum] = (newVertex, countVertex++);
+                    }
+                }
+                else
+                {
+                    double newRatio = (1.0 - layer / (countLayer - 1.0)) * mainRatio + layer / (countLayer - 1.0);
+                    double sumProgression = Math.Pow(newRatio, numVert) / (newRatio - 1.0);
+                    var step = (verticesEdge3[k3].vert - verticesEdge2[k2].vert) / sumProgression;
+
+                    for (int vi = 1; vi < numVert - 1; vi++)
+                    {
+                        int localNum = countPassedVertices + vi;
+                        Vector2D newVertex = verticesEdge2[k2].vert + step * (Math.Pow(newRatio, vi) - 1.0) / (newRatio - 1.0);
+
+                        verticesOfSplittedTriangle[localNum] = (newVertex, countVertex++);
+                    }
+
                 }
 
                 verticesOfSplittedTriangle[(2 * (minSplit + 1) - layer) * (layer + 1) / 2 - 1] = verticesEdge3[k3];

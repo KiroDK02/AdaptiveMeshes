@@ -1,4 +1,5 @@
-﻿using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+﻿using AdaptiveMeshes.FEM.Materials.GeometryMaterials;
+using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.MasterElements;
 using AdaptiveMeshes.Vectors;
 using static AdaptiveMeshes.FiniteElements.AlgorithmsForFE.AlgorithmsForFragmentationTriangleElements;
@@ -248,7 +249,39 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangl
 
             int minSplit = int.Min(split1, int.Min(split2, split3));
 
-            var listVerticesFromCurElement = new List<(Vector2D vert, int num)>(FindAllVerticesOfSplittedTriangle(split1, split2, split3,
+            var listVerticesFromCurElement = new List<(Vector2D vert, int num)>(FindAllVerticesOfSplittedTriangle(split1, split2, split3, 1.0,
+                                                                                                                  verticesOfEdge1, verticesOfEdge2, verticesOfEdge3,
+                                                                                                                  ref countVertex));
+
+            var newElementsFromCurElement = SplitToTriangles(this, [.. listVerticesFromCurElement.Select(vertex => vertex.num)], minSplit);
+
+            if (split1 / minSplit != 1)
+                DoubleElemsOnEdge(split1 / minSplit, verticesOfEdge1, newElementsFromCurElement, listVerticesFromCurElement);
+            if (split2 / minSplit != 1)
+                DoubleElemsOnEdge(split2 / minSplit, verticesOfEdge2, newElementsFromCurElement, listVerticesFromCurElement);
+            if (split3 / minSplit != 1)
+                DoubleElemsOnEdge(split3 / minSplit, verticesOfEdge3, newElementsFromCurElement, listVerticesFromCurElement);
+
+            return new DataForTriangleFragmentation(newElementsFromCurElement, listVerticesFromCurElement);
+        }
+
+        public IDataForFragmentation SplitToElements2D(IDictionary<(int i, int j), EdgesData> splits,
+                                                       IDictionary<(int i, int j), (Vector2D vert, int num)[]> verticesOfSplitedEdges,
+                                                       ref int countVertex)
+        {
+            (var edge1, var edge2, var edge3) = DefineOrderEdges(this);
+
+            int split1 = (int)Math.Pow(2, splits[edge1].CountIntervals);
+            int split2 = (int)Math.Pow(2, splits[edge2].CountIntervals);
+            int split3 = (int)Math.Pow(2, splits[edge3].CountIntervals);
+
+            var verticesOfEdge1 = verticesOfSplitedEdges[edge1];
+            var verticesOfEdge2 = verticesOfSplitedEdges[edge2];
+            var verticesOfEdge3 = verticesOfSplitedEdges[edge3];
+
+            int minSplit = int.Min(split1, int.Min(split2, split3));
+
+            var listVerticesFromCurElement = new List<(Vector2D vert, int num)>(FindAllVerticesOfSplittedTriangle(split1, split2, split3, splits[edge1].Ratio,
                                                                                                                   verticesOfEdge1, verticesOfEdge2, verticesOfEdge3,
                                                                                                                   ref countVertex));
 
@@ -291,7 +324,7 @@ namespace AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangl
             return normalize ? outerNormal.Normalize() : outerNormal;
         }
 
-        private int GetThirdVertex(int vertex1, int vertex2)
+        private static int GetThirdVertex(int vertex1, int vertex2)
         {
             int vertex3 = vertex1 switch
             {

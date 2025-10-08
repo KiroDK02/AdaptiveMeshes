@@ -1,4 +1,6 @@
 ﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.FEM.Materials;
+using AdaptiveMeshes.FEM.Mesh;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.Matrices;
 using AdaptiveMeshes.SLAE;

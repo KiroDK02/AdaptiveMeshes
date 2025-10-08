@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
 using AdaptiveMeshes.Adaptation.SplitStrategies;
-using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.FEM.Mesh;
 using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
 using AdaptiveMeshes.Problems;
