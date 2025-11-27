@@ -7,7 +7,7 @@ namespace AdaptiveMeshes.FEM
         public static void EnumerateMeshDofs(IFiniteElementMesh mesh)
         {
             int dof = 0;
-            
+
             EnumerateVerticesDofs(mesh, ref dof);
             EnumerateEdgesDofs(mesh, ref dof);
             EnumerateVolumeDofs(mesh, ref dof);
@@ -17,20 +17,20 @@ namespace AdaptiveMeshes.FEM
 
         public static void EnumerateVerticesDofs(IFiniteElementMesh mesh, ref int dof)
         {
-            int[] vertexPortrait = BuildVertexPortrait(mesh);
+            var vertexPortrait = BuildVertexPortrait(mesh);
 
             for (int i = 0; i < vertexPortrait.Length; i++)
                 vertexPortrait[i] = dof += vertexPortrait[i];
 
             foreach (var element in mesh.Elements)
             {
-                for (int vertexi = 0; vertexi < element.VertexNumber.Length; vertexi++)
+                for (int vertexi = 0; vertexi < element.VertexNumbers.Length; vertexi++)
                 {
-                    int dofOnVertex = element.DOFOnVertex(vertexi);
-                    int startDof = vertexPortrait[element.VertexNumber[vertexi]] - dofOnVertex;
+                    var dofOnVertex = element.DOFOnVertex(vertexi);
+                    var startDof = vertexPortrait[element.VertexNumbers[vertexi]] - dofOnVertex;
 
                     for (int n = 0; n < dofOnVertex; n++)
-                        element.SetVertexDOF(vertexi, n, startDof + n);
+                        element.SetVertexDof(vertexi, n, startDof + n);
                 }
             }
         }
@@ -38,8 +38,8 @@ namespace AdaptiveMeshes.FEM
         public static void EnumerateEdgesDofs(IFiniteElementMesh mesh, ref int dof)
         {
             var edgesPortrait = BuildEdgePortrait(mesh);
-            
-            int tempDof = dof;
+
+            var tempDof = dof;
             edgesPortrait = edgesPortrait.ToDictionary(edges => edges.Key, edges => tempDof += edges.Value);
             dof = tempDof;
 
@@ -52,7 +52,7 @@ namespace AdaptiveMeshes.FEM
                     int startDof = edgesPortrait[edge] - dofOnEdge;
 
                     for (int j = 0; j < dofOnEdge; j++)
-                        element.SetEdgeDOF(edgei, j, startDof + j);
+                        element.SetEdgeDof(edgei, j, startDof + j);
                 }
             }
         }
@@ -61,7 +61,7 @@ namespace AdaptiveMeshes.FEM
         {
             foreach (var element in mesh.Elements)
                 for (int i = 0; i < element.DOFOnElement(); i++)
-                    element.SetElementDOF(i, dof++);
+                    element.SetElementDof(i, dof++);
         }
 
         public static SortedSet<int>[] BuildPortraitFirstStep(IFiniteElementMesh mesh)
@@ -73,9 +73,10 @@ namespace AdaptiveMeshes.FEM
 
             foreach (var element in mesh.Elements)
             {
-                for (int i = 0; i < element.Dofs.Length; i++)
-                    for (int j = 0; j < element.Dofs.Length; j++)
-                        portraitFirstStep[element.Dofs[i]].Add(element.Dofs[j]);
+                foreach (var dofi in element.Dofs)
+                    foreach (var dofj in element.Dofs)
+                        portraitFirstStep[dofi]
+                            .Add(dofj);
             }
 
             return portraitFirstStep;
@@ -83,14 +84,14 @@ namespace AdaptiveMeshes.FEM
 
         public static int[] BuildVertexPortrait(IFiniteElementMesh mesh)
         {
-            int[] vertexDofs = new int[mesh.Vertex.Length];
+            var vertexDofs = new int[mesh.Vertex.Length];
 
             foreach (var element in mesh.Elements)
             {
-                for (int vertexi = 0; vertexi < element.VertexNumber.Length; vertexi++)
+                for (int vertexi = 0; vertexi < element.VertexNumbers.Length; vertexi++)
                 {
-                    int vertexDof = element.DOFOnVertex(vertexi);
-                    vertexDofs[element.VertexNumber[vertexi]] = vertexDof;
+                    var vertexDof = element.DOFOnVertex(vertexi);
+                    vertexDofs[element.VertexNumbers[vertexi]] = vertexDof;
                 }
             }
 
@@ -106,7 +107,7 @@ namespace AdaptiveMeshes.FEM
                 for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
                 {
                     var edge = element.GlobalEdge(edgei);
-                    int dofOnEdge = element.DOFOnEdge(edgei);
+                    var dofOnEdge = element.DOFOnEdge(edgei);
 
                     if (!edgePortrait.TryGetValue(edge, out int curDof) || curDof > dofOnEdge)
                         edgePortrait[edge] = dofOnEdge;

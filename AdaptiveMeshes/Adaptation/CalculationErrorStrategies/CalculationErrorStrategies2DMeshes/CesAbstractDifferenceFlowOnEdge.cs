@@ -1,19 +1,19 @@
 ﻿using AdaptiveMeshes.Adaptation.Adapters;
 using AdaptiveMeshes.FEM;
-using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
-using AdaptiveMeshes.Solution;
+using AdaptiveMeshes.FiniteElements.Interfaces;
+using AdaptiveMeshes.Solution.Interfaces;
 
 namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes
 {
-    public abstract class CESAbstractDifferenceFlowOnEdge : ICalculationErrorStrategy
+    public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrategy
     {
-        protected CESAbstractDifferenceFlowOnEdge(IDictionary<string, IMaterial> materials)
+        protected CesAbstractDifferenceFlowOnEdge(IDictionary<string, IMaterial> materials)
         {
-            _materials = materials;
+            Materials = materials;
         }
 
-        protected readonly IDictionary<string, IMaterial> _materials;
+        protected readonly IDictionary<string, IMaterial> Materials;
 
         public IDictionary<(int i, int j), double> ComputeError(ISolution solution)
         {
@@ -23,7 +23,7 @@ namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies.CalculationErrorS
 
             foreach (var element in solution.Mesh.Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
                 for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)

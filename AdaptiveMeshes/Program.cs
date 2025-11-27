@@ -3,12 +3,7 @@ using AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes;
 using AdaptiveMeshes.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
 using AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
 using AdaptiveMeshes.FEM;
-using AdaptiveMeshes.FiniteElements;
-using AdaptiveMeshes.FiniteElements.FiniteElements1D;
-using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 using AdaptiveMeshes.Problems;
-using AdaptiveMeshes.Solution;
-using AdaptiveMeshes.Vectors;
 
 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
@@ -52,19 +47,19 @@ Dictionary<string, IMaterial> materials = new()
     ["Zero tangent"] = new Material(false, true, false, x => 1, x => 0, (x, t) => 0, (x, t) => 0.0, (x, t) => 0)
 };
 
-EllipticalProblem problem = new(materials, startMesh);
+var problem = new EllipticalProblem(materials, startMesh);
 
 problem.Prepare();
 Console.WriteLine(problem.Solve());
 
 fileManager = new("verticesBeforeAddaptation.txt",
-                  "trianglesBeforeAddaptation.txt",
-                  "valuesBeforeAddaptation.txt");
+    "trianglesBeforeAddaptation.txt",
+    "valuesBeforeAddaptation.txt");
 
 fileManager.LoadToFile(startMesh.Vertex, startMesh.Elements, [.. problem.Solution.SolutionVector]);
 
-double[] xFlowValues = new double[startMesh.Vertex.Length];
-double[] yFlowValues = new double[startMesh.Vertex.Length];
+var xFlowValues = new double[startMesh.Vertex.Length];
+var yFlowValues = new double[startMesh.Vertex.Length];
 
 for (int i = 0; i < startMesh.Vertex.Length; i++)
 {
@@ -79,18 +74,18 @@ fileManager.LoadValuesToFile(yFlowValues, "dyValuesBeforeAdaptation.txt");
 
 Console.WriteLine($"""
 
-    Base mesh:
-    dofs - {startMesh.NumberOfDOFs}
-    elements - {startMesh.Elements.Where(x => x.VertexNumber.Length != 2).Count()}
+                   Base mesh:
+                   dofs - {startMesh.NumberOfDOFs}
+                   elements - {startMesh.Elements.Count(x => x.VertexNumbers.Length != 2)}
 
-    """);
+                   """);
 
 SplitStrategy2DMeshes splitStrategy = new(startMesh.Elements, startMesh.Vertex);
-CESDifferenceAverageFlowOnEdge calculationErrorStrategy = new(materials);
+CesDifferenceAverageFlowOnEdge calculationErrorStrategy = new(materials);
 
 Adapter2DMeshes adapter = new(problem, splitStrategy, calculationErrorStrategy);
 
-IFiniteElementMesh adaptedMesh = adapter.Adapt();
+var adaptedMesh = adapter.Adapt();
 
 EllipticalProblem newProblem = new(materials, adaptedMesh);
 
@@ -98,18 +93,18 @@ newProblem.Prepare();
 Console.WriteLine(newProblem.Solve());
 
 fileManager = new FileManager("verticesAfterAddaptation.txt",
-                              "trianglesAfterAddaptation.txt",
-                              "valuesAfterAddaptation.txt");
+    "trianglesAfterAddaptation.txt",
+    "valuesAfterAddaptation.txt");
 
 fileManager.LoadToFile(adaptedMesh.Vertex, adaptedMesh.Elements, [.. newProblem.Solution.SolutionVector]);
 
 Console.WriteLine($"""
-    
-    Adapted mesh:
-    dofs - {adaptedMesh.NumberOfDOFs}
-    elements - {adaptedMesh.Elements.Where(x => x.VertexNumber.Length != 2).Count()}
 
-    """);
+                   Adapted mesh:
+                   dofs - {adaptedMesh.NumberOfDOFs}
+                   elements - {adaptedMesh.Elements.Where(x => x.VertexNumbers.Length != 2).Count()}
+
+                   """);
 
 xFlowValues = new double[adaptedMesh.Vertex.Length];
 yFlowValues = new double[adaptedMesh.Vertex.Length];
@@ -124,4 +119,3 @@ for (int i = 0; i < adaptedMesh.Vertex.Length; i++)
 
 fileManager.LoadValuesToFile(xFlowValues, "dxValuesAfterAdaptation.txt");
 fileManager.LoadValuesToFile(yFlowValues, "dyValuesAfterAdaptation.txt");
-

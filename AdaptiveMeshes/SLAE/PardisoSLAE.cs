@@ -29,10 +29,10 @@ namespace AdaptiveMeshes.SLAE
                 RightPart.ThreadSafeAdd(dofs[i], lrp[i]);
         }
 
-        public double CalcDiscrepancy(double[] solution)
+        public double CalcDiscrepancy(ReadOnlySpan<double> solution)
         {
             double[] Ax = new double[Matrix.N];
-            Matrix.MultVect(solution, Ax);
+            Matrix.MultToVector(solution, Ax);
 
             double discrepancy = 0.0;
             double normRightPart = 0.0;

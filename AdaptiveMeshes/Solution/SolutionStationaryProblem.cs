@@ -1,4 +1,5 @@
 ﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.Solution.Interfaces;
 using AdaptiveMeshes.TimeMesh;
 using AdaptiveMeshes.Vectors;
 
@@ -9,41 +10,32 @@ namespace AdaptiveMeshes.Solution
         public SolutionStationaryProblem(IFiniteElementMesh mesh)
         {
             Mesh = mesh;
-            solutionVector = new double[mesh.NumberOfDOFs];
-        }
-
-        public double Time
-        {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
+            _solutionVector = new double[mesh.NumberOfDOFs];
         }
 
         public IFiniteElementMesh Mesh { get; }
-        public ITimeMesh TimeMesh => throw new NotSupportedException();
 
-        double[] solutionVector = [];
+        private double[] _solutionVector;
+
         public ReadOnlySpan<double> SolutionVector
         {
-            get => solutionVector;
-            set => solutionVector = value.ToArray();
+            get => _solutionVector;
+            set => _solutionVector = value.ToArray();
         }
-
-        public void AddSolutionVector(double t, double[] solution)
-            => throw new NotSupportedException();
 
         public Vector2D Flow(Vector2D point, IDictionary<string, IMaterial> materials)
         {
             foreach (var element in Mesh.Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
-                if (element.IsPointOnElement(Mesh.Vertex, point))
-                {
-                    var lambda = materials[element.Material].Lambda;
+                if (!element.IsPointOnElement(Mesh.Vertex, point)) 
+                    continue;
+                
+                var lambda = materials[element.Material].Lambda;
 
-                    return -lambda(point) * element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
-                }
+                return -lambda(point) * element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
             }
 
             throw new ArgumentException("The point is outside mesh.");
@@ -53,7 +45,7 @@ namespace AdaptiveMeshes.Solution
         {
             foreach (var element in Mesh.Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
                 if (element.IsPointOnElement(Mesh.Vertex, point))
@@ -67,7 +59,7 @@ namespace AdaptiveMeshes.Solution
         {
             foreach (var element in Mesh.Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
                 if (element.IsPointOnElement(Mesh.Vertex, point))

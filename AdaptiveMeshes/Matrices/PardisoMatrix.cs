@@ -63,7 +63,7 @@ namespace AdaptiveMeshes.Matrices
             Array.Clear(a);
         }
 
-        public void MultVect(double[] to, double[] result)
+        public void MultToVector(ReadOnlySpan<double> to, double[] result)
         {
             Array.Fill(result, 0.0);
 
@@ -83,7 +83,7 @@ namespace AdaptiveMeshes.Matrices
                 AlgorithmsLA.SparseAdd(result, ja.AsSpan(k1, k2 - k1), a.AsSpan(k1, k2 - k1), to[i]);
             }
         }
-
+        
         public void SetProfile(SortedSet<int>[] profile)
         {
             BuildUpperTriangleRowSparseMatrixPortrait(profile);
@@ -91,7 +91,7 @@ namespace AdaptiveMeshes.Matrices
             a = new double[ia[^1]];
         }
 
-        public void Symmetrize(int dof, double value, double[] RightPart)
+        public void Symmetrize(int dof, double value, double[] rightPart)
         {
             int ia0 = 0;
             int ia1 = 0;
@@ -105,7 +105,7 @@ namespace AdaptiveMeshes.Matrices
 
                 if (targetIndex != -1)
                 {
-                    RightPart.ThreadSafeAdd(i, -a[targetIndex] * value);
+                    rightPart.ThreadSafeAdd(i, -a[targetIndex] * value);
                     a.ThreadSafeSet(targetIndex, 0);
                 }
             }
@@ -119,7 +119,7 @@ namespace AdaptiveMeshes.Matrices
             {
                 int j = ja[ind];
 
-                RightPart.ThreadSafeAdd(j, -a[ind] * value);
+                rightPart.ThreadSafeAdd(j, -a[ind] * value);
                 a.ThreadSafeSet(ind, 0);
             }
         }

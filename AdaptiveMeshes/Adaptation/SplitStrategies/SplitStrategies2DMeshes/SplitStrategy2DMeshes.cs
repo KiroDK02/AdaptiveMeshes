@@ -1,6 +1,6 @@
 ﻿using AdaptiveMeshes.Adaptation.Adapters;
-using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+using AdaptiveMeshes.FiniteElements.Interfaces;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
@@ -9,16 +9,18 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
     {
         public SplitStrategy2DMeshes(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
             : this([0.0, 0.25, 0.5, 0.75, 1.0], [0, 1, 2, 3], elements, vertices)
-        { }
+        {
+        }
 
         public SplitStrategy2DMeshes(double[] distanceFromMinForScaleDifferences, int[] scaleSplits,
-                             IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+            IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
         {
             if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
                 throw new ArgumentException("Invalid scales. Sizes of scales are not equal.");
 
             if (distanceFromMinForScaleDifferences.Any(x => x > 1 || x < 0))
-                throw new ArgumentException("Invalid set of distance from min. The values must be in the range from 0 to 1.");
+                throw new ArgumentException(
+                    "Invalid set of distance from min. The values must be in the range from 0 to 1.");
 
             _distanceFromMinForScaleDifferences = distanceFromMinForScaleDifferences;
             _scaleSplits = scaleSplits;
@@ -31,10 +33,10 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
             NumbersOldEdgesForNewEdges = new Dictionary<(int i, int j), (int i, int j)>();
         }
 
-        private double[] _distanceFromMinForScaleDifferences { get; }
-        private double[] _scaleDifferences { get; set; }
-        private int[] _scaleSplits { get; }
-        private IDictionary<(int i, int j), int> _amountOccurencesOfEdges { get; }
+        private readonly double[] _distanceFromMinForScaleDifferences;
+        private readonly int[] _scaleSplits;
+        private readonly IDictionary<(int i, int j), int> _amountOccurencesOfEdges;
+        private double[] _scaleDifferences;
 
         /// <value>
         /// Элементы начальной сетки
@@ -48,16 +50,17 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
         /// Вершины последней сетки, то есть если циклическая адаптация и дробление уже было, то вершины новой сетки.
         /// </value>
         public Vector2D[] Vertices { get; set; }
+
         public IDictionary<(int i, int j), int> EdgesSplits { get; set; }
         public IDictionary<(int i, int j), (int i, int j)> NumbersOldEdgesForNewEdges { get; set; }
 
         public IDictionary<(int i, int j), int> GetSplits(IDictionary<(int i, int j), double> errors)
         {
             GetScaleDifferences(errors);
-            
+
             EdgesSplits = EdgesSplits.Count == 0
-                       ? FindEdgesSplitsFirstStep(errors)
-                       : FindEdgesSplits(errors);
+                ? FindEdgesSplitsFirstStep(errors)
+                : FindEdgesSplits(errors);
 
             var splits = DistributeFoundSplits();
             SmoothOutSplits(splits);
@@ -65,14 +68,15 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
             return splits;
         }
 
-        public IDictionary<(int i, int j), (Vector2D vert, int num)[]> CalcVerticesEdges(IDictionary<(int i, int j), int> splits, ref int countVertices)
+        public IDictionary<(int i, int j), (Vector2D vert, int num)[]> CalcVerticesEdges(
+            IDictionary<(int i, int j), int> splits, ref int countVertices)
         {
             Dictionary<(int i, int j), (Vector2D vert, int num)[]> verticesEdges = [];
             NumbersOldEdgesForNewEdges.Clear();
 
             foreach (var element in Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
                 for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
@@ -82,20 +86,21 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
                     if (verticesEdges.ContainsKey(edge))
                         continue;
 
-                    Vector2D v0 = Vertices[edge.i];
-                    Vector2D v1 = Vertices[edge.j];
+                    var v0 = Vertices[edge.i];
+                    var v1 = Vertices[edge.j];
 
-                    int split = (int)Math.Pow(2, splits[edge]);
-                    Vector2D h = (v1 - v0) / split;
+                    var split = (int)Math.Pow(2, splits[edge]);
+                    var h = (v1 - v0) / split;
 
                     var newVertices = new (Vector2D vert, int num)[split + 1];
 
                     newVertices[0] = (v0, edge.i);
                     for (int k = 1; k < split; k++)
                     {
-                        Vector2D newVertex = v0 + h * k;
+                        var newVertex = v0 + h * k;
                         newVertices[k] = (newVertex, countVertices++);
                     }
+
                     newVertices[split] = (v1, edge.j);
 
                     verticesEdges[edge] = newVertices;
@@ -105,7 +110,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
                     for (int k = 0; k < newVertices.Length - 1; k++)
                     {
-                        (int i, int j) newEdge = (newVertices[k].num, newVertices[k + 1].num);
+                        var newEdge = (i: newVertices[k].num, j: newVertices[k + 1].num);
                         if (newEdge.i > newEdge.j)
                             newEdge = (newEdge.j, newEdge.i);
 
@@ -119,12 +124,15 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
         private void GetScaleDifferences(IDictionary<(int i, int j), double> errors)
         {
-            double maxError = errors.Values.Max();
-            double minError = errors.Where(edge => _amountOccurencesOfEdges[edge.Key] != 1).MinBy(edge => edge.Value).Value;
-            double step = maxError - minError;
+            var maxError = errors.Values.Max();
+            var minError = errors
+                .Where(edge => _amountOccurencesOfEdges[edge.Key] != 1)
+                .MinBy(edge => edge.Value)
+                .Value;
+          
+            var step = maxError - minError;
 
             _scaleDifferences = new double[_distanceFromMinForScaleDifferences.Length];
-
             _scaleDifferences[0] = minError;
 
             for (int i = 1; i < _scaleDifferences.Length - 1; i++)
@@ -153,11 +161,13 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
         private IDictionary<(int i, int j), int> FindEdgesSplits(IDictionary<(int i, int j), double> errors)
         {
             Dictionary<(int i, int j), int> splits = [];
-            int maxNumber = EdgesSplits.Keys.SelectMany(edge => new[]{ edge.i, edge.j }).Max();
+            int maxNumber = EdgesSplits.Keys
+                .SelectMany(edge => new[] { edge.i, edge.j })
+                .Max();
 
             foreach ((var edge, double error) in errors)
             {
-                int split = 0;
+                var split = 0;
                 for (int i = 0; i < _scaleSplits.Length; i++)
                 {
                     if (error < _scaleDifferences[i + 1])
@@ -173,12 +183,12 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
                 }
                 else if (NumbersOldEdgesForNewEdges.TryGetValue(edge, out var oldEdge))
                 {
-                    if (!splits.TryGetValue(oldEdge, out int currentSplit) || currentSplit < split + EdgesSplits[oldEdge])
+                    if (!splits.TryGetValue(oldEdge, out var currentSplit)
+                        || currentSplit < split + EdgesSplits[oldEdge])
                         splits[oldEdge] = EdgesSplits[oldEdge] + split;
                 }
                 else
                     AddSplitsToElementWithEdge(edge, split, splits);
-
             }
 
             return splits;
@@ -190,13 +200,13 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
             foreach (var element in Elements)
             {
-                if (element.VertexNumber.Length == 2)
+                if (element.VertexNumbers.Length == 2)
                     continue;
 
                 for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
                 {
                     var curEdge = element.GlobalEdge(edgei);
-                    int splitFromCurEdge = EdgesSplits[curEdge];
+                    var splitFromCurEdge = EdgesSplits[curEdge];
 
                     for (int edgej = 0; edgej < element.NumberOfEdges; edgej++)
                     {
@@ -215,23 +225,23 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
         private void SmoothOutSplits(IDictionary<(int i, int j), int> splits)
         {
-            bool stop = false;
+            var stop = false;
 
             while (!stop)
             {
                 stop = true;
                 foreach (var element in Elements)
                 {
-                    if (element.VertexNumber.Length == 2)
+                    if (element.VertexNumbers.Length == 2)
                         continue;
 
-                    int maxSplit = FindMaxSplitInElement(splits, element);
+                    var maxSplit = FindMaxSplitInElement(splits, element);
 
                     for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
                     {
                         var edge = element.GlobalEdge(edgei);
 
-                        int differenceBtwSplits = maxSplit - splits[edge];
+                        var differenceBtwSplits = maxSplit - splits[edge];
                         if (differenceBtwSplits > 1)
                         {
                             stop = false;
@@ -244,17 +254,18 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
         private void AddSplitsToElementWithEdge((int i, int j) edge, int split, IDictionary<(int i, int j), int> splits)
         {
-            Vector2D middleOfEdge = (Vertices[edge.i] + Vertices[edge.j]) / 2.0;
+            var middleOfEdge = (Vertices[edge.i] + Vertices[edge.j]) / 2.0;
 
             foreach (var element in Elements)
             {
-                if (element.VertexNumber.Length != 2 && element.IsPointOnElement(Vertices, middleOfEdge))
+                if (element.VertexNumbers.Length != 2 && element.IsPointOnElement(Vertices, middleOfEdge))
                 {
                     for (int i = 0; i < element.NumberOfEdges; i++)
                     {
                         var edgei = element.GlobalEdge(i);
 
-                        if (!splits.TryGetValue(edgei, out int currentSplit) || currentSplit < EdgesSplits[edgei] + split)
+                        if (!splits.TryGetValue(edgei, out int currentSplit)
+                            || currentSplit < EdgesSplits[edgei] + split)
                             splits[edgei] = EdgesSplits[edgei] + split;
                     }
 
@@ -265,7 +276,7 @@ namespace AdaptiveMeshes.Adaptation.SplitStrategies.SplitStrategies2DMeshes
 
         private int FindMaxSplitInElement(IDictionary<(int i, int j), int> splits, IFiniteElement element)
         {
-            int max = 0;
+            var max = 0;
 
             for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
             {
