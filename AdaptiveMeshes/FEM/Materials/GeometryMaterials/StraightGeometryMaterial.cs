@@ -26,8 +26,7 @@ namespace AdaptiveMeshes.FEM.Materials.GeometryMaterials
 
         public (int i, int j) Edge(int edgei)
         {
-            if (edgei != 0)
-                throw new ArgumentOutOfRangeException(nameof(edgei));
+            ArgumentOutOfRangeException.ThrowIfNotEqual(edgei, 0, nameof(edgei));
 
             return (VertexNumbers[0], VertexNumbers[1]);
         }

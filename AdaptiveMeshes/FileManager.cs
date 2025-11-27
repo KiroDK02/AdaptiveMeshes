@@ -26,20 +26,56 @@ namespace AdaptiveMeshes
         {
             using StreamReader reader = new(path);
 
-            int countVertices = int.Parse(reader.ReadLine()!);
+            string str = reader.ReadLine()!;
+            while (str.Length == 0)
+                str = reader.ReadLine()!;
+
+            int countVertices = int.Parse(str);
             Vector2D[] vertices = new Vector2D[countVertices];
 
             for (int i = 0; i < countVertices; i++)
             {
                 string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                int x = int.Parse(input[0]);
-                int y = int.Parse(input[1]);
+                double x = double.Parse(input[0]);
+                double y = double.Parse(input[1]);
 
                 vertices[i] = new(x, y);
             }
 
-            int countPolygons = int.Parse(reader.ReadLine()!);
+            str = reader.ReadLine()!;
+            while (str.Length == 0)
+                str = reader.ReadLine()!;
+
+            int countVolumeMaterials = int.Parse(str);
+            Dictionary<int, string> numberToVolumeMaterial = new(countVolumeMaterials);
+
+            for (int i = 0; i < countVolumeMaterials; i++)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                numberToVolumeMaterial[int.Parse(input[0])] = string.Join(' ', input[1..]);
+            }
+
+            str = reader.ReadLine()!;
+            while (str.Length == 0)
+                str = reader.ReadLine()!;
+
+            int countBoundaryMaterials = int.Parse(str);
+            Dictionary<int, string> numberToBoundaryMaterial = new(countBoundaryMaterials);
+
+            for (int i = 0; i < countVolumeMaterials; i++)
+            {
+                string[] input = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                numberToBoundaryMaterial[int.Parse(input[0])] = string.Join(' ', input[1..]);
+            }
+
+            str = reader.ReadLine()!;
+            while (str.Length == 0)
+                str = reader.ReadLine()!;
+
+            int countPolygons = int.Parse(str);
             IGeometryMaterial[] geometryMaterials = new IGeometryMaterial[countPolygons];
 
             for (int i = 0; i < countPolygons; i++)
@@ -51,11 +87,15 @@ namespace AdaptiveMeshes
                     vertexNumbers[k - 1] = int.Parse(input[k]);
 
                 geometryMaterials[i] = vertexNumbers.Length > 2 ?
-                                       new PolygonGeometryMaterial(vertices, input[0], vertexNumbers) :
-                                       new StraightGeometryMaterial(vertices, input[0], vertexNumbers);
+                                       new PolygonGeometryMaterial(vertices, numberToVolumeMaterial[int.Parse(input[0])], vertexNumbers) :
+                                       new StraightGeometryMaterial(vertices, numberToBoundaryMaterial[int.Parse(input[0])], vertexNumbers);
             }
 
-            int countEdges = int.Parse(reader.ReadLine()!);
+            str = reader.ReadLine()!;
+            while (str.Length == 0)
+                str = reader.ReadLine()!;
+
+            int countEdges = int.Parse(str);
 
             if (countEdges == -1)
             {

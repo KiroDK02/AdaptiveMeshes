@@ -225,3 +225,7 @@ ModelManifest.xml
 *.hvs
 *.msh
 /AdaptiveGridsV2.0/Output
+/AdaptiveMeshes/Program.cs
+/AdaptiveMeshes/AdaptiveMeshes.csproj
+
+.idea/

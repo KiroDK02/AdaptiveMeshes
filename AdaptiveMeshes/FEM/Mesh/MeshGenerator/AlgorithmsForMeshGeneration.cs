@@ -12,9 +12,9 @@ namespace AdaptiveMeshes.FEM.Mesh.MeshGenerator
             int i1 = i;
             int i2 = (i + 1) % vertexNumbers.Count;
 
-            var A = vertices[i0];
-            var B = vertices[i1];
-            var C = vertices[i2];
+            var A = vertices[vertexNumbers[i0]];
+            var B = vertices[vertexNumbers[i1]];
+            var C = vertices[vertexNumbers[i2]];
 
             if (!IsConvex(A, B, C))
                 return false;
@@ -98,10 +98,10 @@ namespace AdaptiveMeshes.FEM.Mesh.MeshGenerator
         {
             double signedSquare = 0;
 
-            for (int i = 0; i < vertices.Length - 1; i++)
+            for (int i = 0; i < vertices.Length; i++)
             {
                 var pointCur = vertices[i];
-                var pointNext = vertices[i + 1];
+                var pointNext = vertices[(i + 1) % vertices.Length];
 
                 signedSquare += (pointCur.X * pointNext.Y - pointNext.X * pointCur.Y);
             }

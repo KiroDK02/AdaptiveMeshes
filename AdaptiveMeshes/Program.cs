@@ -271,7 +271,7 @@ using (StreamWriter writer = new(@"C:\Учёба\НММ\data.txt"))
 // *************************************************************************************************************
 // потестить отсечение ушей
 //                        0           1         2           3           4           5
-Vector2D[] vertices = [new(1, 1), new(3, 2), new(2, 4), new(1, 3), new(2.5, 4), new(3, 5)];
+/*Vector2D[] vertices = [new(1, 1), new(3, 2), new(2, 4), new(1, 3), new(2.5, 4), new(3, 5)];
 
 IGeometryMaterial[] gMS = [new PolygonGeometryMaterial(vertices, "material", [0, 1, 2, 3]),
                            new PolygonGeometryMaterial(vertices, "material", [1, 4, 5, 2]),
@@ -281,14 +281,15 @@ IGeometryMaterial[] gMS = [new PolygonGeometryMaterial(vertices, "material", [0,
                            new StraightGeometryMaterial(vertices, "boundary", [5, 2]),
                            new StraightGeometryMaterial(vertices, "boundary", [2, 3]),
                            new StraightGeometryMaterial(vertices, "boundary", [3, 0]),
-];
+];*/
 
 Dictionary<(int i, int j), EdgesData> _edgesData = new()
 {
 
 };
 
-TriangleMeshGenerator meshGenerator = new(gMS, vertices, 1, 2);
+//TriangleMeshGenerator meshGenerator = new(gMS, vertices, 1, 2);
+TriangleMeshGenerator meshGenerator = FileManager.ReadAreaFromFile("CalculatingArea.txt");
 
 var mesh = meshGenerator.GenerateMesh();
 

@@ -220,6 +220,10 @@ namespace AdaptiveMeshes.FEM.Mesh.MeshGenerator
                         _edgesData[edge] = new(countIntervals, ratio);
                 }
             }
+
+            foreach(var pair in  _edgesData)
+                if (pair.Value.Ratio < 0)
+                    _edgesData[pair.Key] = new(pair.Value.CountIntervals, 1.0 / Math.Abs(pair.Value.Ratio));
         }
     }
 }
