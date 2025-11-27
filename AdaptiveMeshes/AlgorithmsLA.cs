@@ -1,87 +1,83 @@
 ﻿using AdaptiveMeshes.Vectors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AdaptiveMeshes
+namespace AdaptiveMeshes;
+
+public static class AlgorithmsLA
 {
-    public static class AlgorithmsLA
+    public static double[] MultiplyMatrixVector(double[,] matrix, double[] vector, double coeff = 1d)
     {
-        public static double[] MultiplyMatrixVector(double[,] matrix, double[] vector, double coeff = 1d)
+        var rows = matrix.GetLength(0);
+        var cols = matrix.GetLength(1);
+
+        if (cols != vector.Length)
         {
-            int rows = matrix.GetLength(0);
-            int cols = matrix.GetLength(1);
-
-            if (cols != vector.Length)
-            {
-                throw new ArgumentException("Количество столбцов матрицы должно совпадать с длиной вектора.");
-            }
-
-            double[] result = new double[rows];
-
-            for (int i = 0; i < rows; i++)
-            {
-                double sum = 0;
-                for (int j = 0; j < cols; j++)
-                {
-                    sum += matrix[i, j] * vector[j];
-                }
-                result[i] = coeff * sum;
-            }
-
-
-            return result;
+            throw new ArgumentException("Количество столбцов матрицы должно совпадать с длиной вектора.");
         }
 
-        public static double[] MultiplyMatrixVector(double[,] matrix, ReadOnlySpan<double> vector, double coeff = 1d)
-        {
-            int rows = matrix.GetLength(0);
-            int cols = matrix.GetLength(1);
+        double[] result = new double[rows];
 
-            if (cols != vector.Length)
-            {
-                throw new ArgumentException("Количество столбцов матрицы должно совпадать с длиной вектора.");
-            }
-
-            double[] result = new double[rows];
-
-            for (int i = 0; i < rows; i++)
-            {
-                double sum = 0;
-                for (int j = 0; j < cols; j++)
-                {
-                    sum += matrix[i, j] * vector[j];
-                }
-                result[i] = coeff * sum;
-            }
-
-
-            return result;
-        }
-
-        public static double SparseMult(ReadOnlySpan<double> gg, ReadOnlySpan<int> jg, ReadOnlySpan<double> vec)
+        for (int i = 0; i < rows; i++)
         {
             double sum = 0;
-            for (int i = 0; i < jg.Length; i++)
-                sum += vec[jg[i]] * gg[i];
-            return sum;
+            for (int j = 0; j < cols; j++)
+            {
+                sum += matrix[i, j] * vector[j];
+            }
+
+            result[i] = coeff * sum;
         }
-        public static void SparseAdd(Span<double> w, ReadOnlySpan<int> jg, ReadOnlySpan<double> gg, double val)
+
+        return result;
+    }
+
+    public static double[] MultiplyMatrixVector(double[,] matrix, ReadOnlySpan<double> vector, double coeff = 1d)
+    {
+        var rows = matrix.GetLength(0);
+        var cols = matrix.GetLength(1);
+
+        if (cols != vector.Length)
         {
-            for (int i = 0; i < jg.Length; i++)
-                w[jg[i]] += gg[i] * val;
+            throw new ArgumentException("Количество столбцов матрицы должно совпадать с длиной вектора.");
         }
 
-        public static Vector2D SearchCenterPolygon(Vector2D[] points)
+        var result = new double[rows];
+
+        for (int i = 0; i < rows; i++)
         {
-            var result = Vector2D.Zero;
+            var sum = 0.0;
+            for (int j = 0; j < cols; j++)
+            {
+                sum += matrix[i, j] * vector[j];
+            }
 
-            foreach (var point in points)
-                result += point;
-
-            return result / points.Length;
+            result[i] = coeff * sum;
         }
+
+
+        return result;
+    }
+
+    public static double SparseMult(ReadOnlySpan<double> gg, ReadOnlySpan<int> jg, ReadOnlySpan<double> vec)
+    {
+        var sum = 0.0;
+        for (int i = 0; i < jg.Length; i++)
+            sum += vec[jg[i]] * gg[i];
+        return sum;
+    }
+
+    public static void SparseAdd(Span<double> w, ReadOnlySpan<int> jg, ReadOnlySpan<double> gg, double val)
+    {
+        for (int i = 0; i < jg.Length; i++)
+            w[jg[i]] += gg[i] * val;
+    }
+
+    public static Vector2D SearchCenterPolygon(Vector2D[] points)
+    {
+        var result = Vector2D.Zero;
+
+        foreach (var point in points)
+            result += point;
+
+        return result / points.Length;
     }
 }

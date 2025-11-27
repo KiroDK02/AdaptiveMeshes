@@ -1,10 +1,10 @@
-﻿using AdaptiveMeshes.Vectors;
+﻿using AdaptiveMeshes.FiniteElements.Interfaces;
+using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
+namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
+
+public interface IDataForFragmentation
 {
-    public interface IDataForFragmentation
-    {
-        IEnumerable<IFiniteElement> NewElements { get; }
-        IEnumerable<(Vector2D vert, int num)> NewVertices { get; }
-    }
+    IEnumerable<IFiniteElement> NewElements { get; }
+    IEnumerable<(Vector2D vert, int num)> NewVertices { get; }
 }

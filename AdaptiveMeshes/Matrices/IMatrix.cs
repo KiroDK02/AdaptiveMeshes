@@ -1,13 +1,12 @@
-﻿namespace AdaptiveMeshes.Matrices
+﻿namespace AdaptiveMeshes.Matrices;
+
+public interface IMatrix
 {
-    public interface IMatrix
-    {
-        int N { get; }
-        
-        void SetProfile(SortedSet<int>[] profile);
-        void AddLocal(int[] dofs, double[,] matrix, double coeff = 1.0);
-        void Symmetrize(int dof, double value, double[] RightPart);
-        void MultVect(double[] to, double[] result);
-        void Clear();
-    }
+    int N { get; }
+
+    void SetProfile(SortedSet<int>[] profile);
+    void AddLocal(int[] dofs, double[,] matrix, double coeff = 1.0);
+    void Symmetrize(int dof, double value, double[] RightPart);
+    void MultVect(ReadOnlySpan<double> to, double[] result);
+    void Clear();
 }

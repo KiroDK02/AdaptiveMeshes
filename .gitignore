@@ -225,3 +225,5 @@ ModelManifest.xml
 *.hvs
 *.msh
 /AdaptiveGridsV2.0/Output
+
+.idea/

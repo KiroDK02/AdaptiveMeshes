@@ -1,54 +1,53 @@
 ﻿using AdaptiveMeshes.SLAE;
 using Quasar.Native;
 
-namespace AdaptiveMeshes.SLAESolvers
+namespace AdaptiveMeshes.SLAESolvers;
+
+public class PardisoSLAESolver : ISLAESolver
 {
-    public class PardisoSLAESolver : ISLAESolver
+    public ISLAE SLAE { get; }
+    Pardiso<double> Pardiso { get; }
+
+    public PardisoSLAESolver(ISLAE slae)
     {
-        public PardisoSLAESolver(ISLAE slae)
-        {
-            SLAE = slae;
-            Pardiso = new Pardiso<double>((IPardisoMatrix<double>)slae.Matrix);
-        }
+        SLAE = slae;
+        Pardiso = new Pardiso<double>((IPardisoMatrix<double>)slae.Matrix);
+    }
 
-        public ISLAE SLAE { get; }
-        Pardiso<double> Pardiso { get; }
+    public void Prepare()
+    {
+        Pardiso.Analysis();
+        Pardiso.Factorization();
+    }
 
-        public void Prepare()
-        {
-            Pardiso.Analysis();
-            Pardiso.Factorization();
-        }
+    public double[] Solve()
+    {
+        var solution = new double[SLAE.Matrix.N];
 
-        public double[] Solve()
-        {
-            var solution = new double[SLAE.Matrix.N];
+        Pardiso.Solve(SLAE.RightPart, solution);
 
-            Pardiso.Solve(SLAE.RightPart, solution);
+        return solution;
+    }
 
-            return solution;
-        }
+    private bool disposed = false;
 
-        private bool disposed = false;
+    ~PardisoSLAESolver()
+    {
+        Dispose(disposing: false);
+    }
 
-        ~PardisoSLAESolver()
-        {
-            Dispose(disposing: false);
-        }
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposed)
+            return;
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-                return;
-
-            Pardiso.Dispose();
-            disposed = true;
-        }
+        Pardiso.Dispose();
+        disposed = true;
     }
 }

@@ -1,13 +1,13 @@
-﻿using AdaptiveMeshes.Solution;
+﻿using AdaptiveMeshes.Solution.Interfaces;
 
-namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies
+namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
+
+public interface ICalculationErrorStrategy
 {
-    public interface ICalculationErrorStrategy
+    enum CalculationErrorStrategyEnum
     {
-        enum CalculationErrorStrategyEnum
-        {
-            StrategyBasedOnAverageFlowJumps
-        }
-        IDictionary<(int i, int j), double> ComputeError(ISolution solution);
+        StrategyBasedOnAverageFlowJumps
     }
+
+    IDictionary<(int i, int j), double> ComputeError(ISolution solution);
 }

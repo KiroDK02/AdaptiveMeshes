@@ -1,80 +1,69 @@
 ﻿using AdaptiveMeshes.FEM;
-using AdaptiveMeshes.TimeMesh;
+using AdaptiveMeshes.Solution.Interfaces;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.Solution
+namespace AdaptiveMeshes.Solution;
+
+public class SolutionStationaryProblem : ISolution
 {
-    public class SolutionStationaryProblem : ISolution
+    public IFiniteElementMesh Mesh { get; }
+
+    private double[] _solutionVector;
+    public ReadOnlySpan<double> SolutionVector
     {
-        public SolutionStationaryProblem(IFiniteElementMesh mesh)
+        get => _solutionVector;
+        set => _solutionVector = value.ToArray();
+    }
+
+    public SolutionStationaryProblem(IFiniteElementMesh mesh)
+    {
+        Mesh = mesh;
+        _solutionVector = new double[mesh.NumberOfDOFs];
+    }
+    
+    public Vector2D Flow(Vector2D point, IDictionary<string, IMaterial> materials)
+    {
+        foreach (var element in Mesh.Elements)
         {
-            Mesh = mesh;
-            solutionVector = new double[mesh.NumberOfDOFs];
-        }
+            if (element.VertexNumbers.Length == 2)
+                continue;
 
-        public double Time
-        {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
-        }
-
-        public IFiniteElementMesh Mesh { get; }
-        public ITimeMesh TimeMesh => throw new NotSupportedException();
-
-        double[] solutionVector = [];
-        public ReadOnlySpan<double> SolutionVector
-        {
-            get => solutionVector;
-            set => solutionVector = value.ToArray();
-        }
-
-        public void AddSolutionVector(double t, double[] solution)
-            => throw new NotSupportedException();
-
-        public Vector2D Flow(Vector2D point, IDictionary<string, IMaterial> materials)
-        {
-            foreach (var element in Mesh.Elements)
+            if (element.IsPointOnElement(Mesh.Vertex, point))
             {
-                if (element.VertexNumber.Length == 2)
-                    continue;
+                var lambda = materials[element.Material].Lambda;
 
-                if (element.IsPointOnElement(Mesh.Vertex, point))
-                {
-                    var lambda = materials[element.Material].Lambda;
-
-                    return -lambda(point) * element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
-                }
+                return -lambda(point) * element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
             }
-
-            throw new ArgumentException("The point is outside mesh.");
         }
 
-        public Vector2D Gradient(Vector2D point)
+        throw new ArgumentException("The point is outside mesh.");
+    }
+
+    public Vector2D Gradient(Vector2D point)
+    {
+        foreach (var element in Mesh.Elements)
         {
-            foreach (var element in Mesh.Elements)
-            {
-                if (element.VertexNumber.Length == 2)
-                    continue;
+            if (element.VertexNumbers.Length == 2)
+                continue;
 
-                if (element.IsPointOnElement(Mesh.Vertex, point))
-                    return element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
-            }
-
-            throw new ArgumentException("The point is outside mesh.");
+            if (element.IsPointOnElement(Mesh.Vertex, point))
+                return element.GetGradientAtPoint(Mesh.Vertex, SolutionVector, point);
         }
 
-        public double Value(Vector2D point)
+        throw new ArgumentException("The point is outside mesh.");
+    }
+
+    public double Value(Vector2D point)
+    {
+        foreach (var element in Mesh.Elements)
         {
-            foreach (var element in Mesh.Elements)
-            {
-                if (element.VertexNumber.Length == 2)
-                    continue;
+            if (element.VertexNumbers.Length == 2)
+                continue;
 
-                if (element.IsPointOnElement(Mesh.Vertex, point))
-                    return element.GetValueAtPoint(Mesh.Vertex, SolutionVector, point);
-            }
-
-            throw new ArgumentException("The point is outside mesh.");
+            if (element.IsPointOnElement(Mesh.Vertex, point))
+                return element.GetValueAtPoint(Mesh.Vertex, SolutionVector, point);
         }
+
+        throw new ArgumentException("The point is outside mesh.");
     }
 }

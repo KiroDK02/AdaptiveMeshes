@@ -1,12 +1,11 @@
-﻿using AdaptiveMeshes.FiniteElements;
+﻿using AdaptiveMeshes.FiniteElements.Interfaces;
 using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.FEM
+namespace AdaptiveMeshes.FEM;
+
+public interface IFiniteElementMesh
 {
-    public interface IFiniteElementMesh
-    {
-        IEnumerable<IFiniteElement> Elements { get; }
-        Vector2D[] Vertex { get; }
-        int NumberOfDOFs { get; set; }
-    }
+    IEnumerable<IFiniteElement> Elements { get; }
+    Vector2D[] Vertex { get; }
+    int NumberOfDOFs { get; set; }
 }

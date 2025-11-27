@@ -81,12 +81,12 @@ Console.WriteLine($"""
 
     Base mesh:
     dofs - {startMesh.NumberOfDOFs}
-    elements - {startMesh.Elements.Where(x => x.VertexNumber.Length != 2).Count()}
+    elements - {startMesh.Elements.Where(x => x.VertexNumbers.Length != 2).Count()}
 
     """);
 
 SplitStrategy2DMeshes splitStrategy = new(startMesh.Elements, startMesh.Vertex);
-CESDifferenceAverageFlowOnEdge calculationErrorStrategy = new(materials);
+CesDifferenceAverageFlowOnEdge calculationErrorStrategy = new(materials);
 
 Adapter2DMeshes adapter = new(problem, splitStrategy, calculationErrorStrategy);
 
@@ -107,7 +107,7 @@ Console.WriteLine($"""
     
     Adapted mesh:
     dofs - {adaptedMesh.NumberOfDOFs}
-    elements - {adaptedMesh.Elements.Where(x => x.VertexNumber.Length != 2).Count()}
+    elements - {adaptedMesh.Elements.Where(x => x.VertexNumbers.Length != 2).Count()}
 
     """);
 

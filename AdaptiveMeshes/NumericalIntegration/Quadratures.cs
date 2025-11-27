@@ -1,26 +1,25 @@
-﻿namespace AdaptiveMeshes.NumericalIntegration
+﻿namespace AdaptiveMeshes.NumericalIntegration;
+
+public class QuadratureNode<T>
 {
-    public class QuadratureNode<T>
+    public T Node { get; }
+    public double Weight { get; }
+    
+    public QuadratureNode(T node, double weight)
     {
-        public QuadratureNode(T node, double weight)
-        {
-            Node = node;
-            Weight = weight;
-        }
-
-        public T Node { get; }
-        public double Weight { get; }
+        Node = node;
+        Weight = weight;
     }
+}
 
-    public class QuadratureNodes<T>
+public class QuadratureNodes<T>
+{
+    public QuadratureNode<T>[] Nodes { get; }
+    public int Order { get; }
+    
+    public QuadratureNodes(QuadratureNode<T>[] nodes, int order)
     {
-        public QuadratureNodes(QuadratureNode<T>[] nodes, int order)
-        {
-            Nodes = nodes;
-            Order = order;
-        }
-
-        public QuadratureNode<T>[] Nodes { get; }
-        public int Order { get; }
+        Nodes = nodes;
+        Order = order;
     }
 }

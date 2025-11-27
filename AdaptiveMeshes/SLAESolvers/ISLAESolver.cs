@@ -1,10 +1,9 @@
 ﻿using AdaptiveMeshes.SLAE;
 
-namespace AdaptiveMeshes.SLAESolvers
+namespace AdaptiveMeshes.SLAESolvers;
+
+public interface ISLAESolver : IDisposable
 {
-    public interface ISLAESolver : IDisposable
-    {
-        ISLAE SLAE { get; }
-        double[] Solve();
-    }
+    ISLAE SLAE { get; }
+    double[] Solve();
 }

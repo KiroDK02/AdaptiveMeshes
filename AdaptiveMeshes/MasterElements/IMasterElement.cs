@@ -1,17 +1,15 @@
 ﻿using AdaptiveMeshes.NumericalIntegration;
-using AdaptiveMeshes.Vectors;
 
-namespace AdaptiveMeshes.MasterElements
+namespace AdaptiveMeshes.MasterElements;
+
+public interface IMasterElement<T>
 {
-    public interface IMasterElement<T>
-    {
-        Func<T, double>[] BasesFuncs { get; }
-        Func<T, double>[,] GradientsBasesFuncs { get; }
-        
-        double[,] ValuesBasicFuncs { get; }
-        double[,,] ValuesBasicFuncsGradients { get; }
+    Func<T, double>[] BasesFuncs { get; }
+    Func<T, double>[,] GradientsBasesFuncs { get; }
 
-        QuadratureNodes<T> QuadratureNodes { get; }
-        IDictionary<(int, int), double[]> PsiProduct { get; }
-    }
+    double[,] ValuesBasicFuncs { get; }
+    double[,,] ValuesBasicFuncsGradients { get; }
+
+    QuadratureNodes<T> QuadratureNodes { get; }
+    IDictionary<(int, int), double[]> PsiProduct { get; }
 }
