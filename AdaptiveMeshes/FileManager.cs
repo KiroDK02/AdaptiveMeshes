@@ -1,7 +1,7 @@
 ﻿using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.FiniteElements1D;
 using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
-using AdaptiveMeshes.FiniteElements.Interfaces;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes
@@ -135,10 +135,10 @@ namespace AdaptiveMeshes
 
             foreach (var element in mesh.Elements)
             {
-                if (element.VertexNumbers.Length == 3)
-                    writer.WriteLine($"Triangle {element.VertexNumbers[0]} {element.VertexNumbers[1]} {element.VertexNumbers[2]} {element.Material}");
+                if (element.VertexNumber.Length == 3)
+                    writer.WriteLine($"Triangle {element.VertexNumber[0]} {element.VertexNumber[1]} {element.VertexNumber[2]} {element.Material}");
                 else
-                    writer.WriteLine($"Segment {element.VertexNumbers[0]} {element.VertexNumbers[1]} {element.Material}");
+                    writer.WriteLine($"Segment {element.VertexNumber[0]} {element.VertexNumber[1]} {element.Material}");
             }
 
             writer.Close();
@@ -167,12 +167,12 @@ namespace AdaptiveMeshes
             {
                 foreach (var element in elements)
                 {
-                    if (element.VertexNumbers.Length == 2)
+                    if (element.VertexNumber.Length == 2)
                         continue;
 
-                    int num1 = element.VertexNumbers[0];
-                    int num2 = element.VertexNumbers[1];
-                    int num3 = element.VertexNumbers[2];
+                    int num1 = element.VertexNumber[0];
+                    int num2 = element.VertexNumber[1];
+                    int num3 = element.VertexNumber[2];
 
                     writer.WriteLine($"{num1} {num2} {num3}");
                 }

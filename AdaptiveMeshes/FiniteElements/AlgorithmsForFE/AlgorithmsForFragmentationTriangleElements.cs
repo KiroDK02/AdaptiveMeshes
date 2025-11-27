@@ -1,5 +1,4 @@
 ﻿using AdaptiveMeshes.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
-using AdaptiveMeshes.FiniteElements.Interfaces;
 using AdaptiveMeshes.Vectors;
 
 namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
@@ -14,14 +13,14 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
             // где каждый слой разбивается на равномерные треугольники.
             for (int layer = 0; layer < countLayers; layer++)
             {
-                var amountElementsOnLayer = 2 * (countLayers - layer) - 1;
+                int amountElementsOnLayer = 2 * (countLayers - layer) - 1;
 
                 for (int elemi = 0; elemi < amountElementsOnLayer; elemi++)
                 {
-                    var amountPassedVertices = (2 * (countLayers + 1) - (layer - 1)) * layer / 2;
-                    var amountPassedVerticesForNextLayer = (2 * (countLayers + 1) - layer) * (layer + 1) / 2;
+                    int amountPassedVertices = (2 * (countLayers + 1) - (layer - 1)) * layer / 2;
+                    int amountPassedVerticesForNextLayer = (2 * (countLayers + 1) - layer) * (layer + 1) / 2;
 
-                    var (localNumV1, localNumV2, localNumV3) =
+                    (int localNumV1, int localNumV2, int localNumV3) =
                         elemi % 2 == 0
                      ? (elemi / 2 + amountPassedVertices, elemi / 2 + amountPassedVertices + 1, elemi / 2 + amountPassedVerticesForNextLayer)
                      : ((elemi + 1) / 2 + amountPassedVertices, (elemi + 1) / 2 + amountPassedVerticesForNextLayer, (elemi + 1) / 2 + amountPassedVerticesForNextLayer - 1);
@@ -41,13 +40,13 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
                                                                                         (Vector2D vert, int num)[] verticesEdge3,
                                                                                         ref int countVertex)
         {
-            var minSplit = int.Min(split1, int.Min(split2, split3));
-            var countLayer = minSplit;
-            var countVertices = (minSplit + 2) * (countLayer + 1) / 2;
+            int minSplit = int.Min(split1, int.Min(split2, split3));
+            int countLayer = minSplit;
+            int countVertices = (minSplit + 2) * (countLayer + 1) / 2;
 
-            var step1 = split1 / minSplit;
-            var step2 = split2 / minSplit;
-            var step3 = split3 / minSplit;
+            int step1 = split1 / minSplit;
+            int step2 = split2 / minSplit;
+            int step3 = split3 / minSplit;
 
             var verticesOfSplittedTriangle = new (Vector2D vert, int num)[countVertices];
             
@@ -56,21 +55,21 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
                 verticesOfSplittedTriangle[i] = verticesEdge1[step];
             }
 
-            var k2 = step2;
-            var k3 = step3;
+            int k2 = step2;
+            int k3 = step3;
 
-            var h = (verticesEdge1[split1].vert - verticesEdge1[0].vert) / minSplit;
+            Vector2D h = (verticesEdge1[split1].vert - verticesEdge1[0].vert) / minSplit;
 
             for (int layer = 1, numVert = minSplit; layer < countLayer; layer++, numVert--)
             {
                 // (minSplit + 1 + (minSplit + 1 - (layer - 1))) * layer / 2
-                var countPassedVertices = (2 * (minSplit + 1) - (layer - 1)) * layer / 2;
+                int countPassedVertices = (2 * (minSplit + 1) - (layer - 1)) * layer / 2;
                 verticesOfSplittedTriangle[countPassedVertices] = verticesEdge2[k2];
 
                 for (int vi = 1; vi < numVert - 1; vi++)
                 {
-                    var localNum = countPassedVertices + vi;
-                    var newVertex = verticesEdge2[k2].vert + h * vi;
+                    int localNum = countPassedVertices + vi;
+                    Vector2D newVertex = verticesEdge2[k2].vert + h * vi;
 
                     verticesOfSplittedTriangle[localNum] = (newVertex, countVertex++);
                 }
@@ -106,9 +105,9 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
                         {
                             int thirdVertex = edgei switch
                             {
-                                0 => listElemsFromCurElem[elemi].VertexNumbers[2],
-                                1 => listElemsFromCurElem[elemi].VertexNumbers[0],
-                                2 => listElemsFromCurElem[elemi].VertexNumbers[1],
+                                0 => listElemsFromCurElem[elemi].VertexNumber[2],
+                                1 => listElemsFromCurElem[elemi].VertexNumber[0],
+                                2 => listElemsFromCurElem[elemi].VertexNumber[1],
                                 _ => throw new ArgumentException("Invalid number of edge.")
                             };
 
@@ -123,7 +122,7 @@ namespace AdaptiveMeshes.FiniteElements.AlgorithmsForFE
             }
         }
 
-        public static ((int i, int j), (int i, int j), (int i, int j)) DefineOrderEdges(IGeometryElement element)
+        public static ((int i, int j), (int i, int j), (int i, int j)) DefineOrderEdges(IFiniteElement element)
         {
             (int i, int j) edgeMain = (0, 0);
             (int i, int j) edgeFirst = (0, 0);

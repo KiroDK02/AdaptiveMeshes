@@ -1,8 +1,8 @@
 ﻿using AdaptiveMeshes.Adaptation.CalculationErrorStrategies;
 using AdaptiveMeshes.Adaptation.SplitStrategies;
 using AdaptiveMeshes.FEM;
+using AdaptiveMeshes.FiniteElements;
 using AdaptiveMeshes.FiniteElements.AlgorithmsForFE;
-using AdaptiveMeshes.FiniteElements.Interfaces;
 using AdaptiveMeshes.Problems;
 using AdaptiveMeshes.Vectors;
 
@@ -40,39 +40,35 @@ namespace AdaptiveMeshes.Adaptation.Adapters.Adapters2DMeshes
         /// <returns>Сетка после адаптации.</returns>
         public IFiniteElementMesh Adapt()
         {
-            var errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
-            var splits = SplitStrategy.GetSplits(errors);
+            IDictionary<(int i, int j), double> errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
+            IDictionary<(int i, int j), int> splits = SplitStrategy.GetSplits(errors);
 
             int countVertices = Problem.Mesh.Vertex.Length;
-            var verticesSplittedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
+            var verticesSplitedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
 
             List<IFiniteElement> newElements = [];
             List<(Vector2D vert, int num)> newVertices = [];
 
             foreach (var element in Problem.Mesh.Elements)
             {
-                var splittableElement = (ISplittableElement)element;
-                
-                if (element.VertexNumbers.Length != 2)
+                if (element.VertexNumber.Length != 2)
                 {
-                    var data = splittableElement.SplitToElements2D(splits, verticesSplittedEdges, ref countVertices);
+                    var datas = element.SplitToElements2D(splits, verticesSplitedEdges, ref countVertices);
 
-                    newElements.AddRange(data.NewElements);
-                    newVertices.AddRange(data.NewVertices);
+                    newElements.AddRange(datas.NewElements);
+                    newVertices.AddRange(datas.NewVertices);
                 }
                 else
                 {
-                    var elements = splittableElement.SplitToElements1D(
-                        [.. verticesSplittedEdges[element.GlobalEdge(0)]
-                            .Select(vertex => vertex.num)]);
+                    var elements = element.SplitToElements1D([.. verticesSplitedEdges[element.GlobalEdge(0)].Select(vertex => vertex.num)]);
 
                     newElements.AddRange(elements);
                 }    
             }
 
-            var vertices = new Vector2D[countVertices];
+            Vector2D[] vertices = new Vector2D[countVertices];
 
-            foreach (var (vert, number) in newVertices)
+            foreach ((Vector2D vert, int number) in newVertices)
                 vertices[number] = vert;
 
             return new FiniteElementMesh(newElements, vertices);

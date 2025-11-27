@@ -1,5 +1,4 @@
 ﻿using AdaptiveMeshes.Solution;
-using AdaptiveMeshes.Solution.Interfaces;
 
 namespace AdaptiveMeshes.Adaptation.CalculationErrorStrategies
 {
