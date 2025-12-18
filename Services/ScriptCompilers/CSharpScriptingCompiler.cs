@@ -1,0 +1,46 @@
+using Core.Vectors;
+using Microsoft.CodeAnalysis.CSharp.Scripting;
+using Microsoft.CodeAnalysis.Scripting;
+using Services.ScriptCompilers.Interfaces;
+
+namespace Services.ScriptCompilers;
+
+public class CSharpScriptingCompiler : IScriptCompiler
+{
+    private readonly ScriptOptions _options =
+        ScriptOptions.Default
+            .AddReferences(typeof(Vector2D).Assembly)
+            .AddImports("System", "Core.Vectors");
+
+    public async Task<Func<Vector2D, double>> CompileStationaryFunction(string functionBody)
+    {
+        var code = WrapStationaryFunction(functionBody);
+
+        return await CSharpScript
+            .EvaluateAsync<Func<Vector2D, double>>(code, _options);
+    }
+
+    public async Task<Func<Vector2D, double, double>> CompileNonStationaryFunction(string functionBody)
+    {
+        var code = WrapNonStationaryFunction(functionBody);
+
+        return await CSharpScript
+            .EvaluateAsync<Func<Vector2D, double, double>>(code, _options);
+    }
+
+    private static string WrapStationaryFunction(string functionBody) =>
+        $$"""
+          new Func<Core.Vectors.Vector2D, double>(point => 
+          {
+              {{functionBody}}
+          })
+          """;
+
+    private static string WrapNonStationaryFunction(string functionBody) =>
+        $$"""
+          new Func<Core.Vectors.Vector2D, double, double>(point => 
+          {
+              {{functionBody}}
+          })
+          """;
+}

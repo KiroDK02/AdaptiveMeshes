@@ -81,7 +81,7 @@ Console.WriteLine($"""
 
     Base mesh:
     dofs - {startMesh.NumberOfDOFs}
-    elements - {startMesh.Elements.Where(x => x.VertexNumbers.Length != 2).Count()}
+    elements - {startMesh.Elements.Count(x => x.VertexNumbers.Length != 2)}
 
     """);
 
@@ -107,7 +107,7 @@ Console.WriteLine($"""
     
     Adapted mesh:
     dofs - {adaptedMesh.NumberOfDOFs}
-    elements - {adaptedMesh.Elements.Where(x => x.VertexNumbers.Length != 2).Count()}
+    elements - {adaptedMesh.Elements.Count(x => x.VertexNumbers.Length != 2)}
 
     """);
 

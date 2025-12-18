@@ -133,6 +133,9 @@ public class SegmentFEQuadraticBaseWithNI :
     public Vector2D GetOuterNormalToEdge(Vector2D[] vertexCoords, int edgei, bool normalize = false)
         => throw new NotSupportedException();
 
+    public override string ToString()
+        => $"SegmentLagrange2 {VertexNumbers[0]} {VertexNumbers[1]} {Material}";
+
     private double GetCoefAtLocalCoords(Vector2D[] vertexCoords, Func<Vector2D, double> coeff, double t)
     {
         var x0 = vertexCoords[VertexNumbers[0]].X;

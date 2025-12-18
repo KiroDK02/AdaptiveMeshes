@@ -273,6 +273,9 @@ public class TriangleFEQuadraticBaseWithNI :
         return normalize ? outerNormal.Normalize() : outerNormal;
     }
 
+    public override string ToString()
+        => $"TriangleLagrange2 {VertexNumbers[0]} {VertexNumbers[1]} {VertexNumbers[2]} {Material}";
+
     private Vector2D GetGradientAtLocalPoint(ReadOnlySpan<double> weights, Vector2D localPoint)
     {
         var gradBasesFuncs = BaseFuncs.TriangleBarycentricQuadraticBase.GradientBasesFuncs;
