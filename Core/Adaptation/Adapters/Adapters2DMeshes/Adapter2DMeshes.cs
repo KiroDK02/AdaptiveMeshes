@@ -1,0 +1,84 @@
+﻿using Core.FiniteElements.AlgorithmsForFE;
+using Core.Adaptation.CalculationErrorStrategies;
+using Core.Adaptation.SplitStrategies;
+using Core.FEM;
+using Core.FiniteElements.Interfaces;
+using Core.Problems;
+using Core.Vectors;
+
+namespace Core.Adaptation.Adapters.Adapters2DMeshes;
+
+/// <summary>
+/// В этом классе по сути надо будет реализовать один метод - Adapt
+/// Может быть сделать сразу этот класс с заделкой на циклическую адаптацию,
+/// просто добавив количество повторов, адаптация будет происходить через
+/// стратегии расчета ошибок и разбиения, в которых будет реализовано все нужное.
+/// </summary>
+public class Adapter2DMeshes : IAdapter
+{
+    public IProblem Problem { get; }
+
+    /// <value>
+    /// Свойство <c>SplitStrategy</c> является стратегией разбиения - шкала + методы для расчета разбиений
+    /// </value>
+    public ISplitStrategy SplitStrategy { get; }
+
+    /// <value>
+    /// Свойство <c>CalculationErrorStrategy</c> является стратегией расчета на ребрах локальных ошибок решения - скачков потока + метод(ы) для их расчета
+    /// </value>
+    public ICalculationErrorStrategy CalculationErrorStrategy { get; }
+
+    public Adapter2DMeshes(IProblem problem, ISplitStrategy splitStrategy,
+        ICalculationErrorStrategy calculationErrorStrategy)
+    {
+        Problem = problem;
+        SplitStrategy = splitStrategy;
+        CalculationErrorStrategy = calculationErrorStrategy;
+    }
+
+    /// <summary>
+    /// Выполняет адаптацию по заданным стратегиям дробления <c>SplitStrategy</c> и расчета ошибки <c>CalculationErrorStrategy</c>.
+    /// Пока что не циклическая, позже мб сделаю с циклической тут же.
+    /// </summary>
+    /// <returns>Сетка после адаптации.</returns>
+    public IFiniteElementMesh Adapt()
+    {
+        var errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
+        var splits = SplitStrategy.GetSplits(errors);
+
+        var countVertices = Problem.Mesh.Vertex.Length;
+        var verticesSplitedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
+
+        List<IFiniteElement> newElements = [];
+        List<(Vector2D vert, int num)> newVertices = [];
+
+        foreach (var element in Problem.Mesh.Elements)
+        {
+            var splittableElement = (ISplittableElement)element;
+            if (element.VertexNumbers.Length != 2)
+            {
+                var data = splittableElement.SplitToElements2D(splits, verticesSplitedEdges, ref countVertices);
+
+                newElements.AddRange(data.NewElements);
+                newVertices.AddRange(data.NewVertices);
+            }
+            else
+            {
+                var elements = splittableElement.SplitToElements1D(
+                [
+                    .. verticesSplitedEdges[element.GlobalEdge(0)]
+                        .Select(vertex => vertex.num)
+                ]);
+
+                newElements.AddRange(elements);
+            }
+        }
+
+        var vertices = new Vector2D[countVertices];
+
+        foreach ((Vector2D vert, int number) in newVertices)
+            vertices[number] = vert;
+
+        return new FiniteElementMesh(newElements, vertices);
+    }
+}

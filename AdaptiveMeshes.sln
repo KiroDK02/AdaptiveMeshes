@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.36105.23 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdaptiveMeshes", "AdaptiveMeshes\AdaptiveMeshes.csproj", "{9AE736ED-8969-4A7B-8AB0-36697F620356}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{9AE736ED-8969-4A7B-8AB0-36697F620356}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
