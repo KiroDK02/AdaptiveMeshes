@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewModels", "ViewModels\Vi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{B0D347D0-3D93-4BDA-A66D-F7A20CDF8E73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTransfers", "DataTransfers\DataTransfers.csproj", "{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B0D347D0-3D93-4BDA-A66D-F7A20CDF8E73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0D347D0-3D93-4BDA-A66D-F7A20CDF8E73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0D347D0-3D93-4BDA-A66D-F7A20CDF8E73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

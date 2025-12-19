@@ -1,3 +1,4 @@
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.FEM;
 using Core.Vectors;
@@ -10,11 +11,11 @@ public partial class MaterialViewModel : ObservableObject
     [ObservableProperty] private string name = "";
     [ObservableProperty] private MaterialType selectedType;
 
-    [ObservableProperty] private string lambdaBody;
-    [ObservableProperty] private string sigmaBody;
-    [ObservableProperty] private string fBody;
-    [ObservableProperty] private string ugBody;
-    [ObservableProperty] private string thettaBody;
+    [ObservableProperty] private string lambdaBody = "0";
+    [ObservableProperty] private string sigmaBody = "0";
+    [ObservableProperty] private string fBody = "0";
+    [ObservableProperty] private string ugBody = "0";
+    [ObservableProperty] private string thettaBody = "0";
     
     public bool IsVolume => SelectedType is MaterialType.Volume;
     public bool Is1 => SelectedType is MaterialType.FirstBoundary;
@@ -22,11 +23,11 @@ public partial class MaterialViewModel : ObservableObject
 
     public async Task<IMaterial> BuildMaterialAsync(IScriptCompiler compiler)
     {
-        Func<Vector2D, double> lambda = point => 0;
-        Func<Vector2D, double> sigma  = point => 0;
-        Func<Vector2D, double, double> f = (point, t) => 0;
-        Func<Vector2D, double, double> ug = (point, t) => 0;
-        Func<Vector2D, double, double> thetta = (point, t) => 0;
+        Func<Vector2D, double> lambda = _ => 0;
+        Func<Vector2D, double> sigma  = _ => 0;
+        Func<Vector2D, double, double> f = (_, _) => 0;
+        Func<Vector2D, double, double> ug = (_, _) => 0;
+        Func<Vector2D, double, double> thetta = (_, _) => 0;
 
         if (IsVolume)
         {
@@ -41,6 +42,21 @@ public partial class MaterialViewModel : ObservableObject
         
         return new Material(IsVolume, Is1, Is2,
             lambda, sigma, ug, thetta, f);
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"[Material]");
+        sb.AppendLine($"[MaterialName]:{Name}");
+        sb.AppendLine($"[MaterialType]:{(int)SelectedType}");
+        sb.AppendLine($"[LambdaBody]:{LambdaBody}");
+        sb.AppendLine($"[SigmaBody]:{SigmaBody}");
+        sb.AppendLine($"[FBody]:{FBody}");
+        sb.AppendLine($"[UgBody]:{UgBody}");
+        sb.AppendLine($"[ThettaBody]:{ThettaBody}");
+        
+        return sb.ToString();
     }
 
     partial void OnSelectedTypeChanged(MaterialType value)

@@ -10,11 +10,13 @@ namespace Core.Problems;
 
 public class EllipticalProblem : IProblem
 {
-    private PardisoSLAE? _slae;
+    public bool Solved { get; private set; }
     public IDictionary<string, IMaterial> Materials { get; }
     public ISolution Solution { get; set; }
     public IFiniteElementMesh Mesh { get; }
 
+    private PardisoSLAE? _slae;
+ 
     public EllipticalProblem(IDictionary<string, IMaterial> materials, IFiniteElementMesh mesh)
     {
         Materials = materials;
@@ -83,13 +85,15 @@ public class EllipticalProblem : IProblem
                 _slae?.AddFirstBoundaryConditions(element.Dofs, localRightPart);
             }
         }
-
-        using (var _slaeSolver = new PardisoSLAESolver(_slae!))
+        
+        using (var slaeSolver = new PardisoSLAESolver(_slae!))
         {
-            _slaeSolver.Prepare();
-            Solution.SolutionVector = _slaeSolver.Solve();
+            slaeSolver.Prepare();
+            Solution.SolutionVector = slaeSolver.Solve();
         }
 
+        Solved = true;
+        
         return _slae?.CalcDiscrepancy(Solution.SolutionVector);
     }
 }
