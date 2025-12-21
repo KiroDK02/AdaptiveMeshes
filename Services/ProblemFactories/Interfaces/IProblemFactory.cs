@@ -5,11 +5,6 @@ namespace Services.ProblemFactories.Interfaces;
 
 public interface IProblemFactory
 {
-    public enum ProblemType
-    {
-        EllipticalProblem
-    }
-    
     IProblem CreateProblem(
         ProblemType problemType,
         IDictionary<string, IMaterial> materials,

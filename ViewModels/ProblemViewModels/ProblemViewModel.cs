@@ -1,5 +1,10 @@
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Adaptation.Adapters.Adapters2DMeshes;
+using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
+using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
+using Core.FEM;
 using Core.Problems;
 using Services.MeshLoaders;
 using Services.ProblemFactories.Interfaces;
@@ -13,48 +18,58 @@ namespace ViewModels.ProblemViewModels;
 
 public partial class ProblemViewModel : ObservableObject
 {
-    public MaterialsViewModel Materials { get; } = new();
-
-    public MeshPlotViewModel MeshPlot { get; } = new();
+    public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
     
-    private readonly MeshLoaderFactory _meshLoaderFactory = MeshLoaderFactory.Instance; 
-    
-    private readonly IScriptCompiler _compiler;
-    private readonly IProblemFactory _problemFactory;
+    public IFiniteElementMesh? CurrentMesh { get; set; }
 
-    private readonly IWindowService _windowService;
-    
     [ObservableProperty] private string problemName = "default";
-    [ObservableProperty] private IProblemFactory.ProblemType selectedProblemType;
+    [ObservableProperty] private ProblemType selectedProblemType;
     [ObservableProperty] private string meshFilePath = "";
     [ObservableProperty] private IProblem? currentProblem;
 
+    private readonly MeshLoaderFactory _meshLoaderFactory = MeshLoaderFactory.Instance;
+
+    private readonly MeshPlotViewModel _meshPlot;
+    private readonly IScriptCompiler _compiler;
+    private readonly IProblemFactory _problemFactory;
+    private readonly IWindowService _windowService;
+
+    private readonly Action<
+            MaterialsViewModel, 
+            ProblemType, 
+            string, 
+            IFiniteElementMesh?> _addNewProblem;
+    private IDictionary<string, IMaterial>? _materials;
+    
     public ProblemViewModel(
+        MeshPlotViewModel meshPlot,
         IScriptCompiler compiler,
         IProblemFactory problemFactory,
-        IWindowService windowService)
+        IWindowService windowService,
+        Action<MaterialsViewModel, ProblemType, string, IFiniteElementMesh?> addNewProblem)
     {
+        _meshPlot = meshPlot;
         _compiler = compiler;
         _problemFactory = problemFactory;
         _windowService = windowService;
+        _addNewProblem  = addNewProblem;
     }
 
     [RelayCommand]
     private async Task BuildProblemAsync()
     {
-        if (string.IsNullOrWhiteSpace(MeshFilePath))
+        if (!File.Exists(MeshFilePath))
             throw new InvalidOperationException("Mesh file path is required.");
-        
-        var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
-        var mesh = await meshLoader.LoadMeshAsync(MeshFilePath);
-        var materials = await Materials.BuildMaterialsAsync(_compiler);
+
+        await LoadMesh();
+        _materials = await Materials.BuildMaterialsAsync(_compiler);
 
         CurrentProblem = _problemFactory.CreateProblem(
             SelectedProblemType,
-            materials,
-            mesh);
-        
+            _materials,
+            CurrentMesh!);
+
         CurrentProblem.Prepare();
     }
 
@@ -63,17 +78,35 @@ public partial class ProblemViewModel : ObservableObject
     {
         if (CurrentProblem is null || CurrentProblem.Solved)
             return;
-        
+
         CurrentProblem.Solve();
+        SolutionPlot.SetSolution(CurrentProblem.Solution);
+    }
+
+    [RelayCommand]
+    private void AdaptMesh()
+    {
+        if (CurrentProblem is null)
+            return;
+
+        var mesh = CurrentProblem.Mesh;
+        SolveProblem();
+
+        var splitStrategy = new SplitStrategy2DMeshes(mesh.Elements, mesh.Vertex);
+        var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem.Materials);
+        var adapter = new Adapter2DMeshes(CurrentProblem, splitStrategy,  calculatingErrorStrategy);
+        var adaptedMesh = adapter.Adapt();
+        
+        _addNewProblem(Materials, SelectedProblemType, $"{ProblemName} - Adapted", adaptedMesh);
     }
 
     [RelayCommand]
     private void DrawMesh()
     {
-        if (CurrentProblem is null)
+        if (CurrentMesh is null)
             return;
-        
-        MeshPlot.DrawMesh(CurrentProblem.Mesh);
+
+        _meshPlot.DrawMesh(CurrentMesh, Materials.Materials);
     }
 
     [RelayCommand]
@@ -81,10 +114,20 @@ public partial class ProblemViewModel : ObservableObject
     {
         if (CurrentProblem is null || !CurrentProblem.Solved)
             return;
-        
+
         _windowService.ShowSolutionWindow(SolutionPlot);
+
+        SolutionPlot.DrawSolution();
+    }
+
+    [RelayCommand]
+    private async Task LoadMesh()
+    {
+        if (!File.Exists(MeshFilePath))
+            return;
         
-        SolutionPlot.DrawSolution(CurrentProblem.Solution);
+        var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
+        CurrentMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
     }
     
     [RelayCommand]
@@ -96,11 +139,21 @@ public partial class ProblemViewModel : ObservableObject
             Filter = "Текстовый файл сетки (*.txt)|*.txt",
             Multiselect = false
         };
-        
+
         if (openFileDialog.ShowDialog() == true)
             MeshFilePath = openFileDialog.FileName;
     }
 
+    [RelayCommand]
+    private void SaveMesh()
+    {
+        if (string.IsNullOrEmpty(MeshFilePath))
+            return;
+        
+        var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
+        meshLoader.SaveMeshToFileAsync(CurrentProblem?.Mesh!, MeshFilePath);
+    }
+    
     [RelayCommand]
     private void SelectMeshFileToSave()
     {
@@ -125,4 +178,9 @@ public partial class ProblemViewModel : ObservableObject
     {
         // TODO: реализовать через DataTransfers
     }
+}
+
+public static class ProblemTypeHelper
+{
+    public static ProblemType[] Values { get; } = Enum.GetValues<ProblemType>();
 }

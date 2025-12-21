@@ -1,0 +1,84 @@
+<UserControl x:Class="Views.UserControls.ProblemView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:views="clr-namespace:Views.UserControls"
+             xmlns:vm="clr-namespace:ViewModels.ProblemViewModels;assembly=ViewModels"
+             d:DataContext="{d:DesignInstance Type=vm:ProblemViewModel}"
+             mc:Ignorable="d">
+    <Expander Header="{Binding ProblemName}"
+              Margin="0,0,0,5">
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/> 
+            </Grid.RowDefinitions>
+            
+            <ComboBox Grid.Row="0" 
+                      ItemsSource="{Binding Source={x:Static vm:ProblemTypeHelper.Values}}"
+                      SelectedItem="{Binding SelectedProblemType}" />
+
+            <Expander Grid.Row="1"
+                      Header="Сетка"
+                      Margin="10,10,0,10">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Text="{Binding MeshFilePath}"
+                                 IsReadOnly="True" 
+                                 Margin="0,5,0,0"/>
+
+                        <Button Grid.Column="1"
+                                Content="..."
+                                Command="{Binding SelectMeshFileCommand}"
+                                Margin="5,5,0,0" />
+                    </Grid>
+
+                    <UniformGrid Rows="2" Columns="2"
+                                 Margin="0,5,0,0">
+                        <Button Content="Загрузить"
+                                Command="{Binding LoadMeshCommand}" 
+                                Margin="0,0,0,2"/>
+                        <Button Content="Отрисовать сетку"
+                                Command="{Binding DrawMeshCommand}"
+                                Margin="5,0,0,2"/>
+                        <Button Content="Сохранить"
+                                Command="{Binding SaveMeshCommand}"
+                                Margin="0,2,0,0" />
+                        <Button Content="Сохранить как..."
+                                Command="{Binding SelectMeshFileToSaveCommand}"
+                                Margin="5,2,0,0" />
+                    </UniformGrid>
+                </StackPanel>
+            </Expander>
+
+            <views:MaterialsView Grid.Row="2"
+                                 DataContext="{Binding Materials}"
+                                 Margin="10,0,0,0"/>
+
+            <UniformGrid Grid.Row="3"
+                         Rows="2" Columns="2"
+                         Margin="0,5,0,0">
+                <Button Content="Построить"
+                        Command="{Binding BuildProblemCommand}"
+                        Margin="0,0,0,2"/>
+                <Button Content="Адаптировать сетку"
+                        Command="{Binding AdaptMeshCommand}"
+                        Margin="5,0,0,2"/>
+                <Button Content="Решить"
+                        Command="{Binding SolveProblemCommand}"
+                        Margin="0, 2,0,0" />
+                <Button Content="Отрисовать решение"
+                        Command="{Binding DrawSolutionCommand}"
+                        Margin="5,2,0,0"/>
+            </UniformGrid>
+        </Grid>
+    </Expander>
+</UserControl>

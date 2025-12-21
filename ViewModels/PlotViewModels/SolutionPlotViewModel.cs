@@ -7,20 +7,23 @@ namespace ViewModels.PlotViewModels;
 public partial class SolutionPlotViewModel : ObservableObject
 {
     private WpfPlot? _wpfPlot;
+    private ISolution?  _solution;
 
     [ObservableProperty] private bool showColorMap = true;
     [ObservableProperty] private bool showIsolines = true;
 
     public void SetPlot(WpfPlot wpfPlot) => _wpfPlot = wpfPlot;
+    
+    public void SetSolution(ISolution solution) => _solution = solution;
 
-    public void DrawSolution(ISolution solution)
+    public void DrawSolution()
     {
-        if (_wpfPlot is null)
+        if (_wpfPlot is null || _solution is null)
             return;
         
         _wpfPlot.Plot.Clear();
         
-        _wpfPlot.DrawElements(solution.Mesh);
+        _wpfPlot.DrawElements(_solution.Mesh, null);
         
         // TODO: добавить отрисовку цветового градиента и изолиний
         

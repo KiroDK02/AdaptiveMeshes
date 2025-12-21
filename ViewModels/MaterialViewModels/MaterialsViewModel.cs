@@ -9,7 +9,9 @@ namespace ViewModels.MaterialViewModels;
 public partial class MaterialsViewModel : ObservableObject
 {
     public ObservableCollection<MaterialViewModel> Materials { get; } = [];
-
+    
+    [ObservableProperty] private MaterialViewModel? selectedMaterial;
+    
     public async Task<IDictionary<string, IMaterial>> BuildMaterialsAsync(IScriptCompiler compiler)
     {
         var materials = new Dictionary<string, IMaterial>();
@@ -28,7 +30,11 @@ public partial class MaterialsViewModel : ObservableObject
                 Name = $"Material{Materials.Count + 1}",
                 SelectedType = MaterialType.Volume
             });
-    
+
     [RelayCommand]
-    private void RemoveMaterial(MaterialViewModel material) => Materials.Remove(material);
+    private void RemoveMaterial()
+    {
+        if (SelectedMaterial is not null)
+            Materials.Remove(SelectedMaterial);
+    }
 }

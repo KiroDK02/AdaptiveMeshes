@@ -1,0 +1,73 @@
+<UserControl x:Class="Views.UserControls.MaterialView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Views.UserControls"
+             xmlns:vm="clr-namespace:ViewModels.MaterialViewModels;assembly=ViewModels"
+             xmlns:converters="clr-namespace:Views.Converters"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             d:DataContext="{d:DesignInstance Type=vm:MaterialViewModel}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+        <converters:ScottPlotColorConverter x:Key="ColorConverter"/>
+    </UserControl.Resources>
+
+    <Expander Header="{Binding Name}"
+              Margin="0,0,0,5">
+        <StackPanel Margin="5">
+            <TextBox Text="{Binding Name, Mode=TwoWay}"
+                     Margin="0,0,0,10"/>
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,5">
+                <TextBlock Text="Тип: "
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0" />
+                <ComboBox SelectedItem="{Binding SelectedType, Mode=TwoWay}"
+                          ItemsSource="{Binding Source={x:Static vm:MaterialTypeHelper.Values}}"/>
+
+                <TextBlock Text="Цвет: " Margin="10,0,10,0"
+                           VerticalAlignment="Center"/>
+                <xctk:ColorPicker SelectedColor="{Binding SelectedColor, Mode=TwoWay, Converter={StaticResource ColorConverter}}" 
+                                  Width="100" Height="25"
+                                  ShowDropDownButton="False"/>
+            </StackPanel>
+
+            <Expander Header="Lambda"
+                      Visibility="{Binding IsVolume, Converter={StaticResource BoolToVisibility}}">
+                <TextBox Text="{Binding LambdaBody}"
+                         AcceptsReturn="True"
+                         MinHeight="60" />
+            </Expander>
+
+            <Expander Header="Sigma"
+                      Visibility="{Binding IsVolume, Converter={StaticResource BoolToVisibility}}">
+                <TextBox Text="{Binding SigmaBody}"
+                         AcceptsReturn="True"
+                         MinHeight="60" />
+            </Expander>
+
+            <Expander Header="F"
+                      Visibility="{Binding IsVolume, Converter={StaticResource BoolToVisibility}}">
+                <TextBox Text="{Binding FBody}"
+                         AcceptsReturn="True"
+                         MinHeight="60" />
+            </Expander>
+
+            <Expander Header="Ug (Fixed value)"
+                      Visibility="{Binding Is1, Converter={StaticResource BoolToVisibility}}">
+                <TextBox Text="{Binding UgBody}"
+                         AcceptsReturn="True"
+                         MinHeight="60" />
+            </Expander>
+
+            <Expander Header="Thetta (Fixed flow value)"
+                      Visibility="{Binding Is2, Converter={StaticResource BoolToVisibility}}">
+                <TextBox Text="{Binding ThettaBody}"
+                         AcceptsReturn="True"
+                         MinHeight="60" />
+            </Expander>
+        </StackPanel>
+    </Expander>
+</UserControl>

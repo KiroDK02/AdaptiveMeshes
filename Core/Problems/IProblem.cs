@@ -13,3 +13,8 @@ public interface IProblem
     void Prepare();
     double? Solve();
 }
+
+public enum ProblemType
+{
+    EllipticalProblem
+}

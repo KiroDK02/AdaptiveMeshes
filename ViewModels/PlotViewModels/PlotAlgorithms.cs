@@ -1,15 +1,23 @@
-using System.Windows.Media.Animation;
+using System.Diagnostics.CodeAnalysis;
 using Core.FEM;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ScottPlot;
 using ScottPlot.WPF;
+using ViewModels.MaterialViewModels;
 
 namespace ViewModels.PlotViewModels;
 
 public static class PlotAlgorithms
 {
-    public static void DrawElements(this WpfPlot wpfPlot, IFiniteElementMesh mesh, Color? fillColor = null)
+    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+    public static void DrawElements(
+        this WpfPlot wpfPlot,
+        IFiniteElementMesh mesh,
+        IEnumerable<MaterialViewModel>? materials,
+        bool drawMaterials = false)
     {
+        var materialColors = materials?.
+            ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
+
         foreach (var element in mesh.Elements)
         {
             if (element.VertexNumbers.Length == 2)
@@ -26,7 +34,9 @@ public static class PlotAlgorithms
             polygon.LineColor = Colors.Black;
             polygon.LineWidth = 1;
 
-            polygon.FillColor = fillColor ?? Colors.Transparent.WithAlpha(1f);
+            if (materialColors != null && drawMaterials)
+                if (materialColors.TryGetValue(element.Material, out var color))
+                    polygon.FillColor = color;
         }
     }
 }

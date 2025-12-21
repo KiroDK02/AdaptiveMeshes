@@ -16,6 +16,7 @@ public class CSharpScriptingCompiler : IScriptCompiler
     {
         var code = WrapStationaryFunction(functionBody);
 
+
         return await CSharpScript
             .EvaluateAsync<Func<Vector2D, double>>(code, _options);
     }
@@ -29,18 +30,18 @@ public class CSharpScriptingCompiler : IScriptCompiler
     }
 
     private static string WrapStationaryFunction(string functionBody) =>
-        $$"""
-          new Func<Core.Vectors.Vector2D, double>(point => 
-          {
-              {{functionBody}}
-          })
-          """;
+        $"new Func<Core.Vectors.Vector2D, double>(point => {{{CheckFunctionBody(functionBody)};}})";
 
     private static string WrapNonStationaryFunction(string functionBody) =>
-        $$"""
-          new Func<Core.Vectors.Vector2D, double, double>(point => 
-          {
-              {{functionBody}}
-          })
-          """;
+        $"new Func<Core.Vectors.Vector2D, double, double>((point, t) => {{{CheckFunctionBody(functionBody)};}})";
+    
+    private static string CheckFunctionBody(string functionBody)
+    {
+        functionBody = functionBody.Trim();
+
+        if (!functionBody.StartsWith("return") && !functionBody.EndsWith(';'))
+            functionBody = $"return {functionBody};";
+
+        return functionBody;
+    }
 }

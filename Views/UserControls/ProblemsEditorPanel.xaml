@@ -1,0 +1,44 @@
+<UserControl x:Class="Views.UserControls.ProblemsEditorPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:views="clr-namespace:Views.UserControls"
+             xmlns:vm="clr-namespace:ViewModels.ProblemViewModels;assembly=ViewModels"
+             xmlns:converters="clr-namespace:Views.Converters"
+             d:DataContext="{d:DesignInstance Type=vm:ProblemsEditorViewModel}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:NullToBoolConverter x:Key="NullToBool" />
+    </UserControl.Resources>
+
+    <Expander Header="Проблемы"
+              Margin="5">
+        <DockPanel Margin="5">
+            <UniformGrid DockPanel.Dock="Top"
+                         Columns="2"
+                         Margin="0,0,0,5">
+                <Button Content="Добавить проблему"
+                        Command="{Binding AddNewProblemCommand}"
+                        Margin="0,0,5,0" />
+                <Button Content="Удалить выбранную проблему"
+                        Command="{Binding RemoveProblemCommand}"
+                        CommandParameter="{Binding SelectedProblem}"
+                        IsEnabled="{Binding SelectedProblem, Converter={StaticResource NullToBool}}" />
+            </UniformGrid>
+
+            <ListBox ItemsSource="{Binding Problems}"
+                     SelectedItem="{Binding SelectedProblem}"
+                     BorderThickness="1"
+                     BorderBrush="Gray"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     MinHeight="150">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <views:ProblemView />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Expander>
+</UserControl>
