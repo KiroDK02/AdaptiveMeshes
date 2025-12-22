@@ -21,7 +21,7 @@ public partial class ProblemViewModel : ObservableObject
     public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
     
-    public IFiniteElementMesh? CurrentMesh { get; set; }
+    public IFiniteElementMesh? ProblemMesh { get; set; }
 
     [ObservableProperty] private string problemName = "default";
     [ObservableProperty] private ProblemType selectedProblemType;
@@ -59,7 +59,7 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private async Task BuildProblemAsync()
     {
-        if (!File.Exists(MeshFilePath))
+        if (ProblemMesh is null && !File.Exists(MeshFilePath))
             throw new InvalidOperationException("Mesh file path is required.");
 
         await LoadMesh();
@@ -68,7 +68,7 @@ public partial class ProblemViewModel : ObservableObject
         CurrentProblem = _problemFactory.CreateProblem(
             SelectedProblemType,
             _materials,
-            CurrentMesh!);
+            ProblemMesh!);
 
         CurrentProblem.Prepare();
     }
@@ -103,10 +103,10 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private void DrawMesh()
     {
-        if (CurrentMesh is null)
+        if (ProblemMesh is null)
             return;
 
-        _meshPlot.DrawMesh(CurrentMesh, Materials.Materials);
+        _meshPlot.DrawMesh(ProblemMesh, Materials.Materials);
     }
 
     [RelayCommand]
@@ -127,7 +127,7 @@ public partial class ProblemViewModel : ObservableObject
             return;
         
         var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
-        CurrentMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
+        ProblemMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
     }
     
     [RelayCommand]
@@ -157,6 +157,9 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private void SelectMeshFileToSave()
     {
+        if (ProblemMesh is null)
+            return;
+        
         // TODO: вынести это через трансфер тоже?
         var saveFileDialog = new SaveFileDialog()
         {
@@ -169,7 +172,9 @@ public partial class ProblemViewModel : ObservableObject
             var fileName = saveFileDialog.FileName;
             var meshLoader = _meshLoaderFactory.CreateMeshLoader(fileName);
 
-            meshLoader.SaveMeshToFileAsync(CurrentProblem?.Mesh!, fileName);
+            MeshFilePath = fileName;
+            
+            meshLoader.SaveMeshToFileAsync(ProblemMesh, fileName);
         }
     }
 

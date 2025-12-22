@@ -76,7 +76,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
             Materials = materials,
             SelectedProblemType = problemType,
             ProblemName = problemName,
-            CurrentMesh = mesh
+            ProblemMesh = mesh
         };
         
         Problems.Add(newProblemVm);

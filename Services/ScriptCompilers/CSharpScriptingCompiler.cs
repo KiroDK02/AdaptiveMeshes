@@ -16,17 +16,16 @@ public class CSharpScriptingCompiler : IScriptCompiler
     {
         var code = WrapStationaryFunction(functionBody);
 
-
-        return await CSharpScript
-            .EvaluateAsync<Func<Vector2D, double>>(code, _options);
+        return await Task.Run(() =>
+            CSharpScript.EvaluateAsync<Func<Vector2D, double>>(code, _options)); 
     }
 
     public async Task<Func<Vector2D, double, double>> CompileNonStationaryFunction(string functionBody)
     {
         var code = WrapNonStationaryFunction(functionBody);
 
-        return await CSharpScript
-            .EvaluateAsync<Func<Vector2D, double, double>>(code, _options);
+        return await Task.Run(() =>
+            CSharpScript.EvaluateAsync<Func<Vector2D, double, double>>(code, _options));
     }
 
     private static string WrapStationaryFunction(string functionBody) =>

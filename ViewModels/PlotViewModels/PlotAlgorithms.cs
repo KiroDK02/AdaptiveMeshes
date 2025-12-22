@@ -15,8 +15,7 @@ public static class PlotAlgorithms
         IEnumerable<MaterialViewModel>? materials,
         bool drawMaterials = false)
     {
-        var materialColors = materials?.
-            ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
+        var materialColors = materials?.ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
 
         foreach (var element in mesh.Elements)
         {
@@ -34,9 +33,36 @@ public static class PlotAlgorithms
             polygon.LineColor = Colors.Black;
             polygon.LineWidth = 1;
 
-            if (materialColors != null && drawMaterials)
-                if (materialColors.TryGetValue(element.Material, out var color))
-                    polygon.FillColor = color;
+            if (materialColors != null
+                && drawMaterials
+                && materialColors.TryGetValue(element.Material, out var color))
+                polygon.FillColor = color;
+            else
+                polygon.FillColor = Colors.Transparent.WithAlpha(0f);
+        }
+
+        if (!drawMaterials
+            || materialColors == null)
+            return;
+
+        foreach (var element in mesh.Elements)
+        {
+            if (element.VertexNumbers.Length != 2)
+                continue;
+
+            var vertices = element.VertexNumbers
+                .Select(number => mesh.Vertex[number])
+                .ToArray();
+
+            var line = wpfPlot.Plot.Add.Line(vertices[0].X, vertices[0].Y, vertices[1].X, vertices[1].Y);
+
+            if (materialColors.TryGetValue(element.Material, out var color))
+            {
+                line.LineColor = color;
+                line.LineWidth = 1.5f;
+            }
+            else
+                line.Color = Colors.Black;
         }
     }
 }

@@ -14,4 +14,18 @@ public class FiniteElementMesh : IFiniteElementMesh
         Elements = elements;
         Vertex = vertex;
     }
+
+    public bool TryFindElementWithPoint(Vector2D point, out IFiniteElement? result)
+    {
+        foreach (var element in Elements)
+            if (element.VertexNumbers.Length != 2
+                && element.IsPointOnElement(Vertex, point))
+            {
+                result = element;
+                return true;
+            }
+
+        result = null;
+        return false;
+    }
 }

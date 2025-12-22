@@ -4,9 +4,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:Views.Windows"
+        xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+        xmlns:vm="clr-namespace:ViewModels.PlotViewModels;assembly=ViewModels"
+        d:DataContext="{d:DesignInstance Type=vm:SolutionPlotViewModel}"
         mc:Ignorable="d"
-        Title="SolutionWindow" Height="450" Width="800">
+        Title="Окно решения"
+        Height="1200" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="5">
+            <TextBlock Text="Качество градиента: "/>
+            <TextBox Text="{Binding GridSize}"
+                     IsReadOnly="True" 
+                     Margin="10,0,0,0"/>
+            <CheckBox Content="Изолинии"
+                      IsChecked="{Binding ShowIsolines}" 
+                      Margin="10,0,0,0"/>
+            <CheckBox Content="Цветовой градиент"
+                      IsChecked="{Binding ShowColorMap}"
+                      Margin="10,0,0,0" />
+        </StackPanel>
+
+        <scottPlot:WpfPlot Grid.Row="1"
+                           x:Name="SolutionPlot" />
     </Grid>
 </Window>

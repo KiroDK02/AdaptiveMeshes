@@ -31,7 +31,7 @@ public class MeshLoaderTxt : IMeshLoader
     {
         var verticesCount = int.Parse((await reader.ReadLineAsync())!);
         var vertices = new Vector2D[verticesCount];
-
+        
         for (int i = 0; i < verticesCount; i++)
         {
             if (!Vector2D.TryParse((await reader.ReadLineAsync())!, out vertices[i]))

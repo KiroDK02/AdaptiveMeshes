@@ -1,11 +1,9 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 using Services.ProblemFactories;
 using Services.ScriptCompilers;
-using Services.WindowServices;
 using ViewModels;
 using Views.Windows;
+using Views.Windows.WindowServices;
 
 namespace Views;
 
