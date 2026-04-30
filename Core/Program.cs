@@ -88,7 +88,7 @@ Console.WriteLine($"""
 SplitStrategy2DMeshes splitStrategy = new(startMesh.Elements, startMesh.Vertex);
 CesDifferenceAverageFlowOnEdge calculationErrorStrategy = new(materials);
 
-Adapter2DMeshes adapter = new(problem, splitStrategy, calculationErrorStrategy);
+HAdapter2DMeshes adapter = new(problem, splitStrategy, calculationErrorStrategy);
 
 IFiniteElementMesh adaptedMesh = adapter.Adapt();
 

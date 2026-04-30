@@ -14,7 +14,7 @@ namespace Core.Adaptation.Adapters.Adapters2DMeshes;
 /// просто добавив количество повторов, адаптация будет происходить через
 /// стратегии расчета ошибок и разбиения, в которых будет реализовано все нужное.
 /// </summary>
-public class Adapter2DMeshes : IAdapter
+public class HAdapter2DMeshes : IAdapter
 {
     public IProblem Problem { get; }
 
@@ -28,7 +28,7 @@ public class Adapter2DMeshes : IAdapter
     /// </value>
     public ICalculationErrorStrategy CalculationErrorStrategy { get; }
 
-    public Adapter2DMeshes(IProblem problem, ISplitStrategy splitStrategy,
+    public HAdapter2DMeshes(IProblem problem, ISplitStrategy splitStrategy,
         ICalculationErrorStrategy calculationErrorStrategy)
     {
         Problem = problem;

@@ -96,7 +96,7 @@ public partial class ProblemViewModel : ObservableObject
 
         var splitStrategy = new SplitStrategy2DMeshes(mesh.Elements, mesh.Vertex);
         var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem.Materials);
-        var adapter = new Adapter2DMeshes(CurrentProblem, splitStrategy,  calculatingErrorStrategy);
+        var adapter = new HAdapter2DMeshes(CurrentProblem, splitStrategy,  calculatingErrorStrategy);
         var adaptedMesh = adapter.Adapt();
 
         var newMeshFile = 
