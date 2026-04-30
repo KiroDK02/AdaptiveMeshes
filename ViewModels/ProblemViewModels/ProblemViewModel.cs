@@ -20,7 +20,7 @@ public partial class ProblemViewModel : ObservableObject
 {
     public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
-    
+
     public IFiniteElementMesh? ProblemMesh { get; set; }
 
     [ObservableProperty] private string problemName = "default";
@@ -36,14 +36,14 @@ public partial class ProblemViewModel : ObservableObject
     private readonly IWindowService _windowService;
 
     private readonly Action<
-            MaterialsViewModel, 
-            ProblemType, 
-            string,
-            string,
-            IFiniteElementMesh?> _addNewProblem;
-    
+        MaterialsViewModel,
+        ProblemType,
+        string,
+        string,
+        IFiniteElementMesh?> _addNewProblem;
+
     private IDictionary<string, IMaterial>? _materials;
-    
+
     public ProblemViewModel(
         MeshPlotViewModel meshPlot,
         IScriptCompiler compiler,
@@ -55,16 +55,20 @@ public partial class ProblemViewModel : ObservableObject
         _compiler = compiler;
         _problemFactory = problemFactory;
         _windowService = windowService;
-        _addNewProblem  = addNewProblem;
+        _addNewProblem = addNewProblem;
     }
 
     [RelayCommand]
     private async Task BuildProblemAsync()
     {
-        if (ProblemMesh is null && !File.Exists(MeshFilePath))
-            throw new InvalidOperationException("Mesh file path is required.");
+        if (ProblemMesh is null)
+        {
+            if (!File.Exists(MeshFilePath))
+                throw new InvalidOperationException("Mesh file path is required.");
+            
+            await LoadMeshAsync();
+        }
 
-        await LoadMesh();
         _materials = await Materials.BuildMaterialsAsync(_compiler);
 
         CurrentProblem = _problemFactory.CreateProblem(
@@ -76,32 +80,33 @@ public partial class ProblemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SolveProblem()
+    private async Task SolveProblemAsync()
     {
-        if (CurrentProblem is null || CurrentProblem.Solved)
+        if (CurrentProblem is not null && CurrentProblem.Solved)
             return;
-
-        CurrentProblem.Solve();
-        SolutionPlot.SetSolution(CurrentProblem.Solution);
+        
+        if (CurrentProblem is null)
+            await BuildProblemAsync();
+        
+        CurrentProblem?.Solve();
+        SolutionPlot.SetSolution(CurrentProblem?.Solution!);
     }
 
     [RelayCommand]
-    private void AdaptMesh()
+    private async Task AdaptMeshAsync()
     {
-        if (CurrentProblem is null)
-            return;
+        await SolveProblemAsync();
+        var mesh = CurrentProblem?.Mesh;
 
-        var mesh = CurrentProblem.Mesh;
-        SolveProblem();
+        var splitStrategy = new SplitStrategy2DMeshes(mesh?.Elements!, mesh?.Vertex!);
+        var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem?.Materials!);
+        var adapter = new HAdapter2DMeshes(CurrentProblem!, splitStrategy, calculatingErrorStrategy);
+        
+        var adaptedMesh = await Task.Run(adapter.Adapt);
 
-        var splitStrategy = new SplitStrategy2DMeshes(mesh.Elements, mesh.Vertex);
-        var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem.Materials);
-        var adapter = new HAdapter2DMeshes(CurrentProblem, splitStrategy,  calculatingErrorStrategy);
-        var adaptedMesh = adapter.Adapt();
-
-        var newMeshFile = 
+        var newMeshFile =
             $@"{Path.GetDirectoryName(MeshFilePath)}\{Path.GetFileNameWithoutExtension(MeshFilePath)}Adapted{Path
-            .GetExtension(MeshFilePath)}";
+                .GetExtension(MeshFilePath)}";
         _addNewProblem(Materials, SelectedProblemType, $"{ProblemName} - Adapted", newMeshFile, adaptedMesh);
     }
 
@@ -126,15 +131,15 @@ public partial class ProblemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task LoadMesh()
+    private async Task LoadMeshAsync()
     {
         if (!File.Exists(MeshFilePath))
             return;
-        
+
         var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
         ProblemMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
     }
-    
+
     [RelayCommand]
     private void SelectMeshFile()
     {
@@ -152,19 +157,19 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private void SaveMesh()
     {
-        if (string.IsNullOrEmpty(MeshFilePath))
+        if (ProblemMesh is null || string.IsNullOrEmpty(MeshFilePath))
             return;
-        
+
         var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
-        meshLoader.SaveMeshToFileAsync(CurrentProblem?.Mesh!, MeshFilePath);
+        meshLoader.SaveMeshToFileAsync(ProblemMesh, MeshFilePath);
     }
-    
+
     [RelayCommand]
     private void SelectMeshFileToSave()
     {
         if (ProblemMesh is null)
             return;
-        
+
         // TODO: вынести это через трансфер тоже?
         var saveFileDialog = new SaveFileDialog()
         {
@@ -172,15 +177,15 @@ public partial class ProblemViewModel : ObservableObject
             Filter = "Текстовый файл (*.txt)|*.txt"
         };
 
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            var fileName = saveFileDialog.FileName;
-            var meshLoader = _meshLoaderFactory.CreateMeshLoader(fileName);
+        if (saveFileDialog.ShowDialog() != true)
+            return;
+        
+        var fileName = saveFileDialog.FileName;
+        var meshLoader = _meshLoaderFactory.CreateMeshLoader(fileName);
 
-            MeshFilePath = fileName;
-            
-            meshLoader.SaveMeshToFileAsync(ProblemMesh, fileName);
-        }
+        MeshFilePath = fileName;
+
+        meshLoader.SaveMeshToFileAsync(ProblemMesh, fileName);
     }
 
     [RelayCommand]

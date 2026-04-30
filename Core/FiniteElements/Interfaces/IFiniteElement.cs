@@ -4,11 +4,20 @@ namespace Core.FiniteElements.Interfaces;
 
 public interface IFiniteElement : IGeometryElement
 {
+    enum BasicFunctionsTypeEnum
+    {
+        Lagrange,
+        Hierarchical
+    }
+    
     enum MatrixTypeEnum
     {
         Stiffness,
         Mass
     }
+    
+    BasicFunctionsTypeEnum FunctionsType { get; }
+    int Order { get; }
     
     string Material { get; }
     int[] Dofs { get; }

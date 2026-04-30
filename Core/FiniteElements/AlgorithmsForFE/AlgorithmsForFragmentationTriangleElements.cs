@@ -1,4 +1,5 @@
-﻿using Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
+﻿using System.Reflection;
+using Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 using Core.FiniteElements.Interfaces;
 using Core.Vectors;
 
@@ -32,7 +33,9 @@ public static class AlgorithmsForFragmentationTriangleElements
                 int[] globalNumbers =
                     [globalVerticesNums[localNumV1], globalVerticesNums[localNumV2], globalVerticesNums[localNumV3]];
 
-                newElements.Add(new TriangleFEQuadraticBaseWithNI(element.Material, globalNumbers));
+                var newElement = FiniteElementsFactory.CreateElement(element, globalNumbers, element.Order);
+                
+                newElements.Add(newElement);
             }
         }
 
@@ -101,29 +104,31 @@ public static class AlgorithmsForFragmentationTriangleElements
 
             for (int elemi = 0; elemi < listElemsFromCurElem.Count; elemi++)
             {
+                var elem = listElemsFromCurElem[elemi];
                 for (int edgei = 0; edgei < 3; edgei++)
                 {
-                    var edge = listElemsFromCurElem[elemi]
-                        .GlobalEdge(edgei);
+                    var edge = elem.GlobalEdge(edgei);
 
                     if (verticesEdge[k - 1].num == edge.i && verticesEdge[k + 1].num == edge.j
                         || verticesEdge[k - 1].num == edge.j && verticesEdge[k + 1].num == edge.i)
                     {
                         int thirdVertex = edgei switch
                         {
-                            0 => listElemsFromCurElem[elemi]
-                                .VertexNumbers[2],
-                            1 => listElemsFromCurElem[elemi]
-                                .VertexNumbers[0],
-                            2 => listElemsFromCurElem[elemi]
-                                .VertexNumbers[1],
+                            0 => elem.VertexNumbers[2],
+                            1 => elem.VertexNumbers[0],
+                            2 => elem.VertexNumbers[1],
                             _ => throw new ArgumentException("Invalid number of edge.")
                         };
 
-                        var elem1 = new TriangleFEQuadraticBaseWithNI(listElemsFromCurElem[elemi].Material,
-                            [edge.i, verticesEdge[k].num, thirdVertex]);
-                        var elem2 = new TriangleFEQuadraticBaseWithNI(listElemsFromCurElem[elemi].Material,
-                            [verticesEdge[k].num, edge.j, thirdVertex]);
+                        var elem1 = FiniteElementsFactory.CreateElement(
+                            elem,
+                            new[] { edge.i, verticesEdge[k].num, thirdVertex },
+                            elem.Order);
+
+                        var elem2 = FiniteElementsFactory.CreateElement(
+                            elem,
+                            new[] { verticesEdge[k].num, edge.j, thirdVertex },
+                            elem.Order);
 
                         listElemsFromCurElem[elemi] = elem1;
                         listElemsFromCurElem.Add(elem2);

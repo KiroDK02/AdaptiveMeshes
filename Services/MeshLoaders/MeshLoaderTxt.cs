@@ -30,10 +30,8 @@ public class MeshLoaderTxt : IMeshLoader
 
     public async Task SaveMeshToFileAsync(IFiniteElementMesh mesh, string path)
     {
-        await using var writer = new StreamWriter(path);
-
-        await SaveToFileAsync(mesh.Vertex, writer);
-        await SaveToFileAsync(mesh.Elements, writer);
+        await SaveToFileAsync(mesh.Vertex, path);
+        await SaveToFileAsync(mesh.Elements, path, append: true);
     }
 
     private static Vector2D[] LoadVerticesAsync(int verticesCount, ReadOnlySpan<string> inputVertices)
@@ -61,7 +59,7 @@ public class MeshLoaderTxt : IMeshLoader
         return elements;
     }
 
-    private static async Task SaveToFileAsync<T>(IEnumerable<T> collection, StreamWriter writer)
+    private static async Task SaveToFileAsync<T>(IEnumerable<T> collection, string filePath, bool append = false)
     {
         var itemsCount = 0;
 
@@ -70,19 +68,26 @@ public class MeshLoaderTxt : IMeshLoader
             {
                 itemsCount++;
                 return item?.ToString();
-            });
+            }).ToArray();
+
+        var content = $"{itemsCount}\n{string.Join('\n', collectionString)}\n";
         
-        await writer.WriteAsync(string.Join('\n', itemsCount, collectionString));
+        if (append)
+            await File.AppendAllTextAsync(filePath, content);
+        else
+        {
+            await File.WriteAllTextAsync(filePath, content);
+        }
     }
     
     private static IFiniteElement GetElement(string[] element)
         => element[0] switch
         {
-            "TriangleLagrange2" => new TriangleFEQuadraticBaseWithNI(
+            "TriangleLagrange2" => new TriangleFiniteElementQuadraticLagrange(
                 string.Join(' ', element[4..]),
                 [int.Parse(element[1]), int.Parse(element[2]), int.Parse(element[3])]),
                 
-            "SegmentLagrange2" => new SegmentFEQuadraticBaseWithNI(
+            "SegmentLagrange2" => new SegmentFiniteElementQuadraticLagrange(
                 string.Join(' ', element[3..]),
                 [int.Parse(element[1]), int.Parse(element[2])]),
                 
