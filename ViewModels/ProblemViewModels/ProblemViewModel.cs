@@ -25,7 +25,7 @@ public partial class ProblemViewModel : ObservableObject
 
     [ObservableProperty] private string problemName = "default";
     [ObservableProperty] private ProblemType selectedProblemType;
-    [ObservableProperty] private string meshFilePath = "";
+    [ObservableProperty] private string meshFilePath = string.Empty;
     [ObservableProperty] private IProblem? currentProblem;
 
     private readonly MeshLoaderFactory _meshLoaderFactory = MeshLoaderFactory.Instance;
@@ -38,8 +38,10 @@ public partial class ProblemViewModel : ObservableObject
     private readonly Action<
             MaterialsViewModel, 
             ProblemType, 
-            string, 
+            string,
+            string,
             IFiniteElementMesh?> _addNewProblem;
+    
     private IDictionary<string, IMaterial>? _materials;
     
     public ProblemViewModel(
@@ -47,7 +49,7 @@ public partial class ProblemViewModel : ObservableObject
         IScriptCompiler compiler,
         IProblemFactory problemFactory,
         IWindowService windowService,
-        Action<MaterialsViewModel, ProblemType, string, IFiniteElementMesh?> addNewProblem)
+        Action<MaterialsViewModel, ProblemType, string, string, IFiniteElementMesh?> addNewProblem)
     {
         _meshPlot = meshPlot;
         _compiler = compiler;
@@ -96,8 +98,11 @@ public partial class ProblemViewModel : ObservableObject
         var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem.Materials);
         var adapter = new Adapter2DMeshes(CurrentProblem, splitStrategy,  calculatingErrorStrategy);
         var adaptedMesh = adapter.Adapt();
-        
-        _addNewProblem(Materials, SelectedProblemType, $"{ProblemName} - Adapted", adaptedMesh);
+
+        var newMeshFile = 
+            $@"{Path.GetDirectoryName(MeshFilePath)}\{Path.GetFileNameWithoutExtension(MeshFilePath)}Adapted{Path
+            .GetExtension(MeshFilePath)}";
+        _addNewProblem(Materials, SelectedProblemType, $"{ProblemName} - Adapted", newMeshFile, adaptedMesh);
     }
 
     [RelayCommand]

@@ -43,6 +43,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
             new(),
             ProblemType.EllipticalProblem,
             $"Problem{Problems.Count + 1}",
+            string.Empty,
             null);
 
     [RelayCommand]
@@ -64,6 +65,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
         MaterialsViewModel materials, 
         ProblemType problemType, 
         string problemName,
+        string meshFilePath,
         IFiniteElementMesh? mesh)
     {
         var newProblemVm = new ProblemViewModel(
@@ -76,6 +78,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
             Materials = materials,
             SelectedProblemType = problemType,
             ProblemName = problemName,
+            MeshFilePath = meshFilePath,
             ProblemMesh = mesh
         };
         

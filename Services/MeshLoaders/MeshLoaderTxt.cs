@@ -13,8 +13,17 @@ public class MeshLoaderTxt : IMeshLoader
     {
         using var reader = new StreamReader(path);
         
-        var vertices = await LoadVerticesAsync(reader);
-        var elements = await LoadElementsAsync(reader);
+        var allLines = (await reader.ReadToEndAsync()).Split(['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+        var verticesCount = int.Parse(allLines[0]);
+        var elementsCount = int.Parse(allLines[verticesCount + 1]);
+        
+        var vertices = LoadVerticesAsync(
+            verticesCount, 
+            allLines.AsSpan(1, verticesCount));
+        
+        var elements = LoadElementsAsync(
+            elementsCount, 
+            allLines.AsSpan(verticesCount + 2, elementsCount));
         
         return new FiniteElementMesh(elements, vertices);
     }
@@ -27,43 +36,43 @@ public class MeshLoaderTxt : IMeshLoader
         await SaveToFileAsync(mesh.Elements, writer);
     }
 
-    private static async Task<Vector2D[]> LoadVerticesAsync(StreamReader reader)
+    private static Vector2D[] LoadVerticesAsync(int verticesCount, ReadOnlySpan<string> inputVertices)
     {
-        var verticesCount = int.Parse((await reader.ReadLineAsync())!);
         var vertices = new Vector2D[verticesCount];
-        
-        for (int i = 0; i < verticesCount; i++)
+
+        var i = 0;
+        foreach (var vertex in inputVertices)
         {
-            if (!Vector2D.TryParse((await reader.ReadLineAsync())!, out vertices[i]))
+            if (!Vector2D.TryParse(vertex, out vertices[i++]))
                 throw new ArgumentException("Invalid vertex format.");
         }
         
         return vertices;
     }
 
-    private static async Task<IFiniteElement[]> LoadElementsAsync(StreamReader reader)
+    public static IEnumerable<IFiniteElement> LoadElementsAsync(int elementsCount, ReadOnlySpan<string> inputElements)
     {
-        var elementsCount = int.Parse((await reader.ReadLineAsync())!);
         var elements = new IFiniteElement[elementsCount];
 
-        for (int i = 0; i < elementsCount; i++)
-        {
-            var input = (await reader.ReadLineAsync())!
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            elements[i] = GetElement(input);
-        }
-
+        var i = 0;
+        foreach (var element in inputElements)
+            elements[i++] = GetElement(element.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        
         return elements;
     }
 
     private static async Task SaveToFileAsync<T>(IEnumerable<T> collection, StreamWriter writer)
     {
-        var collectionArray = collection.ToArray();
-        await writer.WriteLineAsync(collectionArray.Length.ToString());
+        var itemsCount = 0;
 
-        foreach (var element in collectionArray)
-            await writer.WriteLineAsync(element?.ToString());
+        var collectionString = collection
+            .Select(item =>
+            {
+                itemsCount++;
+                return item?.ToString();
+            });
+        
+        await writer.WriteAsync(string.Join('\n', itemsCount, collectionString));
     }
     
     private static IFiniteElement GetElement(string[] element)

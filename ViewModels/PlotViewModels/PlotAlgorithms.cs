@@ -15,7 +15,8 @@ public static class PlotAlgorithms
         IEnumerable<MaterialViewModel>? materials,
         bool drawMaterials = false)
     {
-        var materialColors = materials?.ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
+        var materialColors = materials?
+            .ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
 
         foreach (var element in mesh.Elements)
         {

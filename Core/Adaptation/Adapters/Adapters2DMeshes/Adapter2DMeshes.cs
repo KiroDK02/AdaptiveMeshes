@@ -76,7 +76,7 @@ public class Adapter2DMeshes : IAdapter
 
         var vertices = new Vector2D[countVertices];
 
-        foreach ((Vector2D vert, int number) in newVertices)
+        foreach (var (vert, number) in newVertices)
             vertices[number] = vert;
 
         return new FiniteElementMesh(newElements, vertices);

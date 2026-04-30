@@ -99,7 +99,7 @@ public readonly struct Vector2D : IEquatable<Vector2D>
     public static bool TryParse(string line, out Vector2D res)
     {
         double x, y;
-        var words = line.Split(new[] { ' ', '\t', ',', '>', '<', '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
+        var words = line.Split([' ', '\t', '\r', ',', '>', '<', '(', ')'], StringSplitOptions.RemoveEmptyEntries);
         if (words[0] == "Vec")
         {
             if (words.Length != 3 || !double.TryParse(words[1], out x) || !double.TryParse(words[2], out y))
