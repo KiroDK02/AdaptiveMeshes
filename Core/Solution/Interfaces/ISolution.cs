@@ -1,4 +1,6 @@
-﻿using Core.TimeMesh;
+﻿using System;
+using System.Collections.Generic;
+using Core.TimeMesh;
 using Core.FEM;
 using Core.Vectors;
 

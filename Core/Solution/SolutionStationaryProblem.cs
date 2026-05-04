@@ -1,4 +1,6 @@
-﻿using Core.FEM;
+﻿using System;
+using System.Collections.Generic;
+using Core.FEM;
 using Core.Solution.Interfaces;
 using Core.Vectors;
 

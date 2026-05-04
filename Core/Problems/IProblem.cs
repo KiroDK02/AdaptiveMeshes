@@ -1,4 +1,5 @@
-﻿using Core.FEM;
+﻿using System.Collections.Generic;
+using Core.FEM;
 using Core.Solution.Interfaces;
 
 namespace Core.Problems;

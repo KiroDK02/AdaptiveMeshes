@@ -1,4 +1,7 @@
-﻿using Quasar.Native;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Quasar.Native;
 
 namespace Core.Matrices;
 

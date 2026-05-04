@@ -1,4 +1,6 @@
-﻿namespace Core.BaseFuncs;
+﻿using System;
+
+namespace Core.BaseFuncs;
 
 public static class QuadraticBaseStraight
 {

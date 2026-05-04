@@ -1,4 +1,5 @@
-﻿using Core.FiniteElements.AlgorithmsForFE;
+﻿using System.Collections.Generic;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FEM;
 using Core.FiniteElements.Interfaces;
 using Core.NumericalIntegration;

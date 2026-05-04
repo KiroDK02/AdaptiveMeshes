@@ -1,4 +1,6 @@
-﻿using Core.FiniteElements.AlgorithmsForFE;
+﻿using System;
+using System.Collections.Generic;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.Adaptation.Adapters;
 using Core.FEM;
 using Core.FiniteElements.Interfaces;

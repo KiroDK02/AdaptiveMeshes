@@ -1,4 +1,5 @@
-﻿using Core.Matrices;
+﻿using System;
+using Core.Matrices;
 
 namespace Core.SLAE;
 

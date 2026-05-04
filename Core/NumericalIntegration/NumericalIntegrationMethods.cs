@@ -1,4 +1,6 @@
-﻿using Core.Vectors;
+﻿using System;
+using System.Collections.Generic;
+using Core.Vectors;
 
 namespace Core.NumericalIntegration;
 

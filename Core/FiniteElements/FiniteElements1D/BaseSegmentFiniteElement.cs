@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Core.FiniteElements.AlgorithmsForFE;
 using Core.FiniteElements.Interfaces;
 using Core.MasterElements;

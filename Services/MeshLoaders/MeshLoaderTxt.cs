@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Core.FEM;
 using Core.FiniteElements.FiniteElements1D;
 using Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
