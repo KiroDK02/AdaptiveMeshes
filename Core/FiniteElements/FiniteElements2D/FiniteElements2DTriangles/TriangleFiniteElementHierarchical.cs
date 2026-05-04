@@ -1,35 +1,55 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Core.FiniteElements.Interfaces;
 using Core.MasterElements;
 using Core.Vectors;
 
 namespace Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 
-public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFiniteElement, ICalculatingMatrices
+public sealed class TriangleFiniteElementHierarchical : BaseTriangularFiniteElement, ICalculatingMatrices
 {
+    private const int MaxDofs = 10;
+    private const int NotSet = -1;
+
     private const int EdgeNumOffset = 3;
-    
+    private const int ElementNumOffset = 9;
+
     public override IMasterElement<Vector2D> MasterElement { get; }
-    public override int[] Dofs { get; } = new int[6];
+    public override int[] Dofs { get; }
     public override IDictionary<(int i, int j), int> EdgesDofs { get; }
 
-    public override IFiniteElement.BasicFunctionsTypeEnum FunctionsType =>
-        IFiniteElement.BasicFunctionsTypeEnum.Lagrange;
+    public override IFiniteElement.BasicFunctionsTypeEnum FunctionsType => IFiniteElement.BasicFunctionsTypeEnum
+        .Hierarchical;
 
-    public override int Order => 2;
+    public override int Order { get; }
 
-    public TriangleFiniteElementQuadraticLagrange(string material, int[] vertexNumbers)
-        : base(material, vertexNumbers)
+    public TriangleFiniteElementHierarchical(string material, int[] vertexNumbers, int order) : base(material,
+        vertexNumbers)
     {
-        MasterElement = MasterElementTriangleBarycentricQuadraticBase.Instance;
+        MasterElement = MasterElementTriangleHierarchicalBase.Instance;
+        Order = order;
 
         EdgesDofs = new Dictionary<(int i, int j), int>();
+        Dofs = Enumerable
+            .Repeat(NotSet, MaxDofs)
+            .ToArray();
     }
 
+    public override void SetVertexDof(int vertex, int n, int dof) => Dofs[vertex] = dof;
+
+    public override void SetEdgeDof(int edge, int n, int dof) => 
+        Dofs[EdgeNumOffset + edge + 3 * n] = dof;
+
+    public override void SetElementDof(int n, int dof) => Dofs[ElementNumOffset] = dof;
+
+    public override int DofOnVertex(int vertex) => 1;
+
+    public override int DofOnElement() => Order == 3 ? 1 : 0;
+
     public double[,] BuildLocalMatrix(
-        Vector2D[] vertexCoords,
-        IFiniteElement.MatrixTypeEnum type,
+        Vector2D[] vertexCoords, 
+        IFiniteElement.MatrixTypeEnum type, 
         Func<Vector2D, double> coefficient)
     {
         return type switch
@@ -39,52 +59,53 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
             _ => throw new ArgumentException("Invalid type of matrix.")
         };
     }
-
+    
     public double[] BuildLocalRightPart(Vector2D[] vertexCoords, Func<Vector2D, double> f)
     {
         var nodes = MasterElement.QuadratureNodes;
         var values = MasterElement.ValuesBasicFuncs;
 
         var detD = DetD(vertexCoords);
-        var localRightPart = new double[Dofs.Length];
+        var localRightPart = new double[Dofs.Count(dof => dof != NotSet)];
 
+        var skipRowsCount = 0;
+        
         for (int i = 0; i < Dofs.Length; i++)
         {
+            if (Dofs[i] == NotSet)
+            {
+                skipRowsCount++;
+                continue;
+            }
+
             var valueIntegral = 0.0;
 
             for (int k = 0; k < nodes.Nodes.Length; k++)
                 valueIntegral += nodes.Nodes[k].Weight * LocalF(nodes.Nodes[k].Node) * values[i, k];
 
-            localRightPart[i] = Math.Abs(detD) * valueIntegral;
+            localRightPart[i - skipRowsCount] = Math.Abs(detD) * valueIntegral;
         }
 
         return localRightPart;
-
+        
         double LocalF(Vector2D vert) => GetCoefAtLocalCoords(vertexCoords, f, vert);
     }
-
-    public override int DofOnVertex(int vertex) => 1;
-
-    public override int DofOnElement() => 0;
-
-    public override void SetEdgeDof(int edge, int n, int dof) => Dofs[EdgeNumOffset + edge] = dof;
-
-    public override void SetElementDof(int n, int dof) => throw new NotSupportedException();
-
-    public override void SetVertexDof(int vertex, int n, int dof) => Dofs[vertex] = dof;
-
+    
     public override string ToString() =>
-        $"TriangleLagrange {Order} {VertexNumbers[0]} {VertexNumbers[1]} {VertexNumbers[2]} {Material}";
-
+        $"TriangleHierarchical {Order} {VertexNumbers[0]} {VertexNumbers[1]} {VertexNumbers[2]} {Material}";
+    
     protected override Vector2D GetGradientAtLocalPoint(ReadOnlySpan<double> weights, Vector2D localPoint)
     {
-        var gradBasesFuncs = BaseFuncs.TriangleBarycentricQuadraticBase.GradientBasesFuncs;
+        var gradBasesFuncs = MasterElement.GradientsBasesFuncs;
 
         var valueXComp = 0.0;
         var valueYComp = 0.0;
 
         for (int i = 0; i < Dofs.Length; i++)
         {
+            if (Dofs[i] == NotSet)
+                continue;
+
             valueXComp += weights[Dofs[i]] * gradBasesFuncs[i, 0](localPoint);
             valueYComp += weights[Dofs[i]] * gradBasesFuncs[i, 1](localPoint);
         }
@@ -94,28 +115,51 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
 
     protected override double GetValueAtLocalPoint(ReadOnlySpan<double> weights, Vector2D localPoint)
     {
-        var basicFuncs = BaseFuncs.TriangleBarycentricQuadraticBase.BasesFuncs;
+        var basesFuncs = MasterElement.BasesFuncs;
 
         var value = 0.0;
 
         for (int i = 0; i < Dofs.Length; i++)
-            value += weights[Dofs[i]] * basicFuncs[i](localPoint);
+        {
+            if (Dofs[i] == NotSet)
+                continue;
+            
+            value += weights[Dofs[i]] * basesFuncs[i](localPoint);
+        }
 
         return value;
     }
-
+    
     private double[,] BuildStiffnessMatrix(Vector2D[] vertexCoords, Func<Vector2D, double> lambda)
     {
         var detD = DetD(vertexCoords);
         var J = GetMatrixJacobi(vertexCoords);
         var nodes = MasterElement.QuadratureNodes;
 
-        var localMatrix = new double[Dofs.Length, Dofs.Length];
+        var matrixSize = Dofs.Count(dof => dof != NotSet);
+        
+        var localMatrix = new double[matrixSize, matrixSize];
 
+        var skipRowsCount = 0;
+        
         for (int i = 0; i < Dofs.Length; i++)
         {
+            if (Dofs[i] == NotSet)
+            {
+                skipRowsCount++;
+                continue;
+            }
+            
+            var skipColumnsCount = 0;
+            
             for (int j = 0; j < Dofs.Length; j++)
             {
+                if (Dofs[j] == NotSet)
+                {
+                    skipColumnsCount++;
+                    continue;
+                }
+                
                 var values = MasterELementsAlgorithms.CalcGradMultGrad(nodes,
                     MasterElement.ValuesBasicFuncsGradients, i, j, J);
 
@@ -124,7 +168,7 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
                 for (int k = 0; k < nodes.Nodes.Length; k++)
                     valueIntegral += LocalLambda(nodes.Nodes[k].Node) * values[k];
 
-                localMatrix[i, j] = Math.Abs(detD) * valueIntegral;
+                localMatrix[i - skipRowsCount, j - skipColumnsCount] = Math.Abs(detD) * valueIntegral;
             }
         }
 
@@ -138,19 +182,37 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
         var nodes = MasterElement.QuadratureNodes;
         var detD = DetD(vertexCoords);
 
-        var localMatrix = new double[Dofs.Length, Dofs.Length];
+        var matrixSize = Dofs.Count(dof => dof != NotSet);
+        
+        var localMatrix = new double[matrixSize, matrixSize];
 
+        var skipRowsCount = 0;
+        
         for (int i = 0; i < Dofs.Length; i++)
         {
+            if (Dofs[i] == NotSet)
+            {
+                skipRowsCount++;
+                continue;
+            }
+            
+            var skipColumnsCount = 0;
+            
             for (int j = 0; j < Dofs.Length; j++)
             {
+                if (Dofs[j] == NotSet)
+                {
+                    skipColumnsCount++;
+                    continue;
+                }
+                
                 var values = MasterElement.PsiProduct[(i, j)];
                 var valueIntegral = 0.0;
 
                 for (int k = 0; k < nodes.Nodes.Length; k++)
                     valueIntegral += LocalSigma(nodes.Nodes[k].Node) * values[k];
 
-                localMatrix[i, j] = Math.Abs(detD) * valueIntegral;
+                localMatrix[i - skipRowsCount, j - skipColumnsCount] = Math.Abs(detD) * valueIntegral;
             }
         }
 

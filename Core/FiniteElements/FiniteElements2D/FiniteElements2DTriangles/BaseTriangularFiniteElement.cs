@@ -13,9 +13,10 @@ public abstract class BaseTriangularFiniteElement : IFiniteElementWithNumericalI
 {
     public abstract IMasterElement<Vector2D> MasterElement { get; }
     public abstract int[] Dofs { get; }
+    public abstract IDictionary<(int i, int j), int> EdgesDofs { get; }
+    
     public abstract IFiniteElement.BasicFunctionsTypeEnum FunctionsType { get; }
     public abstract int Order { get; }
-    
     
     public int[] VertexNumbers { get; }
     public int NumberOfEdges => 3;
@@ -24,7 +25,9 @@ public abstract class BaseTriangularFiniteElement : IFiniteElementWithNumericalI
     protected BaseTriangularFiniteElement(string material, int[] vertexNumbers)
     {
         Material = material;
-        VertexNumbers = vertexNumbers;
+        VertexNumbers = vertexNumbers
+            .Order()
+            .ToArray();
     }
 
     public abstract void SetVertexDof(int vertex, int n, int dof);
@@ -35,7 +38,7 @@ public abstract class BaseTriangularFiniteElement : IFiniteElementWithNumericalI
 
     public abstract int DofOnVertex(int vertex);
 
-    public abstract int DofOnEdge(int edge);
+    public int DofOnEdge(int edge) => EdgesDofs[this.GlobalEdge(edge)];
 
     public abstract int DofOnElement();
 

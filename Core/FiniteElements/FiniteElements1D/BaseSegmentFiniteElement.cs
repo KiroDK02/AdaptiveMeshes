@@ -15,6 +15,7 @@ public abstract class BaseSegmentFiniteElement : IFiniteElementWithNumericalInte
     public abstract int[] Dofs { get; }
     public abstract IFiniteElement.BasicFunctionsTypeEnum FunctionsType { get; }
     public abstract int Order { get; }
+    public abstract IDictionary<(int i, int j), int> EdgesDofs { get; }
     
     public string Material { get; }
     public int[] VertexNumbers { get; }
@@ -28,11 +29,13 @@ public abstract class BaseSegmentFiniteElement : IFiniteElementWithNumericalInte
 
     public abstract int DofOnVertex(int vertex);
 
-    public abstract int DofOnEdge(int edge);
+    public int DofOnEdge(int edge) => EdgesDofs[this.GlobalEdge(edge)];
     
     public abstract void SetVertexDof(int vertex, int n, int dof);
     
     public abstract void SetEdgeDof(int edge, int n, int dof);
+    
+    protected abstract double[] CalcLocalF(Vector2D[] vertexCoords, Func<Vector2D, double> F);
     
     public int DofOnElement() => 0;
     
@@ -95,16 +98,5 @@ public abstract class BaseSegmentFiniteElement : IFiniteElementWithNumericalInte
         var y1 = vertexCoords[VertexNumbers[1]].Y;
 
         return coeff(new(x0 * (1 - t) + x1 * t, y0 * (1 - t) + y1 * t));
-    }
-    
-    protected double[] CalcLocalF(Vector2D[] VertexCoords, Func<Vector2D, double> F)
-    {
-        var localF = new double[Dofs.Length];
-
-        localF[0] = F(VertexCoords[VertexNumbers[0]]);
-        localF[1] = F(VertexCoords[VertexNumbers[1]]);
-        localF[2] = F((VertexCoords[VertexNumbers[1]] + VertexCoords[VertexNumbers[0]]) / 2d);
-
-        return localF;
     }
 }

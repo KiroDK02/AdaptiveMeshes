@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using Core.Vectors;
 
 namespace Core.FiniteElements.Interfaces;
@@ -22,6 +24,7 @@ public interface IFiniteElement : IGeometryElement
     
     string Material { get; }
     int[] Dofs { get; }
+    IDictionary<(int i, int j), int> EdgesDofs { get; }
     
     void SetVertexDof(int vertex, int n, int dof);
     void SetEdgeDof(int edge, int n, int dof);

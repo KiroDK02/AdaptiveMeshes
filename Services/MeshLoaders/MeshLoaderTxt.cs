@@ -95,7 +95,14 @@ public class MeshLoaderTxt : IMeshLoader
             "SegmentLagrange2" => new SegmentFiniteElementQuadraticLagrange(
                 string.Join(' ', element[3..]),
                 [int.Parse(element[1]), int.Parse(element[2])]),
-                
+            
+            "TriangleHierarchical" => new TriangleFiniteElementHierarchical(string.Join(' ', element[5..]),
+                [int.Parse(element[2]), int.Parse(element[3]), int.Parse(element[4])], int.Parse(element[1])),
+            
+            "SegmentHierarchical" => new SegmentFiniteElementHierarchical(
+                string.Join(' ', element[4..]),
+                [int.Parse(element[2]), int.Parse(element[3])], int.Parse(element[1])),
+            
             _ => throw new ArgumentException("Invalid type of element.")
         };
 }

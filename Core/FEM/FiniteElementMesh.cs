@@ -9,6 +9,9 @@ public class FiniteElementMesh : IFiniteElementMesh
     public IEnumerable<IFiniteElement> Elements { get; }
     public Vector2D[] Vertex { get; }
     public int NumberOfDOFs { get; set; }
+    
+    public IDictionary<(int i, int j), List<IFiniteElement>> EdgesToElements { get; } = 
+        new Dictionary<(int i, int j), List<IFiniteElement>>();
 
     public FiniteElementMesh(IEnumerable<IFiniteElement> elements, Vector2D[] vertex)
     {

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Core.FiniteElements.AlgorithmsForFE;
+using Core.FiniteElements.Interfaces;
 
 namespace Core.FEM;
 
@@ -9,6 +11,8 @@ public static class FEMAlgorithms
     public static void EnumerateMeshDofs(IFiniteElementMesh mesh)
     {
         var dof = 0;
+
+        PrepareForEnumerateMesh(mesh);
 
         EnumerateVerticesDofs(mesh, ref dof);
         EnumerateEdgesDofs(mesh, ref dof);
@@ -75,8 +79,8 @@ public static class FEMAlgorithms
 
         foreach (var element in mesh.Elements)
         {
-            foreach (var dofi in element.Dofs)
-            foreach (var dofj in element.Dofs)
+            foreach (var dofi in element.Dofs.Where(dof => dof >= 0))
+            foreach (var dofj in element.Dofs.Where(dof => dof >= 0))
                 portraitFirstStep[dofi]
                     .Add(dofj);
         }
@@ -84,7 +88,7 @@ public static class FEMAlgorithms
         return portraitFirstStep;
     }
 
-    public static int[] BuildVertexPortrait(IFiniteElementMesh mesh)
+    private static int[] BuildVertexPortrait(IFiniteElementMesh mesh)
     {
         var vertexDofs = new int[mesh.Vertex.Length];
 
@@ -100,7 +104,7 @@ public static class FEMAlgorithms
         return vertexDofs;
     }
 
-    public static Dictionary<(int i, int j), int> BuildEdgePortrait(IFiniteElementMesh mesh)
+    private static Dictionary<(int i, int j), int> BuildEdgePortrait(IFiniteElementMesh mesh)
     {
         var edgePortrait = new Dictionary<(int i, int j), int>();
 
@@ -111,11 +115,42 @@ public static class FEMAlgorithms
                 var edge = element.GlobalEdge(edgei);
                 var dofOnEdge = element.DofOnEdge(edgei);
 
-                if (!edgePortrait.TryGetValue(edge, out int curDof) || curDof > dofOnEdge)
+                if (!edgePortrait.TryGetValue(edge, out int curDof)
+                    || curDof > dofOnEdge)
                     edgePortrait[edge] = dofOnEdge;
             }
         }
 
         return edgePortrait;
+    }
+
+    private static void PrepareForEnumerateMesh(IFiniteElementMesh mesh)
+    {
+        foreach (var element in mesh.Elements)
+        {
+            for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
+            {
+                var edge = element.GlobalEdge(edgei);
+
+                if (mesh.EdgesToElements.TryGetValue(edge, out var elements))
+                    elements.Add(element);
+                else
+                    mesh.EdgesToElements[edge] = [element];
+            }
+        }
+
+        foreach (var (edge, elements) in mesh.EdgesToElements)
+        {
+            if (elements.Count == 1)
+            {
+                elements[0].EdgesDofs[edge] = Math.Max(0, elements[0].Order - 1);
+                continue;
+            }
+
+            var dof = Math.Max(elements.Min(elem => elem.Order) - 1, 0);
+
+            foreach (var element in elements)
+                element.EdgesDofs[edge] = dof;
+        }
     }
 }

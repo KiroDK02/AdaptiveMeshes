@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Core.FiniteElements.Interfaces;
 using Core.MasterElements;
 using Core.Vectors;
@@ -7,20 +8,21 @@ namespace Core.FiniteElements.FiniteElements1D;
 
 public class SegmentFiniteElementQuadraticLagrange : BaseSegmentFiniteElement, ICalculatingMatricesForBoundaryConditions
 {
-    private readonly string _toStringObject;
+    private const int EdgeNumOffset = 2;
     
     public override IMasterElement<double> MasterElement { get; }
     public override int[] Dofs { get; } = new int[3];
     public override IFiniteElement.BasicFunctionsTypeEnum FunctionsType => 
         IFiniteElement.BasicFunctionsTypeEnum.Lagrange;
-
     public override int Order => 2;
+    public override IDictionary<(int i, int j), int> EdgesDofs { get; }
 
     public SegmentFiniteElementQuadraticLagrange(string material, int[] vertexNumbers) 
         : base(material, vertexNumbers)
     {
         MasterElement = MasterElementBarycentricQuadraticBaseStraight.Instance;
-        _toStringObject = $"SegmentLagrange2 {VertexNumbers[0]} {VertexNumbers[1]} {Material}";
+        
+        EdgesDofs = new Dictionary<(int i, int j), int>();
     }
     
     public double[] BuildLocalRightPartFirstBc(Vector2D[] vertexCoords, Func<Vector2D, double> ug)
@@ -54,33 +56,21 @@ public class SegmentFiniteElementQuadraticLagrange : BaseSegmentFiniteElement, I
     }
 
     public override int DofOnVertex(int vertex) => 1;
-    
-    public override int DofOnEdge(int edge) => 1;
-    
-    public override void SetEdgeDof(int edge, int n, int dof)
-    {
-        if (edge == 0)
-            Dofs[2] = dof;
-        else
-            throw new Exception("Invalid number of edge.");
-    }
-    
-    public override void SetVertexDof(int vertex, int n, int dof)
-    {
-        switch (vertex)
-        {
-            case 0:
-                Dofs[0] = dof;
-                break;
 
-            case 1:
-                Dofs[1] = dof;
-                break;
+    public override void SetEdgeDof(int edge, int n, int dof) => Dofs[EdgeNumOffset] = dof;
 
-            default:
-                throw new Exception("Invalid number of vertex.");
-        }
-    }
+    public override void SetVertexDof(int vertex, int n, int dof) => Dofs[vertex] = dof;
     
-    public override string ToString() => _toStringObject;
+    public override string ToString() => $"SegmentLagrange {Order} {VertexNumbers[0]} {VertexNumbers[1]} {Material}";
+
+    protected override double[] CalcLocalF(Vector2D[] vertexCoords, Func<Vector2D, double> F)
+    {
+        var localF = new double[Dofs.Length];
+
+        localF[0] = F(vertexCoords[VertexNumbers[0]]);
+        localF[1] = F(vertexCoords[VertexNumbers[1]]);
+        localF[2] = F((vertexCoords[VertexNumbers[1]] + vertexCoords[VertexNumbers[0]]) / 2d);
+
+        return localF;
+    }
 }
