@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,6 +24,8 @@ public partial class ProblemViewModel : ObservableObject
 {
     public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
+    public SolutionPointsViewModel SolutionPoints { get; } = new();
+    public MeshPlotViewModel MeshPlot { get; }
 
     public IFiniteElementMesh? ProblemMesh { get; set; }
 
@@ -30,10 +33,16 @@ public partial class ProblemViewModel : ObservableObject
     [ObservableProperty] private ProblemType selectedProblemType;
     [ObservableProperty] private string meshFilePath = string.Empty;
     [ObservableProperty] private IProblem? currentProblem;
+    [ObservableProperty] private bool isRealSolutionKnown;
+    [ObservableProperty] private double errorSolution;
+    [ObservableProperty] private string realSolution = "0";
+    [ObservableProperty] private bool problemSolved = false;
 
+    private string _pathLoadedMesh = string.Empty;
+    private bool _meshChanged = false;
+    
     private readonly MeshLoaderFactory _meshLoaderFactory = MeshLoaderFactory.Instance;
 
-    private readonly MeshPlotViewModel _meshPlot;
     private readonly IScriptCompiler _compiler;
     private readonly IProblemFactory _problemFactory;
     private readonly IWindowService _windowService;
@@ -54,7 +63,7 @@ public partial class ProblemViewModel : ObservableObject
         IWindowService windowService,
         Action<MaterialsViewModel, ProblemType, string, string, IFiniteElementMesh?> addNewProblem)
     {
-        _meshPlot = meshPlot;
+        MeshPlot = meshPlot;
         _compiler = compiler;
         _problemFactory = problemFactory;
         _windowService = windowService;
@@ -64,7 +73,7 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private async Task BuildProblemAsync()
     {
-        if (ProblemMesh is null)
+        if (ProblemMesh is null || _meshChanged)
         {
             if (!File.Exists(MeshFilePath))
                 throw new InvalidOperationException("Mesh file path is required.");
@@ -85,14 +94,25 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private async Task SolveProblemAsync()
     {
-        if (CurrentProblem is not null && CurrentProblem.Solved)
+        if (CurrentProblem is not null && ProblemSolved && !_meshChanged)
             return;
         
-        if (CurrentProblem is null)
+        if (CurrentProblem is null || _meshChanged)
             await BuildProblemAsync();
         
         CurrentProblem?.Solve();
         SolutionPlot.SetSolution(CurrentProblem?.Solution!);
+
+        var otherSolution = SelectedProblemType switch
+        {
+            ProblemType.EllipticalProblem => await _compiler.CompileStationaryFunction(RealSolution),
+            
+            _ => throw new ArgumentException("Invalid problem type.")
+        };
+        
+        ErrorSolution = CurrentProblem!.Solution.CalcErrorFrom(otherSolution);
+        SolutionPoints.SetSolution(CurrentProblem.Solution);
+        ProblemSolved = true;
     }
 
     [RelayCommand]
@@ -119,7 +139,7 @@ public partial class ProblemViewModel : ObservableObject
         if (ProblemMesh is null)
             return;
 
-        _meshPlot.DrawMesh(ProblemMesh, Materials.Materials);
+        MeshPlot.DrawMesh(ProblemMesh, Materials.Materials);
     }
 
     [RelayCommand]
@@ -133,14 +153,20 @@ public partial class ProblemViewModel : ObservableObject
         SolutionPlot.DrawSolution();
     }
 
+    // Сделать, чтоб сетка грузилась при повторном нажатии
+    // только если поменялся файл.
     [RelayCommand]
     private async Task LoadMeshAsync()
     {
-        if (!File.Exists(MeshFilePath))
+        if (!File.Exists(MeshFilePath) || MeshFilePath == _pathLoadedMesh)
             return;
 
         var meshLoader = _meshLoaderFactory.CreateMeshLoader(MeshFilePath);
         ProblemMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
+        _pathLoadedMesh = MeshFilePath;
+        
+        ProblemSolved = false;
+        _meshChanged = false;
     }
 
     [RelayCommand]
@@ -155,6 +181,8 @@ public partial class ProblemViewModel : ObservableObject
 
         if (openFileDialog.ShowDialog() == true)
             MeshFilePath = openFileDialog.FileName;
+
+        _meshChanged = true;
     }
 
     [RelayCommand]

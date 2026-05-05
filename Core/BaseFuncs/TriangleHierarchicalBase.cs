@@ -13,13 +13,13 @@ public static class TriangleHierarchicalBase
         point => L2(point),
         point => L3(point),
         
-        // Ребра (возможно первые 3 нужно домножить на -1
-        point => -L1(point) * L2(point),
-        point => -L1(point) * L3(point),
-        point => -L2(point) * L3(point),
+        // Ребра (возможно первые 3 нужно домножить на -1)
+        point => L1(point) * L2(point),
+        point => L2(point) * L3(point),
+        point => L1(point) * L3(point),
         point => L1(point) * L2(point) * (L1(point) -  L2(point)),
-        point =>  L1(point) * L3(point) * (L1(point) - L3(point)),
         point =>  L2(point) * L3(point) * (L2(point) - L3(point)),
+        point =>  L1(point) * L3(point) * (L1(point) - L3(point)),
         
         // Центр
         point => L1(point) * L2(point) * L3(point)
@@ -43,18 +43,18 @@ public static class TriangleHierarchicalBase
         },
         
         {
-            point => L2(point) + L1(point),
-            point => L2(point)
+            point => -L2(point) + L1(point),
+            point => -L2(point)
         },
         
         {
             point => L3(point),
-            point => L3(point) + L1(point)
+            point => L2(point)
         },
         
         {
             point => -L3(point),
-            point => -L2(point)
+            point => -L3(point) + L1(point)
         },
         
         {
@@ -63,13 +63,13 @@ public static class TriangleHierarchicalBase
         },
         
         {
-            point => -L3(point) * (2 * L1(point) - L3(point)),
-            point => (L1(point) - L3(point)) * (L1(point) - L3(point)) - 2 * L1(point) * L3(point)
+            point => L3(point) * (2 * L2(point) - L3(point)),
+            point => L2(point) * (L2(point) - 2 * L3(point))
         },
         
         {
-            point => L3(point) * (2 * L2(point) - L3(point)),
-            point => L2(point) * (L2(point) - 2 * L3(point))
+            point => -L3(point) * (2 * L1(point) - L3(point)),
+            point => (L1(point) - L3(point)) * (L1(point) - L3(point)) - 2 * L1(point) * L3(point)
         },
         
         {

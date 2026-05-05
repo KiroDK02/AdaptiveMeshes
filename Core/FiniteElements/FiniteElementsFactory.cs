@@ -14,8 +14,8 @@ public static class FiniteElementsFactory
             IFiniteElement.BasicFunctionsTypeEnum.Lagrange =>
                 CreateLagrangeElement(element, (int[])args[0]),
             
-            // TODO: реализовать
-            IFiniteElement.BasicFunctionsTypeEnum.Hierarchical => throw new NotImplementedException(),
+            IFiniteElement.BasicFunctionsTypeEnum.Hierarchical => 
+                CreateHierarchicalElement(element, (int[])args[0], (int)args[1]),
             
             _ => throw new ArgumentException("Unknown functions type.")
         };
@@ -30,6 +30,20 @@ public static class FiniteElementsFactory
             
             SegmentFiniteElementQuadraticLagrange => 
                 new SegmentFiniteElementQuadraticLagrange(element.Material, vertexNumbers),
+            
+            _ => throw new ArgumentException("Unknown element type.")
+        };
+    }
+
+    private static IFiniteElement CreateHierarchicalElement(IFiniteElement element, int[] vertexNumbers, int order)
+    {
+        return element switch
+        {
+            TriangleFiniteElementHierarchical =>
+                new TriangleFiniteElementHierarchical(element.Material, vertexNumbers, order),
+
+            SegmentFiniteElementHierarchical => 
+                new SegmentFiniteElementHierarchical(element.Material, vertexNumbers, order),
             
             _ => throw new ArgumentException("Unknown element type.")
         };

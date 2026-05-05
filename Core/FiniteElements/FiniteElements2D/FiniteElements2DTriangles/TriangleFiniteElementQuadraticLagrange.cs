@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FiniteElements.Interfaces;
 using Core.MasterElements;
 using Core.Vectors;
@@ -8,7 +10,7 @@ namespace Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 
 public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFiniteElement, ICalculatingMatrices
 {
-    private const int EdgeNumOffset = 3;
+    private const int EdgeLocalNumOffset = 3;
     
     public override IMasterElement<Vector2D> MasterElement { get; }
     public override int[] Dofs { get; } = new int[6];
@@ -67,11 +69,31 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
 
     public override int DofOnElement() => 0;
 
-    public override void SetEdgeDof(int edge, int n, int dof) => Dofs[EdgeNumOffset + edge] = dof;
+    public override void SetEdgeDof(int edge, int n, int dof) => Dofs[EdgeLocalNumOffset + edge] = dof;
 
     public override void SetElementDof(int n, int dof) => throw new NotSupportedException();
 
     public override void SetVertexDof(int vertex, int n, int dof) => Dofs[vertex] = dof;
+
+    public override IEnumerable<(Vector2D position, int dof)> GetDofsWithPositions(Vector2D[] vertexCoords)
+    {
+        var vertices = VertexNumbers
+            .Select(n => vertexCoords[n])
+            .ToArray();
+        
+        for (int i = 0; i < EdgeLocalNumOffset; i++)
+            yield return (vertices[i], Dofs[i]);
+
+        for (int edgei = 0; edgei < NumberOfEdges; edgei++)
+        {
+            var edge = this.GlobalEdge(edgei);
+            var mid = new Vector2D(
+                (vertices[edge.i].X + vertices[edge.j].X) / 2.0,
+                (vertices[edge.i].Y + vertices[edge.j].Y) / 2.0);
+
+            yield return (mid, Dofs[EdgeLocalNumOffset + edgei]);
+        }
+    }
 
     public override string ToString() =>
         $"TriangleLagrange {Order} {VertexNumbers[0]} {VertexNumbers[1]} {VertexNumbers[2]} {Material}";

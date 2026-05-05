@@ -41,7 +41,7 @@ public class SplitStrategy2DMeshes : ISplitStrategy
         if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
             throw new ArgumentException("Invalid scales. Sizes of scales are not equal.");
 
-        if (distanceFromMinForScaleDifferences.Any(x => x > 1 || x < 0))
+        if (distanceFromMinForScaleDifferences.Any(x => x is > 1 or < 0))
             throw new ArgumentException(
                 "Invalid set of distance from min. The values must be in the range from 0 to 1.");
 

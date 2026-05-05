@@ -81,8 +81,7 @@ public static class FEMAlgorithms
         {
             foreach (var dofi in element.Dofs.Where(dof => dof >= 0))
             foreach (var dofj in element.Dofs.Where(dof => dof >= 0))
-                portraitFirstStep[dofi]
-                    .Add(dofj);
+                portraitFirstStep[dofi].Add(dofj);
         }
 
         return portraitFirstStep;

@@ -34,6 +34,8 @@ public interface IFiniteElement : IGeometryElement
     int DofOnEdge(int edge);
     int DofOnElement();
     
+    IEnumerable<(Vector2D position, int dof)> GetDofsWithPositions(Vector2D[] vertexCoords);
+    
     double GetValueAtPoint(Vector2D[] vertexCoords, ReadOnlySpan<double> weights, Vector2D point,
         bool isLocalPoint = false);
     Vector2D GetGradientAtPoint(Vector2D[] vertexCoords, ReadOnlySpan<double> weights, Vector2D point,

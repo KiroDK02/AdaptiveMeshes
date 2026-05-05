@@ -8,7 +8,7 @@ public static class SegmentHierarchicalBase
     {
         point => 1 - point,
         point => point,
-        point => point * (point - 1), // мб без 2
-        point => point * (point - 1) * (2 * point - 1) // мб без 2/3
+        point => point * (1 - point),
+        point => point * (point - 1) * (2 * point - 1)
     };
 }

@@ -88,13 +88,13 @@ public class MeshLoaderTxt : IMeshLoader
     private static IFiniteElement GetElement(string[] element)
         => element[0] switch
         {
-            "TriangleLagrange2" => new TriangleFiniteElementQuadraticLagrange(
-                string.Join(' ', element[4..]),
-                [int.Parse(element[1]), int.Parse(element[2]), int.Parse(element[3])]),
+            "TriangleLagrange" => new TriangleFiniteElementQuadraticLagrange(
+                string.Join(' ', element[5..]),
+                [int.Parse(element[2]), int.Parse(element[3]), int.Parse(element[4])]),
                 
-            "SegmentLagrange2" => new SegmentFiniteElementQuadraticLagrange(
-                string.Join(' ', element[3..]),
-                [int.Parse(element[1]), int.Parse(element[2])]),
+            "SegmentLagrange" => new SegmentFiniteElementQuadraticLagrange(
+                string.Join(' ', element[4..]),
+                [int.Parse(element[2]), int.Parse(element[3])]),
             
             "TriangleHierarchical" => new TriangleFiniteElementHierarchical(string.Join(' ', element[5..]),
                 [int.Parse(element[2]), int.Parse(element[3]), int.Parse(element[4])], int.Parse(element[1])),

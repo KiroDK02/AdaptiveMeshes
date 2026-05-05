@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FiniteElements.Interfaces;
 using Core.MasterElements;
 using Core.Vectors;
@@ -12,8 +13,8 @@ public sealed class TriangleFiniteElementHierarchical : BaseTriangularFiniteElem
     private const int MaxDofs = 10;
     private const int NotSet = -1;
 
-    private const int EdgeNumOffset = 3;
-    private const int ElementNumOffset = 9;
+    private const int EdgeLocalNumOffset = 3;
+    private const int ElementLocalNumOffset = 9;
 
     public override IMasterElement<Vector2D> MasterElement { get; }
     public override int[] Dofs { get; }
@@ -39,13 +40,49 @@ public sealed class TriangleFiniteElementHierarchical : BaseTriangularFiniteElem
     public override void SetVertexDof(int vertex, int n, int dof) => Dofs[vertex] = dof;
 
     public override void SetEdgeDof(int edge, int n, int dof) => 
-        Dofs[EdgeNumOffset + edge + 3 * n] = dof;
+        Dofs[EdgeLocalNumOffset + edge + 3 * n] = dof;
 
-    public override void SetElementDof(int n, int dof) => Dofs[ElementNumOffset] = dof;
+    public override void SetElementDof(int n, int dof) => Dofs[ElementLocalNumOffset] = dof;
 
     public override int DofOnVertex(int vertex) => 1;
 
     public override int DofOnElement() => Order == 3 ? 1 : 0;
+
+    public override IEnumerable<(Vector2D position, int dof)> GetDofsWithPositions(Vector2D[] vertexCoords)
+    {
+        var vertices = VertexNumbers
+            .Select(n => vertexCoords[n])
+            .ToArray();
+
+        for (int i = 0; i < EdgeLocalNumOffset; i++)
+            if (Dofs[i] != NotSet)
+                yield return (vertices[i], Dofs[i]);
+
+        for (int edgei = 0; edgei < NumberOfEdges; edgei++)
+        {
+            var edge = Edge(edgei);
+            var mid = new Vector2D(
+                (vertices[edge.i].X + vertices[edge.j].X) / 2.0,
+                (vertices[edge.i].Y + vertices[edge.j].Y) / 2.0);
+
+            for (int n = 0; n < Order - 1; n++)
+            {
+                var dof = Dofs[3 + edgei + 3 * n];
+                
+                if (dof != NotSet)
+                    yield return (mid, dof);
+            }
+        }
+
+        if (Dofs[ElementLocalNumOffset] != NotSet)
+        {
+            var center = new Vector2D(
+                vertices.Average(v => v.X),
+                vertices.Average(v => v.Y));
+            
+            yield return (center, Dofs[ElementLocalNumOffset]);
+        }
+    }
 
     public double[,] BuildLocalMatrix(
         Vector2D[] vertexCoords, 

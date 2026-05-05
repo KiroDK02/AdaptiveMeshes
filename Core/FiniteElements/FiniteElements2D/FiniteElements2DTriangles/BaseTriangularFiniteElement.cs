@@ -25,9 +25,7 @@ public abstract class BaseTriangularFiniteElement : IFiniteElementWithNumericalI
     protected BaseTriangularFiniteElement(string material, int[] vertexNumbers)
     {
         Material = material;
-        VertexNumbers = vertexNumbers
-            .Order()
-            .ToArray();
+        VertexNumbers = [..vertexNumbers.Order()];
     }
 
     public abstract void SetVertexDof(int vertex, int n, int dof);
@@ -41,6 +39,8 @@ public abstract class BaseTriangularFiniteElement : IFiniteElementWithNumericalI
     public int DofOnEdge(int edge) => EdgesDofs[this.GlobalEdge(edge)];
 
     public abstract int DofOnElement();
+
+    public abstract IEnumerable<(Vector2D position, int dof)> GetDofsWithPositions(Vector2D[] vertexCoords);
 
     protected abstract Vector2D GetGradientAtLocalPoint(ReadOnlySpan<double> weights, Vector2D localPoint);
 
