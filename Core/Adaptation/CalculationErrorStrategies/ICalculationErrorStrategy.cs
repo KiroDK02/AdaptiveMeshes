@@ -1,4 +1,5 @@
-﻿using Core.Solution.Interfaces;
+﻿using System.Collections.Generic;
+using Core.Solution.Interfaces;
 
 namespace Core.Adaptation.CalculationErrorStrategies;
 

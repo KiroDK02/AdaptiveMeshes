@@ -1,4 +1,6 @@
-﻿using Core.FiniteElements.AlgorithmsForFE;
+﻿using System;
+using System.Collections.Generic;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.Adaptation.Adapters;
 using Core.FEM;
 using Core.FiniteElements.Interfaces;
@@ -30,20 +32,25 @@ public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrateg
             for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
             {
                 var edge = element.GlobalEdge(edgei);
-                var edgeFlow = GetFlowOnEdge(solution, element, edgei);
 
                 if (amountOccurencesOfEdges[edge] == 1)
                 {
                     errors[edge] = 0.0;
                     continue;
                 }
+                
+                var edgeFlow = GetFlowOnEdge(solution, element, edgei);
 
-                errors[edge] = errors.TryGetValue(edge, out double flow) ? Math.Abs(flow + edgeFlow) : edgeFlow;
+                errors[edge] = 
+                    errors.TryGetValue(edge, out double flow) 
+                        ? GetDifferenceFlowsOnEdge(flow, edgeFlow) 
+                        : edgeFlow;
             }
         }
 
         return errors;
     }
 
+    protected abstract double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2);
     protected abstract double GetFlowOnEdge(ISolution solution, IFiniteElement element, int edgei);
 }

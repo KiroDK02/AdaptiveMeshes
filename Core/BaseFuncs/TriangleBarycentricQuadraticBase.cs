@@ -1,49 +1,51 @@
-﻿using Core.Vectors;
+﻿using System;
+using Core.Vectors;
+using static Core.BaseFuncs.BarycentricCoordinates;
 
 namespace Core.BaseFuncs;
 
 public static class TriangleBarycentricQuadraticBase
 {
     public static readonly Func<Vector2D, double>[] BasesFuncs =
-    {
-        (Vector2D vert) => (1 - vert.X - vert.Y) * (2 * (1 - vert.X - vert.Y) - 1),
-        (Vector2D vert) => vert.X * (2 * vert.X - 1),
-        (Vector2D vert) => vert.Y * (2 * vert.Y - 1),
-        (Vector2D vert) => 4 * (1 - vert.X - vert.Y) * vert.X,
-        (Vector2D vert) => 4 * vert.X * vert.Y,
-        (Vector2D vert) => 4 * (1 - vert.X - vert.Y) * vert.Y
-    };
+    [
+        point => L1(point) * (2 * L1(point) - 1),
+        point => L2(point) * (2 * L2(point) - 1),
+        point => L3(point) * (2 * L3(point) - 1),
+        point => 4 * L1(point) * L2(point),
+        point => 4 * L2(point) * L3(point),
+        point => 4 * L1(point) * L3(point)
+    ];
 
     public static readonly Func<Vector2D, double>[,] GradientBasesFuncs =
     {
         {
-            (Vector2D vert) => -(2 * (1 - vert.X - vert.Y) - 1) - 2 * (1 - vert.X - vert.Y),
-            (Vector2D vert) => -(2 * (1 - vert.X - vert.Y) - 1) - 2 * (1 - vert.X - vert.Y)
+            point => -(2 * L1(point) - 1) - 2 * L1(point),
+            point => -(2 * L1(point) - 1) - 2 * L1(point)
         },
 
         {
-            (Vector2D vert) => (2 * vert.X - 1) + 2 * vert.X,
-            (Vector2D vert) => 0
+            point => (2 * L2(point) - 1) + 2 * L2(point),
+            point => 0
         },
 
         {
-            (Vector2D vert) => 0,
-            (Vector2D vert) => (2 * vert.Y - 1) + 2 * vert.Y
+            point => 0,
+            point => (2 * L3(point) - 1) + 2 * L3(point)
         },
 
         {
-            (Vector2D vert) => 4 * (1 - 2 * vert.X - vert.Y),
-            (Vector2D vert) => -4 * vert.X
+            point => 4 * (-L2(point) + L1(point)),
+            point => -4 * L2(point)
         },
 
         {
-            (Vector2D vert) => 4 * vert.Y,
-            (Vector2D vert) => 4 * vert.X
+            point => 4 * L3(point),
+            point => 4 * L2(point)
         },
 
         {
-            (Vector2D vert) => -4 * vert.Y,
-            (Vector2D vert) => 4 * (1 - vert.X - 2 * vert.Y)
+            point => -4 * L3(point),
+            point => 4 * (-L3(point) + L1(point))
         }
     };
 }

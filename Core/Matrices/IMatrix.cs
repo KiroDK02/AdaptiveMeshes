@@ -1,4 +1,7 @@
-﻿namespace Core.Matrices;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Core.Matrices;
 
 public interface IMatrix
 {

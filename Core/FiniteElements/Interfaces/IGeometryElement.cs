@@ -9,5 +9,5 @@ public interface IGeometryElement
 
     (int i, int j) Edge(int edge);
     bool IsPointOnElement(Vector2D[] vertexCoords, Vector2D point);
-    Vector2D GetOuterNormalToEdge(Vector2D[] vertexCoords, int edge, bool normalize = false);
+    Vector2D GetOuterNormalToEdge(Vector2D[] vertexCoords, int edgei, bool normalize = false);
 }

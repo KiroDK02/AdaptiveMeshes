@@ -1,4 +1,5 @@
-﻿using Core.Vectors;
+﻿using System.Collections.Generic;
+using Core.Vectors;
 
 namespace Core.Adaptation.SplitStrategies;
 

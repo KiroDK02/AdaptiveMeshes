@@ -1,3 +1,4 @@
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Solution.Interfaces;
 using Core.Vectors;
@@ -16,7 +17,7 @@ public partial class SolutionPlotViewModel : ObservableObject
     private ColorBar? _colorBar;
     private Heatmap? _heatmap;
 
-    [ObservableProperty] private  int gridSize = 500;
+    [ObservableProperty] private int gridSize = 500;
     [ObservableProperty] private bool showColorMap = true;
     [ObservableProperty] private bool showIsolines = true;
 
@@ -51,7 +52,7 @@ public partial class SolutionPlotViewModel : ObservableObject
     {
         if (_wpfPlot is null || _heatmap is null)
             return;
-        
+
         _heatmap?.IsVisible = value;
         _colorBar?.IsVisible = value;
         _wpfPlot.Refresh();
@@ -93,9 +94,13 @@ public partial class SolutionPlotViewModel : ObservableObject
         var vertices = _solution.Mesh.Vertex;
 
         var heatMap = new Coordinates3d[gridSize, gridSize];
-        var verticesX = vertices.Select(vertex => vertex.X)
+        
+        var verticesX = vertices
+            .Select(vertex => vertex.X)
             .ToArray();
-        var verticesY = vertices.Select(vertex => vertex.Y)
+        
+        var verticesY = vertices
+            .Select(vertex => vertex.Y)
             .ToArray();
 
         var min = new Vector2D(verticesX.Min(), verticesY.Min());

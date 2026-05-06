@@ -1,4 +1,8 @@
-﻿using Core.FEM;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Core.FEM;
 using Core.FiniteElements.FiniteElements1D;
 using Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 using Core.FiniteElements.Interfaces;
@@ -78,8 +82,8 @@ public class FileManager
         for (int i = 0; i < listElems.Count; i++)
         {
             elements[i] = listElems[i].vertices.Length == 3
-                ? new TriangleFEQuadraticBaseWithNI(materials[listElems[i].material], listElems[i].vertices)
-                : new SegmentFEQuadraticBaseWithNI(boundMaterials[listElems[i].material], listElems[i].vertices);
+                ? new TriangleFiniteElementQuadraticLagrange(materials[listElems[i].material], listElems[i].vertices)
+                : new SegmentFiniteElementQuadraticLagrange(boundMaterials[listElems[i].material], listElems[i].vertices);
         }
 
         return new FiniteElementMesh(elements, vertices);
@@ -107,9 +111,9 @@ public class FileManager
             var str = reader.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             elements[i] = str[0] == "Triangle"
-                ? new TriangleFEQuadraticBaseWithNI(string.Join(' ', str[4..]),
+                ? new TriangleFiniteElementQuadraticLagrange(string.Join(' ', str[4..]),
                     [int.Parse(str[1]), int.Parse(str[2]), int.Parse(str[3])])
-                : new SegmentFEQuadraticBaseWithNI(string.Join(' ', str[3..]), [int.Parse(str[1]), int.Parse(str[2])]);
+                : new SegmentFiniteElementQuadraticLagrange(string.Join(' ', str[3..]), [int.Parse(str[1]), int.Parse(str[2])]);
         }
 
         reader.Close();

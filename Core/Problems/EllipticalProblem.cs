@@ -1,4 +1,6 @@
-﻿using Core.FEM;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Core.FEM;
 using Core.FiniteElements.Interfaces;
 using Core.Matrices;
 using Core.SLAE;
@@ -41,22 +43,26 @@ public class EllipticalProblem : IProblem
         {
             var material = Materials[element.Material];
 
+            var dofs = element.Dofs
+                .Where(dof => dof != -1)
+                .ToArray();
+            
             if (material.IsVolume)
             {
                 var calculatingMatrices = (ICalculatingMatrices)element;
                 double[,] localMatrix = calculatingMatrices.BuildLocalMatrix(Mesh.Vertex,
                     IFiniteElement.MatrixTypeEnum.Stiffness,
                     material.Lambda);
-                _slae?.Matrix.AddLocal(element.Dofs, localMatrix);
+                _slae?.Matrix.AddLocal(dofs, localMatrix);
 
                 localMatrix = calculatingMatrices.BuildLocalMatrix(Mesh.Vertex,
                     IFiniteElement.MatrixTypeEnum.Mass,
                     material.Sigma);
-                _slae?.Matrix.AddLocal(element.Dofs, localMatrix);
+                _slae?.Matrix.AddLocal(dofs, localMatrix);
 
                 double[] localRightPart =
                     calculatingMatrices.BuildLocalRightPart(Mesh.Vertex, point => material.F(point, 0.0));
-                _slae?.AddLocalRightPart(element.Dofs, localRightPart);
+                _slae?.AddLocalRightPart(dofs, localRightPart);
             }
             else if (material.Is2)
             {
@@ -66,7 +72,7 @@ public class EllipticalProblem : IProblem
                     point => material.Thetta(point, 0.0)
                 );
 
-                _slae?.AddLocalRightPart(element.Dofs, localRightPart);
+                _slae?.AddLocalRightPart(dofs, localRightPart);
             }
         }
 
@@ -82,7 +88,11 @@ public class EllipticalProblem : IProblem
                     point => material.Ug(point, 0.0)
                 );
 
-                _slae?.AddFirstBoundaryConditions(element.Dofs, localRightPart);
+                _slae?.AddFirstBoundaryConditions(
+                    element.Dofs 
+                        .Where(dof => dof != -1)
+                        .ToArray(),
+                    localRightPart);
             }
         }
         

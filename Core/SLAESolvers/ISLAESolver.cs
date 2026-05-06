@@ -1,4 +1,5 @@
-﻿using Core.SLAE;
+﻿using System;
+using Core.SLAE;
 
 namespace Core.SLAESolvers;
 

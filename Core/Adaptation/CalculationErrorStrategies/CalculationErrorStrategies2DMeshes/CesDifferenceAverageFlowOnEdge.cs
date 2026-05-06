@@ -1,4 +1,6 @@
-﻿using Core.FiniteElements.AlgorithmsForFE;
+﻿using System;
+using System.Collections.Generic;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FEM;
 using Core.FiniteElements.Interfaces;
 using Core.NumericalIntegration;
@@ -14,9 +16,13 @@ public class CesDifferenceAverageFlowOnEdge : CesAbstractDifferenceFlowOnEdge
     public CesDifferenceAverageFlowOnEdge(IDictionary<string, IMaterial> materials) :
         base(materials)
     {
-        _quadratureNodes = new([.. NumericalIntegrationMethods.GaussQuadrature1DOrder3()], 3);
+        _quadratureNodes = 
+            new([.. NumericalIntegrationMethods.GaussQuadrature1DOrder3()], 3);
     }
-    
+
+    protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2) =>
+        Math.Abs(valueFlow1 + valueFlow2);
+
     protected override double GetFlowOnEdge(ISolution solution, IFiniteElement element, int edgei)
     {
         var (i, j) = element.GlobalEdge(edgei);

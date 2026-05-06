@@ -1,4 +1,5 @@
-﻿using Core.SLAE;
+﻿using System;
+using Core.SLAE;
 using Quasar.Native;
 
 namespace Core.SLAESolvers;

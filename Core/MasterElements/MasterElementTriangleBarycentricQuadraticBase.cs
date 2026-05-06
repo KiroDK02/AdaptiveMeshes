@@ -1,19 +1,18 @@
-﻿using Core.NumericalIntegration;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using Core.NumericalIntegration;
 using Core.Vectors;
 
 namespace Core.MasterElements;
 
 public class MasterElementTriangleBarycentricQuadraticBase : IMasterElement<Vector2D>
 {
-    public static MasterElementTriangleBarycentricQuadraticBase Instance
-    {
-        get
-        {
-            field ??= new MasterElementTriangleBarycentricQuadraticBase();
-            return field;
-        }
-    }
+    private static readonly Lazy<MasterElementTriangleBarycentricQuadraticBase> LazyInstance = 
+        new(() => new MasterElementTriangleBarycentricQuadraticBase(), LazyThreadSafetyMode.ExecutionAndPublication);
 
+    public static MasterElementTriangleBarycentricQuadraticBase Instance => LazyInstance.Value;
+    
     public Func<Vector2D, double>[] BasesFuncs => BaseFuncs.TriangleBarycentricQuadraticBase.BasesFuncs;
     public Func<Vector2D, double>[,] GradientsBasesFuncs =>
         BaseFuncs.TriangleBarycentricQuadraticBase.GradientBasesFuncs;

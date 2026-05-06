@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Core.FEM;
 using Core.Problems;
 using Services.ProblemFactories.Interfaces;

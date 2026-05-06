@@ -1,4 +1,3 @@
-using System.Windows;
 
 namespace Services.WindowServices;
 

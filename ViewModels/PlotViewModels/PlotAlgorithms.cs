@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Core.FEM;
 using ScottPlot;
-using ScottPlot.WPF;
 using ViewModels.MaterialViewModels;
 
 namespace ViewModels.PlotViewModels;
@@ -10,10 +11,11 @@ public static class PlotAlgorithms
 {
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
     public static void DrawElements(
-        this WpfPlot wpfPlot,
+        this IPlotControl wpfPlot,
         IFiniteElementMesh mesh,
         IEnumerable<MaterialViewModel>? materials,
-        bool drawMaterials = false)
+        bool drawMaterials = false,
+        bool showDofs = false)
     {
         var materialColors = materials?
             .ToDictionary(mat => mat.Name, mat => mat.SelectedColor);
@@ -64,6 +66,30 @@ public static class PlotAlgorithms
             }
             else
                 line.Color = Colors.Black;
+        }
+    }
+
+    public static void DrawDofs(this IPlotControl wpfPlot, IFiniteElementMesh mesh)
+    {
+        foreach (var element in mesh.Elements)
+        {
+            if (element.VertexNumbers.Length == 2)
+                continue;
+
+            var groupedDofsPositions = element
+                .GetDofsWithPositions(mesh.Vertex)
+                .GroupBy(x => x.position, (pos, items) =>
+                    (position: pos,
+                        label: string.Join(", ", items.Select(x => x.dof))));
+
+            foreach (var (position, label) in groupedDofsPositions)
+            {
+                var text = wpfPlot.Plot.Add.Text(label, position.X, position.Y);
+                
+                text.LabelFontSize = 18;
+                text.LabelFontColor = Colors.DarkBlue;
+                text.LabelAlignment = Alignment.MiddleCenter;
+            }
         }
     }
 }

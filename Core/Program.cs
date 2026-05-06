@@ -1,14 +1,13 @@
-﻿using Core;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Core;
 using Core.Adaptation.Adapters.Adapters2DMeshes;
 using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
 using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
 using Core.FEM;
-using Core.FiniteElements;
-using Core.FiniteElements.FiniteElements1D;
-using Core.FiniteElements.FiniteElements2D.FiniteElements2DTriangles;
 using Core.Problems;
-using Core.Solution;
-using Core.Vectors;
 
 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
