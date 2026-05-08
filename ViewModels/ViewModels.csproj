@@ -8,12 +8,14 @@
 
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
       <PackageReference Include="ScottPlot.WPF" Version="5.1.57" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Services\Services.csproj" />
+      <ProjectReference Include="..\DataTransferObjects\DataTransferObjects.csproj" />
     </ItemGroup>
 
 </Project>

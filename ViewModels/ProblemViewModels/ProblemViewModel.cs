@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,11 +10,13 @@ using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMes
 using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
 using Core.FEM;
 using Core.Problems;
+using DataTransferObjects;
 using Services.MeshLoaders;
 using Services.ProblemFactories.Interfaces;
 using Services.ScriptCompilers.Interfaces;
 using ViewModels.MaterialViewModels;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using Services.WindowServices;
 using ViewModels.PlotViewModels;
 
@@ -24,10 +26,12 @@ public partial class ProblemViewModel : ObservableObject
 {
     public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
-    public SolutionPointsViewModel SolutionPoints { get; } = new();
+    public SolutionPointsViewModel SolutionPoints { get; set; } = new();
     public MeshPlotViewModel MeshPlot { get; }
 
     public IFiniteElementMesh? ProblemMesh { get; set; }
+    
+    public bool CanShowError => ProblemSolved && IsRealSolutionKnown;
 
     [ObservableProperty] private string problemName = "default";
     [ObservableProperty] private ProblemType selectedProblemType;
@@ -70,6 +74,20 @@ public partial class ProblemViewModel : ObservableObject
         _addNewProblem = addNewProblem;
     }
 
+    public ProblemDto ToProblemDto() => new()
+    {
+        ProblemName = this.ProblemName,
+        SelectedProblemType = this.SelectedProblemType,
+        
+        MeshFilePath = this.MeshFilePath,
+        Materials = [..Materials.Materials.Select(m => m.ToMaterialDto())],
+        
+        Points = [..SolutionPoints.Points.Select(p => p.ToPointDto())],
+        
+        IsRealSolutionKnown = this.IsRealSolutionKnown,
+        RealSolution = this.RealSolution
+    };
+    
     [RelayCommand]
     private async Task BuildProblemAsync()
     {
@@ -220,10 +238,24 @@ public partial class ProblemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SaveProblemToFile()
+    private async Task SaveProblemToFileAsync()
     {
-        // TODO: реализовать через DataTransfers
+        var saveFileDialog = new SaveFileDialog()
+        {
+            Title = "Сохранить проблему",
+            Filter = "JSON файл (*.json)|*.json"
+        };
+
+        if (saveFileDialog.ShowDialog() != true)
+            return;
+
+        var problemDto = ToProblemDto();
+        var json = JsonConvert.SerializeObject(problemDto, Formatting.Indented);
+        await File.WriteAllTextAsync(saveFileDialog.FileName, json);
     }
+    
+    partial void OnProblemSolvedChanged(bool value) => OnPropertyChanged(nameof(CanShowError));
+    partial void OnIsRealSolutionKnownChanged(bool value) => OnPropertyChanged(nameof(CanShowError));
 }
 
 public static class ProblemTypeHelper

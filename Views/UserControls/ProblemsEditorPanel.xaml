@@ -13,32 +13,45 @@
     </UserControl.Resources>
 
     <Expander Header="Проблемы"
-              Margin="5">
+              Margin="5"
+              IsExpanded="True">
         <DockPanel Margin="5">
-            <UniformGrid DockPanel.Dock="Top"
-                         Columns="2"
-                         Margin="0,0,0,5">
-                <Button Content="Добавить проблему"
-                        Command="{Binding AddNewProblemCommand}"
-                        Margin="0,0,5,0" />
-                <Button Content="Удалить выбранную проблему"
-                        Command="{Binding RemoveProblemCommand}"
-                        CommandParameter="{Binding SelectedProblem}"
-                        IsEnabled="{Binding SelectedProblem, Converter={StaticResource NullToBool}}" />
-            </UniformGrid>
-
-            <ListBox ItemsSource="{Binding Problems}"
-                     SelectedItem="{Binding SelectedProblem}"
-                     BorderThickness="1"
-                     BorderBrush="Gray"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     MinHeight="150">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <views:ProblemView />
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <UniformGrid Grid.Row="0" DockPanel.Dock="Top"
+                             Columns="2">
+                    <Button Content="Добавить проблему"
+                            Command="{Binding AddNewProblemCommand}"
+                            Margin="0,0,2,0" />
+                    <Button Content="Удалить выбранную проблему"
+                            Command="{Binding RemoveProblemCommand}"
+                            CommandParameter="{Binding SelectedProblem}"
+                            IsEnabled="{Binding SelectedProblem, Converter={StaticResource NullToBool}}" />
+                </UniformGrid>
+                
+                <Button Grid.Row="1"
+                        Content="Загрузить проблему"
+                        Command="{Binding LoadProblemFromFileCommand}"
+                        Margin="0,4,0,5"/>
+                
+                <ListBox Grid.Row="2" ItemsSource="{Binding Problems}"
+                         SelectedItem="{Binding SelectedProblem}"
+                         BorderThickness="1"
+                         BorderBrush="Gray"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         MinHeight="150">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <views:ProblemView />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
         </DockPanel>
     </Expander>
 </UserControl>

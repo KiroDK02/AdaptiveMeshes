@@ -16,3 +16,10 @@ public interface IMaterial
     Func<Vector2D, double, double> Ug { get; }
     Func<Vector2D, double, double> Thetta { get; }
 }
+
+public enum MaterialType
+{
+    Volume,
+    FirstBoundary,
+    SecondBoundary
+}

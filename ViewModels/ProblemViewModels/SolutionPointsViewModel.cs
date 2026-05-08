@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Solution.Interfaces;
+using DataTransferObjects;
 
 namespace ViewModels.ProblemViewModels;
 
@@ -18,6 +20,13 @@ public partial class SolutionPointsViewModel : ObservableObject
                 point.Value = null;
 
         _solution = solution;
+    }
+
+    public void LoadFromDto(IEnumerable<PointDto> pointDtos)
+    {
+        Points.Clear();
+        foreach (var point in pointDtos)
+            Points.Add(PointViewModel.FromDto(point));
     }
 
     [RelayCommand]
