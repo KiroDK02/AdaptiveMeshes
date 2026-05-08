@@ -1,9 +1,14 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.FEM;
 using Core.Problems;
+using DataTransferObjects;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using Services.ProblemFactories.Interfaces;
 using Services.ScriptCompilers.Interfaces;
 using Services.WindowServices;
@@ -57,11 +62,45 @@ public partial class ProblemsEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void LoadProblemFromFile()
+    private async Task LoadProblemFromFileAsync()
     {
-        // TODO: реализовать через DataTransfers
-    }
+        var openFileDialog = new OpenFileDialog()
+        {
+            Title = "Загрузить проблему",
+            Filter = "JSON файл (*.json)|*.json",
+            Multiselect = false
+        };
+        
+        if (openFileDialog.ShowDialog() != true)
+            return;
+        
+        var json = await File.ReadAllTextAsync(openFileDialog.FileName);
+        var problemDto = JsonConvert.DeserializeObject<ProblemDto>(json);
 
+        if (problemDto is null)
+            return;
+
+        var materials = new MaterialsViewModel();
+        materials.LoadFromDto(problemDto.Materials);
+
+        var solutionPoints = new SolutionPointsViewModel();
+        solutionPoints.LoadFromDto(problemDto.Points);
+        
+        AddNewProblem(
+            materials,
+            problemDto.SelectedProblemType,
+            problemDto.ProblemName,
+            problemDto.MeshFilePath,
+            null);
+
+        var addedProblem = Problems.LastOrDefault();
+
+        addedProblem?.SolutionPoints = solutionPoints;
+        addedProblem?.IsRealSolutionKnown = problemDto.IsRealSolutionKnown;
+        addedProblem?.RealSolution = problemDto.RealSolution;
+    }
+    
+    
     private void AddNewProblem(
         MaterialsViewModel materials, 
         ProblemType problemType, 

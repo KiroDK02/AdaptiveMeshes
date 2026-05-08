@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.FEM;
+using DataTransferObjects;
 using Services.ScriptCompilers.Interfaces;
 
 namespace ViewModels.MaterialViewModels;
@@ -22,6 +23,13 @@ public partial class MaterialsViewModel : ObservableObject
             materials[material.Name] = await material.BuildMaterialAsync(compiler);
         
         return materials;
+    }
+
+    public void LoadFromDto(IEnumerable<MaterialDto> materialDtos)
+    {
+        Materials.Clear();
+        foreach (var materialDto in materialDtos)
+            Materials.Add(MaterialViewModel.FromDto(materialDto));
     }
     
     [RelayCommand]

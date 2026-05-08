@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.FEM;
 using Core.Vectors;
+using DataTransferObjects;
 using ScottPlot;
 using Services.ScriptCompilers.Interfaces;
 
@@ -48,19 +49,35 @@ public partial class MaterialViewModel : ObservableObject
             lambda, sigma, ug, thetta, f);
     }
 
-    public override string ToString()
+    public MaterialDto ToMaterialDto() => new()
     {
-        var sb = new StringBuilder();
-        sb.AppendLine($"[Material]");
-        sb.AppendLine($"[MaterialName]:{Name}");
-        sb.AppendLine($"[MaterialType]:{(int)SelectedType}");
-        sb.AppendLine($"[LambdaBody]:{LambdaBody}");
-        sb.AppendLine($"[SigmaBody]:{SigmaBody}");
-        sb.AppendLine($"[FBody]:{FBody}");
-        sb.AppendLine($"[UgBody]:{UgBody}");
-        sb.AppendLine($"[ThettaBody]:{ThettaBody}");
+        Name = this.Name,
+        
+        MaterialType = this.SelectedType,
+        
+        LambdaBody = this.LambdaBody,
+        SigmaBody = this.SigmaBody,
+        FBody = this.FBody,
+        UgBody = this.UgBody,
+        ThettaBody = this.ThettaBody,
+        
+        ARGB = SelectedColor.ARGB
+    };
 
-        return sb.ToString();
+    public static MaterialViewModel FromDto(MaterialDto materialDto)
+    {
+        return new ()
+        {
+            Name = materialDto.Name,
+            SelectedColor = new Color(materialDto.ARGB),
+            SelectedType = materialDto.MaterialType,
+            
+            LambdaBody = materialDto.LambdaBody,
+            SigmaBody = materialDto.SigmaBody,
+            FBody = materialDto.FBody,
+            UgBody = materialDto.UgBody,
+            ThettaBody = materialDto.ThettaBody
+        };
     }
 
     partial void OnSelectedTypeChanged(MaterialType value)
@@ -69,13 +86,6 @@ public partial class MaterialViewModel : ObservableObject
         OnPropertyChanged(nameof(Is1));
         OnPropertyChanged(nameof(Is2));
     }
-}
-
-public enum MaterialType
-{
-    Volume,
-    FirstBoundary,
-    SecondBoundary
 }
 
 public static class MaterialTypeHelper
