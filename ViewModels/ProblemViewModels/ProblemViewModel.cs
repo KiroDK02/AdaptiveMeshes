@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Adaptation.Adapters.Adapters2DMeshes;
-using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
-using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
+using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesAbsolute;
 using Core.FEM;
 using Core.Problems;
 using DataTransferObjects;
@@ -28,7 +27,7 @@ public partial class ProblemViewModel : ObservableObject
     public SolutionPlotViewModel SolutionPlot { get; } = new();
     public SolutionPointsViewModel SolutionPoints { get; set; } = new();
     public MeshPlotViewModel MeshPlot { get; }
-
+    public AdaptationViewModel Adaptation { get; } = new();
     public IFiniteElementMesh? ProblemMesh { get; set; }
     
     public bool CanShowError => ProblemSolved && IsRealSolutionKnown;
@@ -137,13 +136,8 @@ public partial class ProblemViewModel : ObservableObject
     private async Task AdaptMeshAsync()
     {
         await SolveProblemAsync();
-        var mesh = CurrentProblem?.Mesh;
-
-        var splitStrategy = new SplitStrategy2DMeshes(mesh?.Elements!, mesh?.Vertex!);
-        var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem?.Materials!);
-        var adapter = new HAdapter2DMeshes(CurrentProblem!, splitStrategy, calculatingErrorStrategy);
         
-        var adaptedMesh = await Task.Run(adapter.Adapt);
+        var adaptedMesh = await Adaptation.ExecuteAdaptation(CurrentProblem!);
 
         var newMeshFile =
             $@"{Path.GetDirectoryName(MeshFilePath)}\{Path.GetFileNameWithoutExtension(MeshFilePath)}Adapted{Path

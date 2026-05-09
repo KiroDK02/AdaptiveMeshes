@@ -6,3 +6,9 @@ public interface IAdapter
 {
     IFiniteElementMesh Adapt();
 }
+
+public enum AdaptationType
+{
+    HAdaptation,
+    PAdaptation
+}

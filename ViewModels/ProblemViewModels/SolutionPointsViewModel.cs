@@ -15,9 +15,8 @@ public partial class SolutionPointsViewModel : ObservableObject
 
     public void SetSolution(ISolution solution)
     {
-        if (_solution != null)
-            foreach (var point in Points)
-                point.Value = null;
+        foreach (var point in Points)
+            point.Value = null;
 
         _solution = solution;
     }

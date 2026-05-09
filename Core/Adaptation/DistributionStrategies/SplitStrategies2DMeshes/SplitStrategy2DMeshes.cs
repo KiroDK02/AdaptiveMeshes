@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Core.FiniteElements.AlgorithmsForFE;
 using Core.Adaptation.Adapters;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FiniteElements.Interfaces;
 using Core.Vectors;
 
-namespace Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
+namespace Core.Adaptation.DistributionStrategies.SplitStrategies2DMeshes;
 
-public class SplitStrategy2DMeshes : ISplitStrategy
+public class SplitStrategy2DMeshes : IDistributionStrategy
 {
-    private readonly double[] _distanceFromMinForScaleDifferences;
-    private readonly int[] _scaleSplits;
-    private readonly IDictionary<(int i, int j), int> _amountOccurencesOfEdges;
-    private double[] _scaleDifferences;
+    private readonly IDictionary<(int i, int j), int> _amountOccurrencesOfEdges;
+    private readonly Scales _scales;
 
+    public double[] ScaleDifferences => _scales.ScaleDifferences;
+    public int[] ScaleSplits => _scales.ScaleDistribution;
+    
     /// <value>
     /// Элементы начальной сетки
     /// </value>
@@ -31,37 +32,30 @@ public class SplitStrategy2DMeshes : ISplitStrategy
     public IDictionary<(int i, int j), int> EdgesSplits { get; set; }
     public IDictionary<(int i, int j), (int i, int j)> NumbersOldEdgesForNewEdges { get; set; }
 
-    public SplitStrategy2DMeshes(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
-        : this([0.0, 0.25, 0.5, 0.75, 1.0], [0, 1, 2, 3], elements, vertices)
-    { }
-
     public SplitStrategy2DMeshes(double[] distanceFromMinForScaleDifferences, int[] scaleSplits,
         IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+    : this(elements, vertices)
     {
-        if (distanceFromMinForScaleDifferences.Length != scaleSplits.Length + 1)
-            throw new ArgumentException("Invalid scales. Sizes of scales are not equal.");
+       _scales = new(distanceFromMinForScaleDifferences, scaleSplits, _amountOccurrencesOfEdges);
+    }
 
-        if (distanceFromMinForScaleDifferences.Any(x => x is > 1 or < 0))
-            throw new ArgumentException(
-                "Invalid set of distance from min. The values must be in the range from 0 to 1.");
-
-        _distanceFromMinForScaleDifferences = distanceFromMinForScaleDifferences;
-        _scaleSplits = scaleSplits;
+    public SplitStrategy2DMeshes(IEnumerable<IFiniteElement> elements, Vector2D[] vertices)
+    {
         Elements = elements;
         Vertices = vertices;
-
-        _amountOccurencesOfEdges = AlgorithmsForAdaptation.CalcNumberOccurrencesOfEdgesInElems(Elements);
-        _scaleDifferences = [];
+        _amountOccurrencesOfEdges = AlgorithmsForAdaptation.CalcNumberOccurrencesOfEdgesInElems(Elements);
         EdgesSplits = new Dictionary<(int i, int j), int>();
         NumbersOldEdgesForNewEdges = new Dictionary<(int i, int j), (int i, int j)>();
+
+        _scales = new(_amountOccurrencesOfEdges);
     }
     
-    public IDictionary<(int i, int j), int> GetSplits(IDictionary<(int i, int j), double> errors)
+    public IDictionary<(int i, int j), int> GetDistribution(IDictionary<(int i, int j), double> errors)
     {
-        GetScaleDifferences(errors);
+        _scales.CalculateScaleDifferences(errors);
 
         EdgesSplits = EdgesSplits.Count == 0
-            ? FindEdgesSplitsFirstStep(errors)
+            ? _scales.FindEdgeDistribution(errors)
             : FindEdgesSplits(errors);
 
         var splits = DistributeFoundSplits();
@@ -124,42 +118,6 @@ public class SplitStrategy2DMeshes : ISplitStrategy
         return verticesEdges;
     }
 
-    private void GetScaleDifferences(IDictionary<(int i, int j), double> errors)
-    {
-        var maxError = errors.Values.Max();
-        var minError = errors
-            .Where(edge => _amountOccurencesOfEdges[edge.Key] != 1)
-            .MinBy(edge => edge.Value)
-            .Value;
-        var step = maxError - minError;
-
-        _scaleDifferences = new double[_distanceFromMinForScaleDifferences.Length];
-
-        _scaleDifferences[0] = minError;
-
-        for (int i = 1; i < _scaleDifferences.Length - 1; i++)
-            _scaleDifferences[i] = minError + step * _distanceFromMinForScaleDifferences[i];
-
-        _scaleDifferences[^1] = maxError;
-    }
-
-    private IDictionary<(int i, int j), int> FindEdgesSplitsFirstStep(IDictionary<(int i, int j), double> errors)
-    {
-        Dictionary<(int i, int j), int> splits = [];
-
-        foreach ((var edge, double error) in errors)
-        {
-            for (int i = 0; i < _scaleSplits.Length; i++)
-                if (error <= _scaleDifferences[i + 1])
-                {
-                    splits[edge] = _scaleSplits[i];
-                    break;
-                }
-        }
-
-        return splits;
-    }
-
     private IDictionary<(int i, int j), int> FindEdgesSplits(IDictionary<(int i, int j), double> errors)
     {
         Dictionary<(int i, int j), int> splits = [];
@@ -170,11 +128,11 @@ public class SplitStrategy2DMeshes : ISplitStrategy
         foreach ((var edge, double error) in errors)
         {
             var split = 0;
-            for (int i = 0; i < _scaleSplits.Length; i++)
+            for (int i = 0; i < ScaleSplits.Length; i++)
             {
-                if (error < _scaleDifferences[i + 1])
+                if (error < ScaleDifferences[i + 1])
                 {
-                    split = _scaleSplits[i];
+                    split = ScaleSplits[i];
                     break;
                 }
             }
@@ -274,7 +232,7 @@ public class SplitStrategy2DMeshes : ISplitStrategy
         }
     }
 
-    private int FindMaxSplitInElement(IDictionary<(int i, int j), int> splits, IFiniteElement element)
+    private static int FindMaxSplitInElement(IDictionary<(int i, int j), int> splits, IFiniteElement element)
     {
         int max = 0;
 

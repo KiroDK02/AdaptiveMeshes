@@ -2,7 +2,7 @@
 using System.Linq;
 using Core.FiniteElements.AlgorithmsForFE;
 using Core.Adaptation.CalculationErrorStrategies;
-using Core.Adaptation.SplitStrategies;
+using Core.Adaptation.DistributionStrategies;
 using Core.FEM;
 using Core.FiniteElements.Interfaces;
 using Core.Problems;
@@ -23,14 +23,14 @@ public class HAdapter2DMeshes : IAdapter
     /// <value>
     /// Свойство <c>SplitStrategy</c> является стратегией разбиения - шкала + методы для расчета разбиений
     /// </value>
-    public ISplitStrategy SplitStrategy { get; }
+    public IDistributionStrategy SplitStrategy { get; }
 
     /// <value>
     /// Свойство <c>CalculationErrorStrategy</c> является стратегией расчета на ребрах локальных ошибок решения - скачков потока + метод(ы) для их расчета
     /// </value>
     public ICalculationErrorStrategy CalculationErrorStrategy { get; }
 
-    public HAdapter2DMeshes(IProblem problem, ISplitStrategy splitStrategy,
+    public HAdapter2DMeshes(IProblem problem, IDistributionStrategy splitStrategy,
         ICalculationErrorStrategy calculationErrorStrategy)
     {
         Problem = problem;
@@ -46,10 +46,10 @@ public class HAdapter2DMeshes : IAdapter
     public IFiniteElementMesh Adapt()
     {
         var errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
-        var splits = SplitStrategy.GetSplits(errors);
+        var splits = SplitStrategy.GetDistribution(errors);
 
         var countVertices = Problem.Mesh.Vertex.Length;
-        var verticesSplitedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
+        var verticesSplittedEdges = SplitStrategy.CalcVerticesEdges(splits, ref countVertices);
 
         List<IFiniteElement> newElements = [];
         List<(Vector2D vert, int num)> newVertices = [];
@@ -59,7 +59,7 @@ public class HAdapter2DMeshes : IAdapter
             var splittableElement = (ISplittableElement)element;
             if (element.VertexNumbers.Length != 2)
             {
-                var data = splittableElement.SplitToElements2D(splits, verticesSplitedEdges, ref countVertices);
+                var data = splittableElement.SplitToElements2D(splits, verticesSplittedEdges, ref countVertices);
 
                 newElements.AddRange(data.NewElements);
                 newVertices.AddRange(data.NewVertices);
@@ -68,7 +68,7 @@ public class HAdapter2DMeshes : IAdapter
             {
                 var elements = splittableElement.SplitToElements1D(
                 [
-                    .. verticesSplitedEdges[element.GlobalEdge(0)]
+                    .. verticesSplittedEdges[element.GlobalEdge(0)]
                         .Select(vertex => vertex.num)
                 ]);
 

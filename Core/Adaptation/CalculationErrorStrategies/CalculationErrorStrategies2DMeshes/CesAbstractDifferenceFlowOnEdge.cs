@@ -10,6 +10,8 @@ namespace Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2
 
 public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrategy
 {
+    protected readonly Dictionary<(int i, int j), double> ValuesNormFlowAtCenter = new();
+    
     protected readonly IDictionary<string, IMaterial> Materials;
 
     protected CesAbstractDifferenceFlowOnEdge(IDictionary<string, IMaterial> materials)
@@ -29,6 +31,13 @@ public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrateg
             if (element.VertexNumbers.Length == 2)
                 continue;
 
+            var lambda = Materials[element.Material].Lambda;
+            var center = element.GetElementCenter(solution.Mesh.Vertex);
+            
+            var normFlowAtCenter =
+                (lambda(center) * element.GetGradientAtPoint(solution.Mesh.Vertex, solution.SolutionVector, center))
+                .Norm;
+            
             for (int edgei = 0; edgei < element.NumberOfEdges; edgei++)
             {
                 var edge = element.GlobalEdge(edgei);
@@ -39,11 +48,16 @@ public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrateg
                     continue;
                 }
                 
+                ValuesNormFlowAtCenter[edge] = 
+                    ValuesNormFlowAtCenter.TryGetValue(edge, out var valueNorm)
+                    ? Math.Max(normFlowAtCenter, valueNorm)
+                    : normFlowAtCenter;
+                
                 var edgeFlow = GetFlowOnEdge(solution, element, edgei);
 
                 errors[edge] = 
                     errors.TryGetValue(edge, out double flow) 
-                        ? GetDifferenceFlowsOnEdge(flow, edgeFlow) 
+                        ? GetDifferenceFlowsOnEdge(flow, edgeFlow, edge) 
                         : edgeFlow;
             }
         }
@@ -51,6 +65,6 @@ public abstract class CesAbstractDifferenceFlowOnEdge : ICalculationErrorStrateg
         return errors;
     }
 
-    protected abstract double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2);
+    protected abstract double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2, (int i, int j) edge);
     protected abstract double GetFlowOnEdge(ISolution solution, IFiniteElement element, int edgei);
 }

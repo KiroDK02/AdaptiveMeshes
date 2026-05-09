@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.FiniteElements.AlgorithmsForFE;
 using Core.FEM;
+using Core.FiniteElements.AlgorithmsForFE;
 using Core.FiniteElements.Interfaces;
 using Core.NumericalIntegration;
 using Core.Solution.Interfaces;
 using Core.Vectors;
 
-namespace Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
+namespace Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesAbsolute;
 
 public class CesDifferenceAverageFlowOnEdge : CesAbstractDifferenceFlowOnEdge
 {
@@ -20,7 +20,7 @@ public class CesDifferenceAverageFlowOnEdge : CesAbstractDifferenceFlowOnEdge
             new([.. NumericalIntegrationMethods.GaussQuadrature1DOrder3()], 3);
     }
 
-    protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2) =>
+    protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2, (int i, int j) edge) =>
         Math.Abs(valueFlow1 + valueFlow2);
 
     protected override double GetFlowOnEdge(ISolution solution, IFiniteElement element, int edgei)
