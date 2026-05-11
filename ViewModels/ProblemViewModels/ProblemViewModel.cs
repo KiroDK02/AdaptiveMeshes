@@ -31,11 +31,12 @@ public partial class ProblemViewModel : ObservableObject
     public ErrorCalculationViewModel ErrorCalculation { get; }
     public IFiniteElementMesh? ProblemMesh { get; set; }
     
+    public bool ProblemSolved => CurrentProblem?.Solution is not null;
+    
     [ObservableProperty] private string _problemName = "default";
     [ObservableProperty] private ProblemType _selectedProblemType;
     [ObservableProperty] private string _meshFilePath = string.Empty;
     [ObservableProperty] private IProblem? _currentProblem;
-    [ObservableProperty] private bool _problemSolved = false;
 
     private string _pathLoadedMesh = string.Empty;
     private bool _meshChanged = false;
@@ -116,12 +117,18 @@ public partial class ProblemViewModel : ObservableObject
             await BuildProblemAsync();
         
         CurrentProblem?.Solve();
+        OnPropertyChanged(nameof(ProblemSolved));
         
         SolutionPlot.SetSolution(CurrentProblem?.Solution!);
-        SolutionPoints.SetSolution(CurrentProblem!.Solution);
-        ErrorCalculation.SetCurrentSolution(CurrentProblem.Solution);
-        
-        ProblemSolved = true;
+        SolutionPoints.SetSolution(CurrentProblem?.Solution!);
+        ErrorCalculation.SetCurrentSolution(CurrentProblem?.Solution!);
+    }
+
+    [RelayCommand]
+    private void ResetSolution()
+    {
+        CurrentProblem?.Solution = null;
+        OnPropertyChanged(nameof(ProblemSolved));
     }
 
     [RelayCommand]
@@ -173,7 +180,6 @@ public partial class ProblemViewModel : ObservableObject
         ProblemMesh = await meshLoader.LoadMeshAsync(MeshFilePath);
         _pathLoadedMesh = MeshFilePath;
         
-        ProblemSolved = false;
         _meshChanged = false;
     }
 

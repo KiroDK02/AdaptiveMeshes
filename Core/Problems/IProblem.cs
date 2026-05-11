@@ -8,7 +8,7 @@ public interface IProblem
 {
     bool Solved { get; }
     IDictionary<string, IMaterial> Materials { get; }
-    ISolution Solution { get; set; }
+    ISolution? Solution { get; set; }
     IFiniteElementMesh Mesh { get; }
 
     void Prepare();
