@@ -16,5 +16,4 @@ public class MaterialDto
     public string FBody { get; init; } = "0";
     public string UgBody { get; init; } = "0";
     public string ThettaBody { get; init; } = "0";
-    
 }

@@ -9,15 +9,14 @@ namespace ViewModels.ProblemViewModels;
 
 public partial class SolutionPointsViewModel : ObservableObject
 {
-    [ObservableProperty] ObservableCollection<PointViewModel> points = [];
+    [ObservableProperty] private ObservableCollection<PointViewModel> _points = [];
 
     private ISolution? _solution;
 
     public void SetSolution(ISolution solution)
     {
-        if (_solution != null)
-            foreach (var point in Points)
-                point.Value = null;
+        foreach (var point in Points)
+            point.Value = null;
 
         _solution = solution;
     }

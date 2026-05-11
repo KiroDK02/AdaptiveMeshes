@@ -21,8 +21,8 @@ public class SegmentFiniteElementHierarchical : BaseSegmentFiniteElement, ICalcu
     public override int[] Dofs { get; }
     public override IDictionary<(int i, int j), int> EdgesDofs { get; }
     
-    public override IFiniteElement.BasicFunctionsTypeEnum FunctionsType => IFiniteElement.BasicFunctionsTypeEnum
-        .Hierarchical;
+    public override IFiniteElement.BasicFunctionsTypeEnum FunctionsType => 
+        IFiniteElement.BasicFunctionsTypeEnum.Hierarchical;
     public override int Order { get; }
 
     public SegmentFiniteElementHierarchical(string material, int[] vertexNumbers, int order) : base(material,

@@ -12,9 +12,9 @@ using Newtonsoft.Json;
 using Services.ProblemFactories.Interfaces;
 using Services.ScriptCompilers.Interfaces;
 using Services.WindowServices;
+using ViewModels.AdaptationViewModels;
 using ViewModels.MaterialViewModels;
 using ViewModels.PlotViewModels;
-
 using static Services.ProblemFactories.Interfaces.IProblemFactory;
 
 namespace ViewModels.ProblemViewModels;
@@ -23,7 +23,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
 {
     public ObservableCollection<ProblemViewModel> Problems { get; } = [];
 
-    [ObservableProperty] private ProblemViewModel? selectedProblem;
+    [ObservableProperty] private ProblemViewModel? _selectedProblem;
 
     private readonly MeshPlotViewModel _meshPlot;
     private readonly IScriptCompiler _scriptCompiler;
@@ -44,7 +44,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AddNewProblem() => 
+    private void AddNewProblem() =>
         AddNewProblem(
             new(),
             ProblemType.EllipticalProblem,
@@ -56,7 +56,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
     private void RemoveProblem(ProblemViewModel problemVm)
     {
         Problems.Remove(problemVm);
-        
+
         if (SelectedProblem == problemVm)
             SelectedProblem = Problems.FirstOrDefault();
     }
@@ -70,10 +70,10 @@ public partial class ProblemsEditorViewModel : ObservableObject
             Filter = "JSON файл (*.json)|*.json",
             Multiselect = false
         };
-        
+
         if (openFileDialog.ShowDialog() != true)
             return;
-        
+
         var json = await File.ReadAllTextAsync(openFileDialog.FileName);
         var problemDto = JsonConvert.DeserializeObject<ProblemDto>(json);
 
@@ -85,7 +85,10 @@ public partial class ProblemsEditorViewModel : ObservableObject
 
         var solutionPoints = new SolutionPointsViewModel();
         solutionPoints.LoadFromDto(problemDto.Points);
-        
+
+        var adaptation = new AdaptationViewModel();
+        adaptation.LoadFromDto(problemDto.AdaptationDto);
+
         AddNewProblem(
             materials,
             problemDto.SelectedProblemType,
@@ -95,15 +98,16 @@ public partial class ProblemsEditorViewModel : ObservableObject
 
         var addedProblem = Problems.LastOrDefault();
 
+        addedProblem?.Adaptation = adaptation;
         addedProblem?.SolutionPoints = solutionPoints;
         addedProblem?.IsRealSolutionKnown = problemDto.IsRealSolutionKnown;
         addedProblem?.RealSolution = problemDto.RealSolution;
     }
-    
-    
+
+
     private void AddNewProblem(
-        MaterialsViewModel materials, 
-        ProblemType problemType, 
+        MaterialsViewModel materials,
+        ProblemType problemType,
         string problemName,
         string meshFilePath,
         IFiniteElementMesh? mesh)
@@ -121,7 +125,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
             MeshFilePath = meshFilePath,
             ProblemMesh = mesh
         };
-        
+
         Problems.Add(newProblemVm);
         SelectedProblem = newProblemVm;
     }

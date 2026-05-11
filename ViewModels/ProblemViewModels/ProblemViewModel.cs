@@ -5,9 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Adaptation.Adapters.Adapters2DMeshes;
-using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
-using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
 using Core.FEM;
 using Core.Problems;
 using DataTransferObjects;
@@ -18,6 +15,7 @@ using ViewModels.MaterialViewModels;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Services.WindowServices;
+using ViewModels.AdaptationViewModels;
 using ViewModels.PlotViewModels;
 
 namespace ViewModels.ProblemViewModels;
@@ -28,19 +26,19 @@ public partial class ProblemViewModel : ObservableObject
     public SolutionPlotViewModel SolutionPlot { get; } = new();
     public SolutionPointsViewModel SolutionPoints { get; set; } = new();
     public MeshPlotViewModel MeshPlot { get; }
-
+    public AdaptationViewModel Adaptation { get; set; } = new();
     public IFiniteElementMesh? ProblemMesh { get; set; }
     
     public bool CanShowError => ProblemSolved && IsRealSolutionKnown;
 
-    [ObservableProperty] private string problemName = "default";
-    [ObservableProperty] private ProblemType selectedProblemType;
-    [ObservableProperty] private string meshFilePath = string.Empty;
-    [ObservableProperty] private IProblem? currentProblem;
-    [ObservableProperty] private bool isRealSolutionKnown;
-    [ObservableProperty] private double errorSolution;
-    [ObservableProperty] private string realSolution = "0";
-    [ObservableProperty] private bool problemSolved = false;
+    [ObservableProperty] private string _problemName = "default";
+    [ObservableProperty] private ProblemType _selectedProblemType;
+    [ObservableProperty] private string _meshFilePath = string.Empty;
+    [ObservableProperty] private IProblem? _currentProblem;
+    [ObservableProperty] private bool _isRealSolutionKnown;
+    [ObservableProperty] private double _errorSolution;
+    [ObservableProperty] private string _realSolution = "0";
+    [ObservableProperty] private bool _problemSolved = false;
 
     private string _pathLoadedMesh = string.Empty;
     private bool _meshChanged = false;
@@ -83,6 +81,8 @@ public partial class ProblemViewModel : ObservableObject
         Materials = [..Materials.Materials.Select(m => m.ToMaterialDto())],
         
         Points = [..SolutionPoints.Points.Select(p => p.ToPointDto())],
+        
+        AdaptationDto = Adaptation.ToAdaptationDto(),
         
         IsRealSolutionKnown = this.IsRealSolutionKnown,
         RealSolution = this.RealSolution
@@ -137,17 +137,16 @@ public partial class ProblemViewModel : ObservableObject
     private async Task AdaptMeshAsync()
     {
         await SolveProblemAsync();
-        var mesh = CurrentProblem?.Mesh;
-
-        var splitStrategy = new SplitStrategy2DMeshes(mesh?.Elements!, mesh?.Vertex!);
-        var calculatingErrorStrategy = new CesDifferenceAverageFlowOnEdge(CurrentProblem?.Materials!);
-        var adapter = new HAdapter2DMeshes(CurrentProblem!, splitStrategy, calculatingErrorStrategy);
         
-        var adaptedMesh = await Task.Run(adapter.Adapt);
+        var adaptedMesh = await Adaptation.ExecuteAdaptationAsync(CurrentProblem!);
+
+        var directoryName = Path.GetDirectoryName(MeshFilePath);
+        var fileName = Path.GetFileNameWithoutExtension(MeshFilePath);
+        var extension = Path.GetExtension(MeshFilePath);
 
         var newMeshFile =
-            $@"{Path.GetDirectoryName(MeshFilePath)}\{Path.GetFileNameWithoutExtension(MeshFilePath)}Adapted{Path
-                .GetExtension(MeshFilePath)}";
+            $@"{directoryName}\{fileName}{Adaptation.AdaptationType}{Adaptation.CalculationErrorStrategy}{extension}";
+        
         _addNewProblem(Materials, SelectedProblemType, $"{ProblemName} - Adapted", newMeshFile, adaptedMesh);
     }
 

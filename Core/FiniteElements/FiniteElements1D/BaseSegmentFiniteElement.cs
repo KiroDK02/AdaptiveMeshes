@@ -93,7 +93,7 @@ public abstract class BaseSegmentFiniteElement : IFiniteElementWithNumericalInte
         {
             int[] globalNums = [globalVerticesNums[i], globalVerticesNums[i + 1]];
 
-            elems.Add(new SegmentFiniteElementQuadraticLagrange(Material, globalNums));
+            elems.Add(FiniteElementsFactory.CreateElement(this, globalNums, Order));
         }
 
         return elems;

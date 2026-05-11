@@ -1,9 +1,11 @@
-<UserControl x:Class="Views.UserControls.ProblemView"
+<UserControl x:Class="Views.UserControls.ProblemUserControls.ProblemView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:views="clr-namespace:Views.UserControls"
+             xmlns:viewsProblem="clr-namespace:Views.UserControls.ProblemUserControls"
+             xmlns:viewsAdaptation="clr-namespace:Views.UserControls.AdaptationUserControls"
+             xmlns:viewsMaterials="clr-namespace:Views.UserControls.MaterialsUserControls"
              xmlns:vm="clr-namespace:ViewModels.ProblemViewModels;assembly=ViewModels"
              d:DataContext="{d:DesignInstance Type=vm:ProblemViewModel}"
              mc:Ignorable="d">
@@ -12,14 +14,14 @@
     </UserControl.Resources>
     <Expander Header="{Binding ProblemName}"
               Margin="0,0,0,5"
-              IsExpanded="True">
+              IsExpanded="False">
         <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="*"/> 
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/> 
                 <RowDefinition Height="Auto"/> 
                 <RowDefinition Height="Auto"/> 
@@ -93,16 +95,20 @@
                     </UniformGrid>
                 </StackPanel>
             </Expander>
-
-            <views:MaterialsView Grid.Row="3"
+            
+            <viewsMaterials:MaterialsView Grid.Row="3"
                                  DataContext="{Binding Materials}"
                                  Margin="10,0,0,10"/>
             
-            <views:SolutionPointsView Grid.Row="4"
+            <viewsAdaptation:AdaptationView Grid.Row="4"
+                                            DataContext="{Binding Adaptation}"
+                                            Margin="10,0,0,10"/>
+            
+            <viewsProblem:SolutionPointsView Grid.Row="5"
                                       DataContext="{Binding SolutionPoints}"
                                       Margin="10,0,0,0"/>
             
-            <StackPanel Grid.Row="5" Margin="0,5,0,5">
+            <StackPanel Grid.Row="6" Margin="0,5,0,5">
                 <CheckBox Content="Известна искомая функция"
                           IsChecked="{Binding IsRealSolutionKnown, Mode=TwoWay}"
                           Margin="0,0,0,3"/>
@@ -115,7 +121,7 @@
                 </StackPanel>
             </StackPanel>
             
-            <TextBlock Grid.Row="6"
+            <TextBlock Grid.Row="7"
                        Margin="0,5,0,5"
                        Visibility="{Binding CanShowError,
                        Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -123,7 +129,7 @@
                 <Run Text="{Binding ErrorSolution}"/>
             </TextBlock>
             
-            <Grid Grid.Row="7">
+            <Grid Grid.Row="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

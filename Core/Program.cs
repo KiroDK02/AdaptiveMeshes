@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using Core;
 using Core.Adaptation.Adapters.Adapters2DMeshes;
-using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
-using Core.Adaptation.SplitStrategies.SplitStrategies2DMeshes;
+using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesAbsolute;
+using Core.Adaptation.DistributionStrategies.SplitStrategies2DMeshes;
 using Core.FEM;
 using Core.Problems;
 
