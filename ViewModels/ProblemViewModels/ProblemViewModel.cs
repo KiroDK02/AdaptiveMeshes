@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,17 +28,13 @@ public partial class ProblemViewModel : ObservableObject
     public SolutionPointsViewModel SolutionPoints { get; set; } = new();
     public MeshPlotViewModel MeshPlot { get; }
     public AdaptationViewModel Adaptation { get; set; } = new();
+    public ErrorCalculationViewModel ErrorCalculation { get; }
     public IFiniteElementMesh? ProblemMesh { get; set; }
     
-    public bool CanShowError => ProblemSolved && IsRealSolutionKnown;
-
     [ObservableProperty] private string _problemName = "default";
     [ObservableProperty] private ProblemType _selectedProblemType;
     [ObservableProperty] private string _meshFilePath = string.Empty;
     [ObservableProperty] private IProblem? _currentProblem;
-    [ObservableProperty] private bool _isRealSolutionKnown;
-    [ObservableProperty] private double _errorSolution;
-    [ObservableProperty] private string _realSolution = "0";
     [ObservableProperty] private bool _problemSolved = false;
 
     private string _pathLoadedMesh = string.Empty;
@@ -63,6 +60,7 @@ public partial class ProblemViewModel : ObservableObject
         IScriptCompiler compiler,
         IProblemFactory problemFactory,
         IWindowService windowService,
+        ObservableCollection<ProblemViewModel> allProblems,
         Action<MaterialsViewModel, ProblemType, string, string, IFiniteElementMesh?> addNewProblem)
     {
         MeshPlot = meshPlot;
@@ -70,6 +68,8 @@ public partial class ProblemViewModel : ObservableObject
         _problemFactory = problemFactory;
         _windowService = windowService;
         _addNewProblem = addNewProblem;
+
+        ErrorCalculation = new(allProblems, compiler);
     }
 
     public ProblemDto ToProblemDto() => new()
@@ -83,9 +83,6 @@ public partial class ProblemViewModel : ObservableObject
         Points = [..SolutionPoints.Points.Select(p => p.ToPointDto())],
         
         AdaptationDto = Adaptation.ToAdaptationDto(),
-        
-        IsRealSolutionKnown = this.IsRealSolutionKnown,
-        RealSolution = this.RealSolution
     };
     
     [RelayCommand]
@@ -119,17 +116,11 @@ public partial class ProblemViewModel : ObservableObject
             await BuildProblemAsync();
         
         CurrentProblem?.Solve();
-        SolutionPlot.SetSolution(CurrentProblem?.Solution!);
-
-        var otherSolution = SelectedProblemType switch
-        {
-            ProblemType.EllipticalProblem => await _compiler.CompileStationaryFunction(RealSolution),
-            
-            _ => throw new ArgumentException("Invalid problem type.")
-        };
         
-        ErrorSolution = CurrentProblem!.Solution.CalcErrorFrom(otherSolution);
-        SolutionPoints.SetSolution(CurrentProblem.Solution);
+        SolutionPlot.SetSolution(CurrentProblem?.Solution!);
+        SolutionPoints.SetSolution(CurrentProblem!.Solution);
+        ErrorCalculation.SetCurrentSolution(CurrentProblem.Solution);
+        
         ProblemSolved = true;
     }
 
@@ -160,14 +151,14 @@ public partial class ProblemViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void DrawSolution()
+    private async Task DrawSolutionAsync()
     {
         if (CurrentProblem is null || !CurrentProblem.Solved)
             return;
 
         _windowService.ShowSolutionWindow(SolutionPlot);
 
-        SolutionPlot.DrawSolution();
+        await Task.Run(SolutionPlot.DrawSolution);
     }
 
     // Сделать, чтоб сетка грузилась при повторном нажатии
@@ -252,9 +243,6 @@ public partial class ProblemViewModel : ObservableObject
         var json = JsonConvert.SerializeObject(problemDto, Formatting.Indented);
         await File.WriteAllTextAsync(saveFileDialog.FileName, json);
     }
-    
-    partial void OnProblemSolvedChanged(bool value) => OnPropertyChanged(nameof(CanShowError));
-    partial void OnIsRealSolutionKnownChanged(bool value) => OnPropertyChanged(nameof(CanShowError));
 }
 
 public static class ProblemTypeHelper

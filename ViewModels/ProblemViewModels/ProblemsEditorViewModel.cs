@@ -15,7 +15,6 @@ using Services.WindowServices;
 using ViewModels.AdaptationViewModels;
 using ViewModels.MaterialViewModels;
 using ViewModels.PlotViewModels;
-using static Services.ProblemFactories.Interfaces.IProblemFactory;
 
 namespace ViewModels.ProblemViewModels;
 
@@ -100,10 +99,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
 
         addedProblem?.Adaptation = adaptation;
         addedProblem?.SolutionPoints = solutionPoints;
-        addedProblem?.IsRealSolutionKnown = problemDto.IsRealSolutionKnown;
-        addedProblem?.RealSolution = problemDto.RealSolution;
     }
-
 
     private void AddNewProblem(
         MaterialsViewModel materials,
@@ -117,6 +113,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
             _scriptCompiler,
             _problemFactory,
             _windowService,
+            Problems,
             AddNewProblem)
         {
             Materials = materials,

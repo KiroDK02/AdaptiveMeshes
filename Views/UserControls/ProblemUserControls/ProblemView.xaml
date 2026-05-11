@@ -10,29 +10,29 @@
              d:DataContext="{d:DesignInstance Type=vm:ProblemViewModel}"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </UserControl.Resources>
     <Expander Header="{Binding ProblemName}"
               Margin="0,0,0,5"
               IsExpanded="False">
         <Grid Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="*"/> 
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="Auto"/> 
-                <RowDefinition Height="Auto"/> 
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            
+
             <TextBox Grid.Row="0"
                      Text="{Binding ProblemName, Mode=TwoWay}"
-                     Margin="0,0,0,5"/>
-            
-            <ComboBox Grid.Row="1" 
+                     Margin="0,0,0,5" />
+
+            <ComboBox Grid.Row="1"
                       ItemsSource="{Binding Source={x:Static vm:ProblemTypeHelper.Values}}"
                       SelectedItem="{Binding SelectedProblemType}" />
 
@@ -43,49 +43,49 @@
                 <StackPanel>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Row="0" Grid.Column="0" 
+                        <TextBox Grid.Row="0" Grid.Column="0"
                                  Text="{Binding MeshFilePath}"
-                                 IsReadOnly="True" 
-                                 Margin="0,5,0,0"/>
+                                 IsReadOnly="True"
+                                 Margin="0,5,0,0" />
 
                         <Button Grid.Row="0" Grid.Column="1"
                                 Content="..."
                                 Command="{Binding SelectMeshFileCommand}"
                                 Margin="5,5,0,0" />
-                        
-                        <CheckBox Grid.Row="1" Grid.Column="0" 
+
+                        <CheckBox Grid.Row="1" Grid.Column="0"
                                   Grid.ColumnSpan="2"
                                   Content="Отобразить номера неизвестных"
                                   IsChecked="{Binding DataContext.MeshPlot.ShowDofs,
                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  Margin="0,5,0,0"/>
-                        
-                        <CheckBox Grid.Row="2" Grid.Column="0" 
+                                  Margin="0,5,0,0" />
+
+                        <CheckBox Grid.Row="2" Grid.Column="0"
                                   Grid.ColumnSpan="2"
                                   Content="Отобразить материалы сетки"
                                   IsChecked="{Binding DataContext.MeshPlot.DrawMaterials,
                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  Margin="0,5,0,0"/>
+                                  Margin="0,5,0,0" />
                     </Grid>
 
                     <UniformGrid Rows="2" Columns="2"
                                  Margin="0,5,0,0">
                         <Button Content="Загрузить"
-                                Command="{Binding LoadMeshCommand}" 
-                                Margin="0,0,0,2"/>
+                                Command="{Binding LoadMeshCommand}"
+                                Margin="0,0,0,2" />
                         <Button Content="Отрисовать сетку"
                                 Command="{Binding DrawMeshCommand}"
-                                Margin="5,0,0,2"/>
+                                Margin="5,0,0,2" />
                         <Button Content="Сохранить"
                                 Command="{Binding SaveMeshCommand}"
                                 Margin="0,2,0,0" />
@@ -95,44 +95,27 @@
                     </UniformGrid>
                 </StackPanel>
             </Expander>
-            
+
             <viewsMaterials:MaterialsView Grid.Row="3"
-                                 DataContext="{Binding Materials}"
-                                 Margin="10,0,0,10"/>
-            
+                                          DataContext="{Binding Materials}"
+                                          Margin="10,0,0,10" />
+
             <viewsAdaptation:AdaptationView Grid.Row="4"
                                             DataContext="{Binding Adaptation}"
-                                            Margin="10,0,0,10"/>
-            
+                                            Margin="10,0,0,10" />
+
             <viewsProblem:SolutionPointsView Grid.Row="5"
-                                      DataContext="{Binding SolutionPoints}"
-                                      Margin="10,0,0,0"/>
+                                             DataContext="{Binding SolutionPoints}"
+                                             Margin="10,0,0,10" />
+
+            <viewsProblem:ErrorCalculationView Grid.Row="6"
+                                               DataContext="{Binding ErrorCalculation}"
+                                               Margin="10,0,0,5" />
             
-            <StackPanel Grid.Row="6" Margin="0,5,0,5">
-                <CheckBox Content="Известна искомая функция"
-                          IsChecked="{Binding IsRealSolutionKnown, Mode=TwoWay}"
-                          Margin="0,0,0,3"/>
-    
-                <StackPanel Visibility="{Binding IsRealSolutionKnown,
-                    Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock Text="Искомая функция:"
-                               Margin="0,0,0,3"/>
-                    <TextBox Text="{Binding RealSolution, Mode=TwoWay}"/>
-                </StackPanel>
-            </StackPanel>
-            
-            <TextBlock Grid.Row="7"
-                       Margin="0,5,0,5"
-                       Visibility="{Binding CanShowError,
-                       Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Run Text="Погрешность: "/>
-                <Run Text="{Binding ErrorSolution}"/>
-            </TextBlock>
-            
-            <Grid Grid.Row="8">
+            <Grid Grid.Row="7">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <UniformGrid Grid.Row="0"
@@ -140,22 +123,22 @@
                              Margin="0,5,0,0">
                     <Button Content="Построить"
                             Command="{Binding BuildProblemCommand}"
-                            Margin="0,0,2,2"/>
+                            Margin="0,0,2,2" />
                     <Button Content="Адаптировать сетку"
                             Command="{Binding AdaptMeshCommand}"
-                            Margin="2,0,0,2"/>
+                            Margin="2,0,0,2" />
                     <Button Content="Решить"
                             Command="{Binding SolveProblemCommand}"
-                            Margin="0,2,2,0"/>
+                            Margin="0,2,2,0" />
                     <Button Content="Отрисовать решение"
                             Command="{Binding DrawSolutionCommand}"
-                            Margin="2,2,0,0"/>
+                            Margin="2,2,0,0" />
                 </UniformGrid>
 
                 <Button Grid.Row="1"
                         Content="Сохранить проблему"
                         Command="{Binding SaveProblemToFileCommand}"
-                        Margin="0,4,0,0"/>
+                        Margin="0,4,0,0" />
             </Grid>
         </Grid>
     </Expander>
