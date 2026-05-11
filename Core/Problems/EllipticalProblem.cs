@@ -14,7 +14,7 @@ public class EllipticalProblem : IProblem
 {
     public bool Solved { get; private set; }
     public IDictionary<string, IMaterial> Materials { get; }
-    public ISolution Solution { get; set; }
+    public ISolution? Solution { get; set; }
     public IFiniteElementMesh Mesh { get; }
 
     private PardisoSLAE? _slae;
@@ -23,7 +23,6 @@ public class EllipticalProblem : IProblem
     {
         Materials = materials;
         Mesh = mesh;
-        Solution = new SolutionStationaryProblem(Mesh);
     }
 
     public void Prepare()
@@ -95,6 +94,8 @@ public class EllipticalProblem : IProblem
                     localRightPart);
             }
         }
+        
+        Solution = new SolutionStationaryProblem(Mesh);
         
         using (var slaeSolver = new PardisoSLAESolver(_slae!))
         {

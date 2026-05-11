@@ -86,7 +86,7 @@ public sealed class TriangleFiniteElementQuadraticLagrange : BaseTriangularFinit
 
         for (int edgei = 0; edgei < NumberOfEdges; edgei++)
         {
-            var edge = this.GlobalEdge(edgei);
+            var edge = Edge(edgei);
             var mid = new Vector2D(
                 (vertices[edge.i].X + vertices[edge.j].X) / 2.0,
                 (vertices[edge.i].Y + vertices[edge.j].Y) / 2.0);

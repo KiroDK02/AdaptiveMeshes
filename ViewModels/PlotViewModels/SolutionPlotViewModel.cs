@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Solution.Interfaces;
@@ -16,10 +17,15 @@ public partial class SolutionPlotViewModel : ObservableObject
     private ISolution? _solution;
     private ColorBar? _colorBar;
     private Heatmap? _heatmap;
+    private List<LinePlot>? _isolineLines;
+    private List<IsolinesAlgorithms.IsolineSegment>? _isolineSegments;
+    private double _isolineMin;
+    private double _isolineMax;
 
-    [ObservableProperty] private int gridSize = 500;
-    [ObservableProperty] private bool showColorMap = true;
-    [ObservableProperty] private bool showIsolines = true;
+    [ObservableProperty] private int _gridSize = 500;
+    [ObservableProperty] private int _isolineLevelCount = 10;
+    [ObservableProperty] private bool _showColorMap = true;
+    [ObservableProperty] private bool _showIsolines = false;
 
     public void SetPlot(WpfPlot wpfPlot) => _wpfPlot = wpfPlot;
 
@@ -32,15 +38,14 @@ public partial class SolutionPlotViewModel : ObservableObject
 
         _wpfPlot.Plot.Clear();
 
-        if (ShowColorMap)
-        {
-            DrawColorMap();
-        }
+        _heatmap = null;
+        _colorBar = null;
+        _isolineLines = null;
+        _isolineSegments = null;
 
-        if (ShowIsolines)
-        {
-            // TODO: реализовать отрисовку изолиний
-        }
+        DrawColorMap();
+        ComputeIsolines();
+        DrawIsolines();
 
         _wpfPlot.DrawElements(_solution.Mesh, null);
 
@@ -55,6 +60,34 @@ public partial class SolutionPlotViewModel : ObservableObject
 
         _heatmap?.IsVisible = value;
         _colorBar?.IsVisible = value;
+        _wpfPlot.Refresh();
+    }
+
+    partial void OnShowIsolinesChanged(bool value)
+    {
+        if (_wpfPlot is null || _isolineLines is null)
+            return;
+
+        foreach (var line in _isolineLines)
+            line.IsVisible = value;
+
+        _wpfPlot.Refresh();
+    }
+
+    partial void OnIsolineLevelCountChanged(int value)
+    {
+        if (_wpfPlot is null || _solution is null || _isolineLines is null)
+            return;
+
+        foreach (var line in _isolineLines)
+            _wpfPlot.Plot.Remove(line);
+
+        _isolineLines = null;
+        _isolineSegments = null;
+
+        ComputeIsolines();
+        DrawIsolines();
+
         _wpfPlot.Refresh();
     }
 
@@ -84,6 +117,46 @@ public partial class SolutionPlotViewModel : ObservableObject
             heatMapData.Max.Y);
         _heatmap.Colormap = new ScottPlot.Colormaps.Turbo();
         _colorBar = _wpfPlot.Plot.Add.ColorBar(_heatmap);
+
+        _heatmap.IsVisible = ShowColorMap;
+        _colorBar.IsVisible = ShowColorMap;
+    }
+
+    private void DrawIsolines()
+    {
+        if (_wpfPlot is null || _solution is null || _isolineSegments is null)
+            return;
+
+        _isolineLines = new(_isolineSegments.Count);
+
+        foreach (var segment in _isolineSegments)
+        {
+            var line = _wpfPlot.Plot.Add.Line(
+                segment.From.X, segment.From.Y,
+                segment.To.X, segment.To.Y);
+
+            line.Color = Colors.Red;
+            line.LineWidth = 4.5f;
+            line.IsVisible = ShowIsolines;
+
+            _isolineLines.Add(line);
+        }
+    }
+
+    private void ComputeIsolines()
+    {
+        if (_solution is null)
+            return;
+
+        _isolineSegments = IsolinesAlgorithms.ComputeIsolines(_solution, IsolineLevelCount);
+
+        _isolineMin = _isolineSegments.Count > 0
+            ? _isolineSegments.Min(s => s.Level)
+            : 0;
+
+        _isolineMax = _isolineSegments.Count > 0
+            ? _isolineSegments.Max(s => s.Level)
+            : 1;
     }
 
     private HeatMapData CreateHeatMap(int gridSize = 500)
@@ -94,11 +167,11 @@ public partial class SolutionPlotViewModel : ObservableObject
         var vertices = _solution.Mesh.Vertex;
 
         var heatMap = new Coordinates3d[gridSize, gridSize];
-        
+
         var verticesX = vertices
             .Select(vertex => vertex.X)
             .ToArray();
-        
+
         var verticesY = vertices
             .Select(vertex => vertex.Y)
             .ToArray();
