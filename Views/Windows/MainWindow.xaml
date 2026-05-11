@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:ViewModels;assembly=ViewModels"
         xmlns:scottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
         xmlns:local="clr-namespace:Views.Windows"
-        xmlns:controls="clr-namespace:Views.UserControls"
+        xmlns:problemControls="clr-namespace:Views.UserControls.ProblemUserControls"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="Kiro2D" 
@@ -28,7 +28,7 @@
                            DataContext="{Binding MeshPlotViewModel}"
                            x:Name="MainMeshPlot"/>
         
-        <controls:ProblemsEditorPanel Grid.Row="1" Grid.Column="1"
+        <problemControls:ProblemsEditorPanel Grid.Row="1" Grid.Column="1"
                                       Grid.RowSpan="2"
                                       DataContext="{Binding ProblemsEditorViewModel}" />
     </Grid>

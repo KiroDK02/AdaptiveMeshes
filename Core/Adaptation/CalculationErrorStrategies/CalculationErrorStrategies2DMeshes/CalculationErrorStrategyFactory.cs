@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesAbsolute;
 using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesRelative;
 using Core.FEM;
-using static Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategy;
+using static Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategyType;
 
 namespace Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes;
 
 public static class CalculationErrorStrategyFactory
 {
-    public static ICalculationErrorStrategy GetCalculationErrorStrategy(CalculationErrorStrategy type, 
+    public static ICalculationErrorStrategy GetCalculationErrorStrategy(CalculationErrorStrategyType type, 
         IDictionary<string, IMaterial> materials)
     {
         return type switch
         {
-            StrategyAverageFlowDifference => new CesDifferenceAverageFlowOnEdge(materials),
+            AverageFlowDifference => new CesDifferenceAverageFlowOnEdge(materials),
             
-            StrategyProjectionFlowDifference => new CesDifferenceProjectionFlowOnEdge(materials),
+            ProjectionFlowDifference => new CesDifferenceProjectionFlowOnEdge(materials),
             
-            StrategyAverageFlowDifferenceRelativeAverage => new CesDifferenceAverageRelativeAverage(materials),
+            AverageFlowDifferenceRelativeAverage => new CesDifferenceAverageRelativeAverage(materials),
             
-            StrategyProjectionFlowDifferenceRelativeProjection => 
+            ProjectionFlowDifferenceRelativeProjection => 
                 new CesDifferenceProjectionRelativeProjection(materials),
             
-            StrategyAverageFlowDifferenceRelativeNormFlowAtCenter => 
+            AverageFlowDifferenceRelativeNormFlowAtCenter => 
                 new CesDifferenceAverageRelativeNormFlowCenter(materials),
             
-            StrategyProjectionFlowDifferenceRelativeNormFlowAtCenter => 
+            ProjectionFlowDifferenceRelativeNormFlowAtCenter => 
                 new CesDifferenceProjectionRelativeNormFlowCenter(materials),
             
             _ => throw new ArgumentException("Unknown calculation error strategy")

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.FEM;
 using Core.FiniteElements.AlgorithmsForFE;
@@ -13,7 +14,7 @@ public class CesDifferenceProjectionFlowOnEdge : CesAbstractDifferenceFlowOnEdge
 
 
     protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2, (int i, int j) edge) =>
-        valueFlow1 + valueFlow2;
+        Math.Abs(valueFlow1 + valueFlow2);
     
     protected override double GetFlowOnEdge(ISolution solution, IFiniteElement element, int edgei)
     {

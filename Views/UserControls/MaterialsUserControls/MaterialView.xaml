@@ -1,4 +1,4 @@
-<UserControl x:Class="Views.UserControls.MaterialView"
+<UserControl x:Class="Views.UserControls.MaterialsUserControls.MaterialView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -15,7 +15,8 @@
     </UserControl.Resources>
 
     <Expander Header="{Binding Name}"
-              Margin="0,0,0,5">
+              Margin="0,0,0,5"
+              IsExpanded="False">
         <StackPanel Margin="5">
             <TextBox Text="{Binding Name, Mode=TwoWay}"
                      Margin="0,0,0,10"/>

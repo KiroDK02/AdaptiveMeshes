@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace Views.UserControls;
+namespace Views.UserControls.ProblemUserControls;
 
 public partial class ProblemView : UserControl
 {

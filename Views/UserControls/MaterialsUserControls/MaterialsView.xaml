@@ -1,4 +1,4 @@
-<UserControl x:Class="Views.UserControls.MaterialsView"
+<UserControl x:Class="Views.UserControls.MaterialsUserControls.MaterialsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,13 +6,15 @@
              xmlns:views="clr-namespace:Views.UserControls"
              xmlns:vm="clr-namespace:ViewModels.MaterialViewModels;assembly=ViewModels"
              xmlns:converters="clr-namespace:Views.Converters"
+             xmlns:materialsUserControls="clr-namespace:Views.UserControls.MaterialsUserControls"
              d:DataContext="{d:DesignInstance Type=vm:MaterialsViewModel}"
              mc:Ignorable="d">
     <UserControl.Resources>
         <converters:NullToBoolConverter x:Key="NullToBool" />
     </UserControl.Resources>
     
-    <Expander Header="Материалы">
+    <Expander Header="Материалы"
+              IsExpanded="False">
         <Grid Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -40,7 +42,7 @@
                      MaxHeight="400">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <views:MaterialView />
+                        <materialsUserControls:MaterialView />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

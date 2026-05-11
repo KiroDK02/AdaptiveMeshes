@@ -16,6 +16,8 @@ public class ProblemDto
     
     public List<PointDto> Points { get; init; } = [];
     
+    public required AdaptationDto AdaptationDto { get; init; }
+    
     public bool IsRealSolutionKnown { get; init; }
     public string RealSolution { get; init; } = "0";
 }

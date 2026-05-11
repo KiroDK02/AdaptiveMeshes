@@ -11,5 +11,5 @@ public class CesDifferenceProjectionRelativeProjection : CesDifferenceProjection
         : base(materials) { }
 
     protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2, (int i, int j) edge) =>
-        (valueFlow1 + valueFlow2) / Math.Max(Math.Abs(valueFlow1), Math.Abs(valueFlow2));
+        Math.Abs(valueFlow1 + valueFlow2) / Math.Max(Math.Abs(valueFlow1), Math.Abs(valueFlow2));
 }

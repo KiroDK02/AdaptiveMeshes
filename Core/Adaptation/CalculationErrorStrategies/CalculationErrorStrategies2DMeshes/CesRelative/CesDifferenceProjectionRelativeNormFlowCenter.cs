@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Core.Adaptation.CalculationErrorStrategies.CalculationErrorStrategies2DMeshes.CesAbsolute;
 using Core.FEM;
@@ -10,5 +11,5 @@ public class CesDifferenceProjectionRelativeNormFlowCenter : CesDifferenceProjec
         : base(materials) { }
 
     protected override double GetDifferenceFlowsOnEdge(double valueFlow1, double valueFlow2, (int i, int j) edge) =>
-        (valueFlow1 + valueFlow2) / ValuesNormFlowAtCenter[edge];
+        Math.Abs(valueFlow1 + valueFlow2) / ValuesNormFlowAtCenter[edge];
 }
