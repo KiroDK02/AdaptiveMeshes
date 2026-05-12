@@ -131,6 +131,8 @@ public readonly struct Vector2D : IEquatable<Vector2D>
     }
 
     public Vector2D Round(int digits) => new Vector2D(Math.Round(X, digits), Math.Round(Y, digits));
+    
+    public Vector3D As3D() => new Vector3D(X, Y, 0);
 
     public static Vector2D Vec(double x, double y) => new Vector2D(x, y);
 

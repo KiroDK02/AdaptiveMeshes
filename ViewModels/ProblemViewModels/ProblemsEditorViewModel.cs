@@ -48,9 +48,8 @@ public partial class ProblemsEditorViewModel : ObservableObject
             new(),
             ProblemType.EllipticalProblem,
             $"Problem{Problems.Count + 1}",
-            string.Empty,
             null);
-
+    
     [RelayCommand]
     private void RemoveProblem(ProblemViewModel problemVm)
     {
@@ -88,12 +87,14 @@ public partial class ProblemsEditorViewModel : ObservableObject
         var adaptation = new AdaptationViewModel();
         adaptation.LoadFromDto(problemDto.AdaptationDto);
 
+        var meshViewModel = new MeshViewModel(_meshPlot, materials);
+        meshViewModel.LoadFromDto(problemDto.MeshDto);
+        
         AddNewProblem(
             materials,
             problemDto.SelectedProblemType,
             problemDto.ProblemName,
-            problemDto.MeshFilePath,
-            null);
+            meshViewModel);
 
         var addedProblem = Problems.LastOrDefault();
 
@@ -105,8 +106,7 @@ public partial class ProblemsEditorViewModel : ObservableObject
         MaterialsViewModel materials,
         ProblemType problemType,
         string problemName,
-        string meshFilePath,
-        IFiniteElementMesh? mesh)
+        MeshViewModel? meshViewModel)
     {
         var newProblemVm = new ProblemViewModel(
             _meshPlot,
@@ -114,13 +114,11 @@ public partial class ProblemsEditorViewModel : ObservableObject
             _problemFactory,
             _windowService,
             Problems,
-            AddNewProblem)
+            materials,
+            meshViewModel)
         {
-            Materials = materials,
             SelectedProblemType = problemType,
-            ProblemName = problemName,
-            MeshFilePath = meshFilePath,
-            ProblemMesh = mesh
+            ProblemName = problemName
         };
 
         Problems.Add(newProblemVm);

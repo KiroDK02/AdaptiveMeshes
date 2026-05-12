@@ -1,0 +1,75 @@
+﻿<UserControl x:Class="Views.UserControls.ProblemUserControls.MeshView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Views.UserControls.ProblemUserControls"
+             xmlns:problemVms="clr-namespace:ViewModels.ProblemViewModels;assembly=ViewModels"
+             d:DataContext="{d:DesignInstance Type=problemVms:MeshViewModel}"
+             mc:Ignorable="d">
+    <Expander Header="Сетка"
+              IsExpanded="True">
+        <StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Row="0" Grid.Column="0"
+                         Text="{Binding MeshFilePath}"
+                         IsReadOnly="True"
+                         Margin="0,5,0,0" />
+
+                <Button Grid.Row="0" Grid.Column="1"
+                        Content="..."
+                        Command="{Binding SelectMeshFileCommand}"
+                        Margin="5,5,0,0" />
+
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                           Text="Тип загрузчика сетки:"
+                           Margin="0,5,0,0" />
+
+                <ComboBox Grid.Row="1" Grid.Column="1"
+                          ItemsSource="{Binding Source={x:Static problemVms:MeshLoaderTypeHelper.Values}}"
+                          SelectedItem="{Binding LoaderType}"
+                          Margin="5,5,0,0" />
+
+                <CheckBox Grid.Row="2" Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          Content="Отобразить номера неизвестных"
+                          IsChecked="{Binding MeshPlot.ShowDofs}"
+                          Margin="0,5,0,0" />
+
+                <CheckBox Grid.Row="3" Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          Content="Отобразить материалы сетки"
+                          IsChecked="{Binding MeshPlot.DrawMaterials}"
+                          Margin="0,5,0,0" />
+            </Grid>
+
+            <UniformGrid Rows="2" Columns="2"
+                         Margin="0,5,0,0">
+                <Button Content="Загрузить"
+                        Command="{Binding LoadMeshCommand}"
+                        Margin="0,0,0,2" />
+                <Button Content="Отрисовать сетку"
+                        Command="{Binding DrawMeshCommand}"
+                        Margin="5,0,0,2" />
+                <Button Content="Сохранить"
+                        Command="{Binding SaveMeshCommand}"
+                        Margin="0,2,0,0" />
+                <Button Content="Сохранить как..."
+                        Command="{Binding SelectMeshFileToSaveCommand}"
+                        Margin="5,2,0,0" />
+            </UniformGrid>
+        </StackPanel>
+    </Expander>
+</UserControl>

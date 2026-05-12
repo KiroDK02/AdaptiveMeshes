@@ -36,66 +36,10 @@
                       ItemsSource="{Binding Source={x:Static vm:ProblemTypeHelper.Values}}"
                       SelectedItem="{Binding SelectedProblemType}" />
 
-            <Expander Grid.Row="2"
-                      Header="Сетка"
-                      Margin="10,10,0,10"
-                      IsExpanded="False">
-                <StackPanel>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBox Grid.Row="0" Grid.Column="0"
-                                 Text="{Binding MeshFilePath}"
-                                 IsReadOnly="True"
-                                 Margin="0,5,0,0" />
-
-                        <Button Grid.Row="0" Grid.Column="1"
-                                Content="..."
-                                Command="{Binding SelectMeshFileCommand}"
-                                Margin="5,5,0,0" />
-
-                        <CheckBox Grid.Row="1" Grid.Column="0"
-                                  Grid.ColumnSpan="2"
-                                  Content="Отобразить номера неизвестных"
-                                  IsChecked="{Binding DataContext.MeshPlot.ShowDofs,
-                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  Margin="0,5,0,0" />
-
-                        <CheckBox Grid.Row="2" Grid.Column="0"
-                                  Grid.ColumnSpan="2"
-                                  Content="Отобразить материалы сетки"
-                                  IsChecked="{Binding DataContext.MeshPlot.DrawMaterials,
-                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  Margin="0,5,0,0" />
-                    </Grid>
-
-                    <UniformGrid Rows="2" Columns="2"
-                                 Margin="0,5,0,0">
-                        <Button Content="Загрузить"
-                                Command="{Binding LoadMeshCommand}"
-                                Margin="0,0,0,2" />
-                        <Button Content="Отрисовать сетку"
-                                Command="{Binding DrawMeshCommand}"
-                                Margin="5,0,0,2" />
-                        <Button Content="Сохранить"
-                                Command="{Binding SaveMeshCommand}"
-                                Margin="0,2,0,0" />
-                        <Button Content="Сохранить как..."
-                                Command="{Binding SelectMeshFileToSaveCommand}"
-                                Margin="5,2,0,0" />
-                    </UniformGrid>
-                </StackPanel>
-            </Expander>
-
+            <viewsProblem:MeshView Grid.Row="2" 
+                                   DataContext="{Binding MeshViewModel}"
+                                   Margin=" 10, 10, 0, 10"/>
+ 
             <viewsMaterials:MaterialsView Grid.Row="3"
                                           DataContext="{Binding Materials}"
                                           Margin="10,0,0,10" />
