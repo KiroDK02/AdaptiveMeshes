@@ -11,7 +11,6 @@ public class ProblemDto
     public string ProblemName { get; init; } = string.Empty;
     public ProblemType SelectedProblemType { get; init; }
     
-    public string MeshFilePath { get; init; } = string.Empty;
     public List<MaterialDto> Materials { get; init; } = [];
     
     public List<PointDto> Points { get; init; } = [];
