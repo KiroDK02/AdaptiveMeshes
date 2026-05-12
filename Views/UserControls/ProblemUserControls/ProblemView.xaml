@@ -36,7 +36,10 @@
                       ItemsSource="{Binding Source={x:Static vm:ProblemTypeHelper.Values}}"
                       SelectedItem="{Binding SelectedProblemType}" />
 
-            <Expander Grid.Row="2"
+            <viewsProblem:MeshView Grid.Row="2" 
+                                   DataContext="{Binding Mesh}"
+                                   Margin=" 10, 10, 0, 10"/>
+            <!--<Expander Grid.Row="2"
                       Header="Сетка"
                       Margin="10,10,0,10"
                       IsExpanded="False">
@@ -94,7 +97,7 @@
                                 Margin="5,2,0,0" />
                     </UniformGrid>
                 </StackPanel>
-            </Expander>
+            </Expander>-->
 
             <viewsMaterials:MaterialsView Grid.Row="3"
                                           DataContext="{Binding Materials}"

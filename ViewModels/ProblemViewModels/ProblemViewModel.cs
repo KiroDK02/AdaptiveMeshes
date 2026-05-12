@@ -26,11 +26,13 @@ public partial class ProblemViewModel : ObservableObject
     public MaterialsViewModel Materials { get; init; } = new();
     public SolutionPlotViewModel SolutionPlot { get; } = new();
     public SolutionPointsViewModel SolutionPoints { get; set; } = new();
+    public MeshViewModel Mesh { get; set; }
     public MeshPlotViewModel MeshPlot { get; }
     public AdaptationViewModel Adaptation { get; set; } = new();
     public ErrorCalculationViewModel ErrorCalculation { get; }
     public IFiniteElementMesh? ProblemMesh { get; set; }
     
+
     public bool ProblemSolved => CurrentProblem?.Solution is not null;
     
     [ObservableProperty] private string _problemName = "default";
@@ -70,6 +72,7 @@ public partial class ProblemViewModel : ObservableObject
         _windowService = windowService;
         _addNewProblem = addNewProblem;
 
+        Mesh = new(MeshPlot, Materials);
         ErrorCalculation = new(allProblems, compiler);
     }
 
@@ -127,7 +130,7 @@ public partial class ProblemViewModel : ObservableObject
     [RelayCommand]
     private void ResetSolution()
     {
-        CurrentProblem?.Solution = null;
+        CurrentProblem.Solution = null;
         OnPropertyChanged(nameof(ProblemSolved));
     }
 

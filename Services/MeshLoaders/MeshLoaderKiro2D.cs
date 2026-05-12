@@ -12,7 +12,7 @@ using Services.MeshLoaders.Interfaces;
 
 namespace Services.MeshLoaders;
 
-public class MeshLoaderTxt : IMeshLoader
+public class MeshLoaderKiro2D : IMeshLoader
 {
     public async Task<IFiniteElementMesh> LoadMeshAsync(string path)
     {
