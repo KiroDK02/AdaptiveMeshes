@@ -16,5 +16,6 @@ public class ProblemDto
     
     public List<PointDto> Points { get; init; } = [];
     
+    public required MeshDto MeshDto { get; init; }
     public required AdaptationDto AdaptationDto { get; init; }
 }

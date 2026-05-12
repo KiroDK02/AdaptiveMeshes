@@ -6,6 +6,7 @@ using Services.MeshLoaders;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using DataTransferObjects;
 using ViewModels.MaterialViewModels;
 using ViewModels.PlotViewModels;
 
@@ -16,6 +17,7 @@ public partial class MeshViewModel : ObservableObject
     [ObservableProperty] private string _meshFilePath = string.Empty;
     [ObservableProperty] private MeshLoaderType _loaderType;
 
+    public MeshPlotViewModel MeshPlot { get; }
     public IFiniteElementMesh? Mesh { get; set; }
     public bool MeshChanged { get; set; } = false;
 
@@ -23,19 +25,29 @@ public partial class MeshViewModel : ObservableObject
 
     private readonly MeshLoaderFactory _meshLoaderFactory = MeshLoaderFactory.Instance;
 
-    public readonly MeshPlotViewModel _meshPlot;
     private readonly MaterialsViewModel _materials;
 
     public MeshViewModel(MeshPlotViewModel meshPlot, MaterialsViewModel materials)
     {
-        _meshPlot = meshPlot;
+        MeshPlot = meshPlot;
         _materials = materials;
     }
 
+    public MeshDto ToMeshDto() => new()
+    {
+        MeshFilePath = this.MeshFilePath,
+        LoaderType = this.LoaderType
+    };
+    
     [RelayCommand]
     private async Task LoadMeshAsync()
     {
-        if (!File.Exists(MeshFilePath) || MeshFilePath == _pathLoadedMesh)
+        if (!File.Exists(MeshFilePath))
+            throw new InvalidOperationException("Mesh file path is required.");
+
+        if (Mesh is not null 
+            && MeshFilePath == _pathLoadedMesh 
+            && !MeshChanged)
             return;
 
         var meshLoader = _meshLoaderFactory.CreateMeshLoader(LoaderType);
@@ -45,13 +57,19 @@ public partial class MeshViewModel : ObservableObject
         MeshChanged = false;
     }
 
+    public void LoadFromDto(MeshDto meshDto)
+    {
+        MeshFilePath = meshDto.MeshFilePath;
+        LoaderType = meshDto.LoaderType;
+    }
+
     [RelayCommand]
     private async Task DrawMeshAsync()
     {
         if (Mesh is null)
             return;
 
-        await Task.Run(() => _meshPlot.DrawMesh(Mesh, _materials.Materials));
+        await MeshPlot.DrawMeshAsync(Mesh, _materials.Materials);
     }
 
     [RelayCommand]
@@ -71,17 +89,17 @@ public partial class MeshViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SaveMesh()
+    private async Task SaveMeshAsync()
     {
         if (Mesh is null || string.IsNullOrEmpty(MeshFilePath))
             return;
 
-        var meshLoader = _meshLoaderFactory.CreateMeshLoader(LoaderType);
-        meshLoader.SaveMeshToFileAsync(Mesh, MeshFilePath);
+        var meshLoader = _meshLoaderFactory.MeshLoaderKiro2D;
+        await meshLoader.SaveMeshToFileAsync(Mesh, MeshFilePath);
     }
 
     [RelayCommand]
-    private void SelectMeshFileToSave()
+    private async Task SelectMeshFileToSave()
     {
         if (Mesh is null)
             return;
@@ -96,11 +114,11 @@ public partial class MeshViewModel : ObservableObject
             return;
 
         var fileName = saveFileDialog.FileName;
-        var meshLoader = _meshLoaderFactory.CreateMeshLoader(LoaderType);
+        var meshLoader = _meshLoaderFactory.MeshLoaderKiro2D;
 
         MeshFilePath = fileName;
 
-        meshLoader.SaveMeshToFileAsync(Mesh, fileName);
+        await meshLoader.SaveMeshToFileAsync(Mesh, fileName);
     }
 }
 

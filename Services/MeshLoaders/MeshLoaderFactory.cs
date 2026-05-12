@@ -13,6 +13,8 @@ public class MeshLoaderFactory
     
     public static MeshLoaderFactory Instance => LazyInstance.Value;
     
+    public MeshLoaderKiro2D MeshLoaderKiro2D => _meshLoaderKiro2D;
+    
     private readonly MeshLoaderKiro2D _meshLoaderKiro2D = new();
     private readonly MeshLoaderTelma2D _meshLoaderTelma2D = new();
     
@@ -30,6 +32,7 @@ public class MeshLoaderFactory
     {
         MeshLoaderType.Kiro2D => _meshLoaderKiro2D,
         MeshLoaderType.Telma2D => _meshLoaderTelma2D,
+        
         _ => throw new ArgumentException("Unknown file format")
     };
 }
