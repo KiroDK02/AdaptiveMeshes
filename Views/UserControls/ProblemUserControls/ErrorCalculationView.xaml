@@ -68,12 +68,28 @@
                 </UniformGrid>
             </StackPanel>
             
-            <TextBlock Visibility="{Binding ErrorValue,
-                            Converter={StaticResource NanToVisibilityConverter}}"
-                       Margin="0,8,0,0">
-                <Run Text="Погрешность: "/>
-                <Run Text="{Binding ErrorValue, StringFormat={}{0:E4}}"/>
-            </TextBlock>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" 
+                           Text="Погрешность:"
+                           Visibility="{Binding ErrorValue,
+                                 Converter={StaticResource NanToVisibilityConverter}}"
+                           Margin="0,8,5,0">
+                    
+                </TextBlock>
+                
+                <TextBox Grid.Column="1"
+                         Text="{Binding ErrorValue, StringFormat={}{0:E4}}"
+                         Visibility="{Binding ErrorValue,
+                                 Converter={StaticResource NanToVisibilityConverter}}"
+                         IsReadOnly="True"
+                         Margin="0,8,0,0"/>
+            </Grid>
+
             
         </StackPanel>
     </Expander>

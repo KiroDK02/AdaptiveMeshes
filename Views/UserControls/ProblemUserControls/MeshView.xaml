@@ -5,13 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Views.UserControls.ProblemUserControls"
              xmlns:problemVms="clr-namespace:ViewModels.ProblemViewModels;assembly=ViewModels"
+             xmlns:converters="clr-namespace:Views.Converters"
              d:DataContext="{d:DesignInstance Type=problemVms:MeshViewModel}"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+    
     <Expander Header="Сетка"
               IsExpanded="True">
         <StackPanel>
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -42,13 +48,22 @@
                           SelectedItem="{Binding LoaderType}"
                           Margin="5,5,0,0" />
 
-                <CheckBox Grid.Row="2" Grid.Column="0"
+                <TextBlock Grid.Row="2" Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Visibility="{Binding NumberDofs,
+                                Converter={StaticResource NullToVisibilityConverter}}"
+                           Margin="0,5,0,0">
+                    <Run Text="Число неизвестных: "/>
+                    <Run Text="{Binding NumberDofs, Mode=OneWay}"/>
+                </TextBlock>
+                
+                <CheckBox Grid.Row="3" Grid.Column="0"
                           Grid.ColumnSpan="2"
                           Content="Отобразить номера неизвестных"
                           IsChecked="{Binding MeshPlot.ShowDofs}"
                           Margin="0,5,0,0" />
 
-                <CheckBox Grid.Row="3" Grid.Column="0"
+                <CheckBox Grid.Row="4" Grid.Column="0"
                           Grid.ColumnSpan="2"
                           Content="Отобразить материалы сетки"
                           IsChecked="{Binding MeshPlot.DrawMaterials}"
