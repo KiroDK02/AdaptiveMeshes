@@ -29,7 +29,7 @@ public class PAdapter2DMeshes : IAdapter
 
     public IFiniteElementMesh Adapt()
     {
-        var errors = CalculationErrorStrategy.ComputeError(Problem.Solution);
+        var errors = CalculationErrorStrategy.ComputeError(Problem.Solution!);
         var orders = IncreasingOrderStrategy.GetDistribution(errors);
 
         var elements1D = FindElements1D();

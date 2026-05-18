@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,11 +19,14 @@ public partial class MaterialsViewModel : ObservableObject
     public async Task<IDictionary<string, IMaterial>> BuildMaterialsAsync(IScriptCompiler compiler)
     {
         var materials = new Dictionary<string, IMaterial>();
-
-        foreach (var material in Materials)
-            materials[material.Name] = await material.BuildMaterialAsync(compiler);
         
-        return materials;
+        var materialTasks = Materials
+            .Select(mat => (Name: mat.Name, Task: mat.BuildMaterialAsync(compiler)))
+            .ToList();
+        
+        await Task.WhenAll(materialTasks.Select(materialTask => materialTask.Task));
+
+        return materialTasks.ToDictionary(mat => mat.Name, mat => mat.Task.Result);
     }
 
     public void LoadFromDto(IEnumerable<MaterialDto> materialDtos)

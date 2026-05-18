@@ -12,6 +12,7 @@ public class SolutionStationaryProblem : ISolution
     public IFiniteElementMesh Mesh { get; }
 
     private double[] _solutionVector;
+
     public ReadOnlySpan<double> SolutionVector
     {
         get => _solutionVector;
@@ -23,7 +24,7 @@ public class SolutionStationaryProblem : ISolution
         Mesh = mesh;
         _solutionVector = new double[mesh.NumberOfDOFs];
     }
-    
+
     public Vector2D Flow(Vector2D point, IDictionary<string, IMaterial> materials)
     {
         foreach (var element in Mesh.Elements)
@@ -81,16 +82,20 @@ public class SolutionStationaryProblem : ISolution
         var otherSolutionSum = 0.0;
         foreach (var point in points)
         {
-            if (!Mesh.TryFindElementWithPoint(point, out var element))
-                continue;
-            
-            var value = element!.GetValueAtPoint(Mesh.Vertex, SolutionVector, point);
-            var valueOtherSolution =  otherSolution(point);
+            try
+            {
+                if (!Mesh.TryFindElementWithPoint(point, out var element))
+                    continue;
 
-            absError += (valueOtherSolution - value) * (valueOtherSolution - value);
-            otherSolutionSum += valueOtherSolution * valueOtherSolution;
+                var value = element!.GetValueAtPoint(Mesh.Vertex, SolutionVector, point);
+                var valueOtherSolution = otherSolution(point);
+
+                absError += (valueOtherSolution - value) * (valueOtherSolution - value);
+                otherSolutionSum += valueOtherSolution * valueOtherSolution;
+            }
+            catch (ArgumentException) { }
         }
-        
+
         return Math.Sqrt(absError / otherSolutionSum);
     }
 
@@ -105,7 +110,7 @@ public class SolutionStationaryProblem : ISolution
         var minY = Mesh.Vertex.Min(point => point.Y);
         var maxX = Mesh.Vertex.Max(point => point.X);
         var maxY = Mesh.Vertex.Max(point => point.Y);
-        
+
         return (new Vector2D(minX, minY), new Vector2D(maxX, maxY));
     }
 
@@ -118,7 +123,7 @@ public class SolutionStationaryProblem : ISolution
             for (int j = 0; j < x.Length; j++)
                 points[i * x.Length + j] = new(x[j], y[i]);
         }
-        
+
         return points;
     }
 
@@ -131,7 +136,7 @@ public class SolutionStationaryProblem : ISolution
         for (int i = 1; i < countSegments; i++)
             points[i] = start + step * i;
         points[countSegments] = end;
-        
+
         return points;
     }
 }

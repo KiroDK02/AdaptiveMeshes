@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTransferObjects", "DataTransferObjects\DataTransferObjects.csproj", "{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewModels.BenchmarkTests", "ViewModels.BenchmarkTests\ViewModels.BenchmarkTests.csproj", "{647DB164-F578-4B03-B505-3541373D431D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC9C91B7-C55A-44D9-ADC9-22D7E7D2322D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{647DB164-F578-4B03-B505-3541373D431D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{647DB164-F578-4B03-B505-3541373D431D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{647DB164-F578-4B03-B505-3541373D431D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{647DB164-F578-4B03-B505-3541373D431D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

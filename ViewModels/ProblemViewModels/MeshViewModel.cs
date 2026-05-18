@@ -15,8 +15,10 @@ namespace ViewModels.ProblemViewModels;
 public partial class MeshViewModel : ObservableObject
 {
     [ObservableProperty] private string _meshFilePath = string.Empty;
-    [ObservableProperty] private MeshLoaderType _loaderType;
-
+    [ObservableProperty] private MeshLoaderType _loaderType = MeshLoaderType.Kiro2D;
+    
+    public int? NumberDofs => Mesh?.NumberOfDOFs;
+    
     public MeshPlotViewModel MeshPlot { get; }
     public IFiniteElementMesh? Mesh { get; set; }
     public bool MeshChanged { get; set; } = false;
@@ -38,6 +40,8 @@ public partial class MeshViewModel : ObservableObject
         MeshFilePath = this.MeshFilePath,
         LoaderType = this.LoaderType
     };
+    
+    public void NotifyNumberDofsChanged() => OnPropertyChanged(nameof(NumberDofs));
     
     [RelayCommand]
     private async Task LoadMeshAsync()

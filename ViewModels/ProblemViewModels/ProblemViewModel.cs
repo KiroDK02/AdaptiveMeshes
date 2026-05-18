@@ -90,6 +90,8 @@ public partial class ProblemViewModel : ObservableObject
             MeshViewModel.Mesh);
 
         CurrentProblem.Prepare();
+        
+        MeshViewModel.NotifyNumberDofsChanged();
     }
 
     [RelayCommand]

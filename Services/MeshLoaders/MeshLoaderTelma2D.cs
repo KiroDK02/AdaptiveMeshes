@@ -93,7 +93,7 @@ public class MeshLoaderTelma2D : IMeshLoader
             "Triangle" => 
                 new TriangleFiniteElementHierarchical(
                 _elementMaterialsNames[int.Parse(element[3])],
-                [int.Parse(element[5]), int.Parse(element[6]), int.Parse(element[7])],
+                [int.Parse(element[5]), int.Parse(element[6]), int.Parse(element[7])], 
                 int.Parse(element[1])),
             
             "Segment" => new SegmentFiniteElementHierarchical(
