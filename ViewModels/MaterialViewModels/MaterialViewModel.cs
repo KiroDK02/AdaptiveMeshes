@@ -36,9 +36,15 @@ public partial class MaterialViewModel : ObservableObject
 
         if (IsVolume)
         {
-            lambda = await compiler.CompileStationaryFunction(LambdaBody);
-            sigma = await compiler.CompileStationaryFunction(SigmaBody);
-            f = await compiler.CompileNonStationaryFunction(FBody);
+            var lambdaTask = compiler.CompileStationaryFunction(LambdaBody);
+            var sigmaTask = compiler.CompileStationaryFunction(SigmaBody);
+            var fTask = compiler.CompileNonStationaryFunction(FBody);
+            
+            await Task.WhenAll(lambdaTask, sigmaTask, fTask);
+            
+            lambda = await lambdaTask;
+            sigma = await sigmaTask;
+            f = await fTask;
         }
         else if (Is1)
             ug = await compiler.CompileNonStationaryFunction(UgBody);

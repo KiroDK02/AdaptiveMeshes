@@ -43,7 +43,7 @@ public partial class ErrorCalculationViewModel : ObservableObject
             return;
 
         ErrorValue = await Task.Run(() =>
-            _currentSolution.CalcErrorFrom(SelectedOtherProblem!.CurrentProblem!.Solution.Value));
+            _currentSolution.CalcErrorFrom(SelectedOtherProblem!.CurrentProblem!.Solution!.Value));
     }
 
     [RelayCommand]

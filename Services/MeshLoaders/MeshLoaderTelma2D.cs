@@ -93,15 +93,13 @@ public class MeshLoaderTelma2D : IMeshLoader
             "Triangle" => 
                 new TriangleFiniteElementHierarchical(
                 _elementMaterialsNames[int.Parse(element[3])],
-                [int.Parse(element[5]), int.Parse(element[6]), int.Parse(element[7])],
-                2),
-                //int.Parse(element[1])),
+                [int.Parse(element[5]), int.Parse(element[6]), int.Parse(element[7])], 
+                int.Parse(element[1])),
             
             "Segment" => new SegmentFiniteElementHierarchical(
                 _boundMaterialNames[int.Parse(element[3])],
                 [int.Parse(element[5]), int.Parse(element[6])],
-                2),
-                //int.Parse(element[1])),
+                int.Parse(element[1])),
             
             _ => throw new ArgumentException("Unknown element type.")
         };

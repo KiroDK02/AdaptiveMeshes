@@ -15,7 +15,7 @@ namespace ViewModels.ProblemViewModels;
 public partial class MeshViewModel : ObservableObject
 {
     [ObservableProperty] private string _meshFilePath = string.Empty;
-    [ObservableProperty] private MeshLoaderType _loaderType;
+    [ObservableProperty] private MeshLoaderType _loaderType = MeshLoaderType.Kiro2D;
     
     public int? NumberDofs => Mesh?.NumberOfDOFs;
     
